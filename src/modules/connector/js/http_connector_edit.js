@@ -695,7 +695,7 @@ export default {
       let x2js = new X2JS({
         useDoubleQuotes: true
       });
-      let json = x2js.xml_str2json(xml);
+      let json = x2js.xml2js(xml);
       //设置header模板
       if (json.Envelope.Header) {
         let prefix = json.Envelope.Header.__prefix
@@ -724,7 +724,7 @@ export default {
       if (match && match.length > 0) {
         xmlTemp += match[0];
       }
-      xmlTemp += x2js.json2xml_str(json);
+      xmlTemp += x2js.js2xml(json);
       return xmlTemp;
     },
     //新增、更新动作

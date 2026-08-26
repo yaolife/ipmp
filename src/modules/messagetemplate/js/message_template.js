@@ -3,7 +3,7 @@ import api from "../api";
 import * as funcUtil from "@/utils/funcUtil";
 import queryForm from "@/components/common/queryForm";
 import { calcHeight } from "@/utils/funcUtil";
-import screenfull from 'screenfull/dist/screenfull.js';
+import screenfull from 'screenfull';
 import TableWithToolbar from '@/components/common/TableWithToolbar.vue';
 
 export default {

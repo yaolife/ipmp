@@ -112,7 +112,7 @@
 
 
 <script>
-import screenfull from "screenfull/dist/screenfull.js";
+import screenfull from "screenfull";
 import { getQueryFields, saveQueryFields, getFieldsList } from "../../api/api";
 export default {
   props: {
