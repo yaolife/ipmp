@@ -7,6 +7,7 @@
           :queryFields="queryFields"
           :loading="loading"
           :showMoreSetting="false"
+          labelWidth="180px"
           @resize="initMaxHeight"
           @submit="search"
           ref="queryForm"
@@ -190,5 +191,8 @@ export default delegation;
 }
 .table-button {
   text-align: right;
+}
+/deep/ .el-form-item__label {
+  white-space: nowrap;
 }
 </style>

@@ -62,7 +62,7 @@ export const lang = {
     pipe_database: "管道数据库",
     hanger_database: "支吊架数据库",
     pipe_component_database: "管道元件数据库",
-    resource_keyword: "资源标识/名称/描述",
+    resource_keyword: "搜索记录编号/负责人",
     type_query: "类型",
     pipe_code: "编号",
     pipe_name: "管道名称",

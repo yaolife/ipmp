@@ -53,7 +53,7 @@ export const lang = {
   pipe_database: 'Pipe Database',
   hanger_database: 'Support and Hanger Database',
   pipe_component_database: 'Piping Component Database',
-  resource_keyword: 'Resource ID/Name/Description',
+  resource_keyword: 'Record No./Owner',
   type_query: 'Type',
   pipe_code: 'Code',
   pipe_name: 'Pipe Name',
