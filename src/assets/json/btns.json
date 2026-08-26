@@ -1,0 +1,278 @@
+{
+  "start_process": {
+    "code": "start_process",
+    "notes": "发起流程",
+    "enable": true
+  },
+  "my_favorite": {
+    "code": "my_favorite",
+    "notes": "我的收藏",
+    "enable": true
+  },
+  "commonly_used": {
+    "code": "commonly_used",
+    "notes": "最近常用",
+    "enable": true
+  },
+
+  "taskHistList": {
+    "code": "taskHistList",
+    "notes": "已办TAB",
+    "enable": true
+  },
+  "taskCcList": {
+    "code": "taskCcList",
+    "notes": "待办TAB",
+    "enable": true
+  },
+  "taskCcHistList": {
+    "code": "taskCcHistList",
+    "notes": "已阅TAB",
+    "enable": true
+  },
+
+  "entity_manage_add": {
+    "code": "entity_manage_btnAdd",
+    "notes": "实体新增",
+    "enable": false
+  },
+  "entity_manage_edit": {
+    "code": "entity_manage_btnEdit",
+    "notes": "实体编辑",
+    "enable": false
+  },
+  "entity_manage_delete": {
+    "code": "entity_manage_btnDelete",
+    "notes": "实体删除",
+    "enable": false
+  },
+
+  "model_manage_add": {
+    "code": "model_manage_btnAdd",
+    "notes": "模型新增",
+    "enable": false
+  },
+  "model_manage_edit": {
+    "code": "model_manage_btnEdit",
+    "notes": "模型编辑",
+    "enable": false
+  },
+  "model_manage_delete": {
+    "code": "model_manage_btnDelete",
+    "notes": "模型删除",
+    "enable": false
+  },
+
+  "form_manage_add": {
+    "code": "form_manage_btnAdd",
+    "notes": "表单新增",
+    "enable": false
+  },
+  "form_manage_edit": {
+    "code": "form_manage_btnEdit",
+    "notes": "表单编辑",
+    "enable": false
+  },
+  "form_manage_delete": {
+    "code": "form_manage_btnDelete",
+    "notes": "表单删除",
+    "enable": false
+  },
+
+  "workflow_temp_manage_add": {
+    "code": "workflow_temp_manage_btnAdd",
+    "notes": "流程模板新增",
+    "enable": false
+  },
+  "workflow_temp_manage_edit": {
+    "code": "workflow_temp_manage_btnEdit",
+    "notes": "流程模板编辑",
+    "enable": false
+  },
+  "workflow_temp_manage_delete": {
+    "code": "workflow_temp_manage_btnDelete",
+    "notes": "流程模板删除",
+    "enable": false
+  },
+  "workflow_temp_manage_config": {
+    "code": "workflow_temp_manage_btnConfig",
+    "notes": "流程模板配置",
+    "enable": false
+  },
+
+  "group_manage_add": {
+    "code": "group_manage_btnAdd",
+    "notes": "流程组新增",
+    "enable": false
+  },
+  "group_manage_edit": {
+    "code": "group_manage_btnEdit",
+    "notes": "流程组编辑",
+    "enable": false
+  },
+  "group_manage_delete": {
+    "code": "group_manage_btnDelete",
+    "notes": "流程组删除",
+    "enable": false
+  },
+
+  "workflow_rule_add": {
+    "code": "workflow_rule_btnAdd",
+    "notes": "流程规则新增",
+    "enable": false
+  },
+  "workflow_rule_edit": {
+    "code": "workflow_rule_btnEdit",
+    "notes": "流程规则编辑",
+    "enable": false
+  },
+  "workflow_rule_delete": {
+    "code": "workflow_rule_btnDelete",
+    "notes": "流程规则删除",
+    "enable": false
+  },
+
+  "relate_data_add": {
+    "code": "relate_data_btnAdd",
+    "notes": "流程参数新增",
+    "enable": false
+  },
+  "relate_data_edit": {
+    "code": "relate_data_btnEdit",
+    "notes": "流程参数编辑",
+    "enable": false
+  },
+  "relate_data_delete": {
+    "code": "relate_data_btnDelete",
+    "notes": "流程参数删除",
+    "enable": false
+  },
+
+  "print_temp_manage_add": {
+    "code": "print_temp_manage_btnAdd",
+    "notes": "打印模板新增",
+    "enable": false
+  },
+  "print_temp_manage_edit": {
+    "code": "print_temp_manage_btnEdit",
+    "notes": "打印模板编辑",
+    "enable": false
+  },
+  "print_temp_manage_delete": {
+    "code": "print_temp_manage_btnDelete",
+    "notes": "打印模板删除",
+    "enable": false
+  },
+
+  "dict_manage_add": {
+    "code": "dict_manage_btnAdd",
+    "notes": "字典新增",
+    "enable": false
+  },
+  "dict_manage_edit": {
+    "code": "dict_manage_btnEdit",
+    "notes": "字典编辑",
+    "enable": false
+  },
+  "dict_manage_delete": {
+    "code": "dict_manage_btnDelete",
+    "notes": "字典删除",
+    "enable": false
+  },
+
+  "http_connector_add": {
+    "code": "http_connector_btnAdd",
+    "notes": "连接器新增",
+    "enable": false
+  },
+  "http_connector_edit": {
+    "code": "http_connector_btnEdit",
+    "notes": "连接器编辑",
+    "enable": false
+  },
+  "http_connector_delete": {
+    "code": "http_connector_btnDelete",
+    "notes": "连接器删除",
+    "enable": false
+  },
+
+  "email_template_add": {
+    "code": "EmailTemplate_btnAdd",
+    "notes": "邮件模板新增",
+    "enable": false
+  },
+  "email_template_edit": {
+    "code": "EmailTemplate_btnEdit",
+    "notes": "邮件模板编辑",
+    "enable": false
+  },
+  "email_template_delete": {
+    "code": "EmailTemplate_btnDelete",
+    "notes": "邮件模板删除",
+    "enable": false
+  },
+
+  "message_template_add": {
+    "code": "MessageTemplate_btnAdd",
+    "notes": "消息模板新增",
+    "enable": false
+  },
+  "message_template_edit": {
+    "code": "MessageTemplate_btnEdit",
+    "notes": "消息模板编辑",
+    "enable": false
+  },
+  "message_template_delete": {
+    "code": "MessageTemplate_btnDelete",
+    "notes": "消息模板删除",
+    "enable": false
+  },
+
+  "global_param_add": {
+    "code": "global_param_btnAdd",
+    "notes": "全局参数新增",
+    "enable": false
+  },
+  "global_param_edit": {
+    "code": "global_param_btnEdit",
+    "notes": "全局参数编辑",
+    "enable": false
+  },
+  "global_param_delete": {
+    "code": "global_param_btnDelete",
+    "notes": "全局参数删除",
+    "enable": false
+  },
+
+  "func_manage_add": {
+    "code": "func_manage_btnAdd",
+    "notes": "函数管理新增",
+    "enable": false
+  },
+  "func_manage_edit": {
+    "code": "func_manage_btnEdit",
+    "notes": "函数管理编辑",
+    "enable": false
+  },
+  "func_manage_delete": {
+    "code": "func_manage_btnDelete",
+    "notes": "函数管理删除",
+    "enable": false
+  },
+
+  "interface_manage_add": {
+    "code": "interface_manage_btnAdd",
+    "notes": "接口管理新增",
+    "enable": false
+  },
+  "interface_manage_edit": {
+    "code": "interface_manage_btnEdit",
+    "notes": "接口管理编辑",
+    "enable": false
+  },
+  "interface_manage_delete": {
+    "code": "interface_manage_btnDelete",
+    "notes": "接口管理删除",
+    "enable": false
+  }
+}

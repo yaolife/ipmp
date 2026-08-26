@@ -1,0 +1,569 @@
+/* 主题公共样式 */
+/* 注意：只用来放公共样式，主题特有样式请放到各主题样式文件 */
+
+/* 背景颜色 */
+.bg-color-1 #app,
+.bg-color-1 #app .el-main {
+  background-color: #F2F7FB;
+}
+
+.bg-color-2 #app,
+.bg-color-2 #app .el-main {
+  background-color: #F0F0F6;
+}
+
+.bg-color-3 #app,
+.bg-color-3 #app .el-main {
+  background-color: #E5EDFF;
+}
+
+.bg-color-4 #app,
+.bg-color-4 #app .el-main {
+  background-color: #FFF2FA;
+}
+
+.bg-color-5 #app,
+.bg-color-5 #app .el-main {
+  background-color: #EFFFFA;
+}
+
+.bg-color-6 #app,
+.bg-color-6 #app .el-main {
+  background-color: #FFFFFF;
+}
+
+.bg-color-6 .multiple-tabs .el-tabs__header {
+  background-color: #FFFFFF;
+}
+
+/* 排除背景嵌套 */
+.bg-color-1 #app .el-main .el-main,
+.bg-color-2 #app .el-main .el-main,
+.bg-color-3 #app .el-main .el-main,
+.bg-color-4 #app .el-main .el-main,
+.bg-color-5 #app .el-main .el-main,
+.bg-color-6 #app .el-main .el-main {
+  background-color: inherit;
+}
+
+/* 白色背景特殊处理 */
+.bg-color-6 .el-tabs__content,
+.bg-color-6 .el-card {
+  box-shadow: 0px 0px 3px #EEE;
+}
+
+.bg-color-6 .form-preview .el-tabs__content {
+  box-shadow: none;
+}
+
+/* 页面宽度 */
+.page-responsive #app {
+  width: 100%;
+}
+
+.page-fixed #app {
+  width: 1280px;
+  margin: 0 auto;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+}
+
+.page-fixed .nav {
+  width: 1280px !important;
+}
+
+.page-fixed .multiple-tabs>.el-tabs {
+  width: 1080px !important;
+}
+
+.page-fixed .form-preview-full {
+  position: absolute;
+}
+
+/* 字体大小 */
+.font-size-small .cud-title-text {
+  font-size: 16px !important;
+}
+
+.font-size-large .cud-title-text {
+  font-size: 20px !important;
+}
+
+.font-size-small .el-submenu__title span,
+.font-size-small .el-menu-item,
+.font-size-small .el-input,
+.font-size-small .el-dropdown,
+.font-size-small .el-dropdown-menu li,
+.font-size-small .el-autocomplete-suggestion li,
+.font-size-small .el-button,
+.font-size-small .el-button span,
+.font-size-small .el-tabs__item,
+.font-size-small .el-form-item__label,
+.font-size-small td,
+.font-size-small th .cell,
+.font-size-small .el-breadcrumb__item,
+.font-size-small .el-pagination input,
+.font-size-small .el-pagination button,
+.font-size-small .el-pagination span,
+.font-size-small .el-pagination li,
+.font-size-small .el-tree-node span,
+.font-size-small .el-dialog__title,
+.font-size-small .cud-process-empty-text {
+  font-size: 12px !important;
+}
+
+.font-size-large .el-submenu__title span,
+.font-size-large .el-menu-item,
+.font-size-large .el-input,
+.font-size-large .el-dropdown,
+.font-size-large .el-dropdown-menu li,
+.font-size-large .el-autocomplete-suggestion li,
+.font-size-large .el-button,
+.font-size-large .el-button span,
+.font-size-large .el-tabs__item,
+.font-size-large .el-form-item__label,
+.font-size-large td,
+.font-size-large th .cell,
+.font-size-large .el-breadcrumb__item,
+.font-size-large .el-pagination input,
+.font-size-large .el-pagination button,
+.font-size-large .el-pagination span,
+.font-size-large .el-pagination li,
+.font-size-large .el-tree-node span,
+.font-size-large .el-dialog__title,
+.font-size-large .cud-process-empty-text {
+  font-size: 16px !important;
+}
+
+.font-size-large .cud-start-oprate .cud-table-process-describe {
+  font-size: 16px !important;
+}
+
+.font-size-large .cud-start-oprate button {
+  font-size: 24px !important;
+}
+
+/* 卡片/TABS间距 */
+.card-spacing-4 .el-card,
+.card-spacing-4 .el-tabs,
+/* .card-spacing-4 .avue-group .el-collapse-item, */
+.card-spacing-4 .cud-common-header-wrap,
+.card-spacing-4 .cud-avue-form-wrap {
+  margin: 4px !important;
+}
+
+.card-spacing-4 .breadcrumbBox {
+  margin-left: 4px !important;
+}
+
+.card-spacing-8 .el-card,
+.card-spacing-8 .el-tabs,
+/* .card-spacing-8 .avue-group .el-collapse-item, */
+.card-spacing-8 .cud-common-header-wrap,
+.card-spacing-8 .cud-avue-form-wrap {
+  margin: 8px !important;
+}
+
+.card-spacing-8 .breadcrumbBox {
+  margin-left: 8px !important;
+}
+
+.card-spacing-12 .el-card,
+.card-spacing-12 .el-tabs,
+/* .card-spacing-12 .avue-group .el-collapse-item, */
+.card-spacing-12 .cud-common-header-wrap,
+.card-spacing-12 .cud-avue-form-wrap {
+  margin: 12px !important;
+}
+
+.card-spacing-12 .breadcrumbBox {
+  margin-left: 12px !important;
+}
+
+.card-spacing-16 .el-card,
+.card-spacing-16 .el-tabs,
+/* .card-spacing-16 .avue-group .el-collapse-item, */
+.card-spacing-16 .form-preview-full .cgn-task-tabs,
+.card-spacing-16 .cud-common-header-wrap,
+.card-spacing-16 .cud-avue-form-wrap {
+  margin: 16px !important;
+}
+
+.card-spacing-16 .breadcrumbBox {
+  margin-left: 16px !important;
+}
+
+.card-spacing-20 .el-card,
+.card-spacing-20 .el-tabs,
+/* .card-spacing-20 .avue-group .el-collapse-item, */
+.card-spacing-20 .cud-common-header-wrap,
+.card-spacing-20 .cud-avue-form-wrap {
+  margin: 20px !important;
+}
+
+.card-spacing-20 .breadcrumbBox {
+  margin-left: 20px !important;
+}
+
+.card-spacing-24 .el-card,
+.card-spacing-24 .el-tabs,
+/* .card-spacing-24 .avue-group .el-collapse-item, */
+.card-spacing-24 .cud-common-header-wrap,
+.card-spacing-24 .cud-avue-form-wrap {
+  margin: 24px !important;
+}
+
+.card-spacing-24 .breadcrumbBox {
+  margin-left: 24px !important;
+}
+
+/* 排除嵌套 */
+.card-spacing-4 .el-tabs .el-card,
+.card-spacing-8 .el-tabs .el-card,
+.card-spacing-12 .el-tabs .el-card,
+.card-spacing-16 .el-tabs .el-card,
+.card-spacing-20 .el-tabs .el-card,
+.card-spacing-24 .el-tabs .el-card {
+  margin: auto !important;
+}
+
+/* 排除表单设计的 TABS */
+.form-add-tabs.el-tabs {
+  margin: 0 !important;
+}
+
+.form-preview .el-tabs {
+  margin: 10px 10px 0px 10px;
+}
+
+.card-spacing-4 .el-main .cud__scroll--div,
+.card-spacing-8 .el-main .cud__scroll--div,
+.card-spacing-12 .el-main .cud__scroll--div,
+.card-spacing-16 .el-main .cud__scroll--div,
+.card-spacing-20 .el-main .cud__scroll--div,
+.card-spacing-24 .el-main .cud__scroll--div {
+  margin: 0px !important;
+  padding: 0px !important;
+}
+
+/* 排除双间距 */
+.cud-commom-tree-left .el-card {
+  margin-right: 0 !important;
+}
+
+/* 排除表单嵌套 多个margin */
+.avue-group .el-collapse-item .el-collapse-item {
+  margin: auto !important;
+}
+
+/* 卡片圆角 */
+.cud-card-radius0 .el-card,
+.cud-card-radius0 .avue-group .el-collapse-item,
+.cud-card-radius0 .cud-common-header-wrap {
+  border-radius: 0px;
+}
+
+.cud-card-radius4 .el-card,
+.cud-card-radius4 .avue-group .el-collapse-item,
+.cud-card-radius4 .cud-common-header-wrap {
+  border-radius: 4px;
+}
+
+.cud-card-radius8 .el-card,
+.cud-card-radius8 .avue-group .el-collapse-item,
+.cud-card-radius8 .cud-common-header-wrap {
+  border-radius: 8px;
+}
+
+.cud-card-radius12 .el-card,
+.cud-card-radius12 .avue-group .el-collapse-item,
+.cud-card-radius12 .cud-common-header-wrap {
+  border-radius: 12px;
+}
+
+.cud-card-radius16 .el-card,
+.cud-card-radius16 .avue-group .el-collapse-item,
+.cud-card-radius16 .cud-common-header-wrap {
+  border-radius: 16px;
+}
+
+.cud-card-radius20 .el-card,
+.cud-card-radius20 .avue-group .el-collapse-item,
+.cud-card-radius20 .cud-common-header-wrap {
+  border-radius: 20px;
+}
+
+/* TABS圆角 */
+.cud-card-radius0 .cud-cgn-task-center .cgn-task-tabs .el-tabs__content,
+.cud-process-wrap .cgn-task-tabs .el-tabs__content,
+.cud__table--list .cgn-task-tabs .el-tabs__content {
+  padding: 15px 15px 0;
+  margin: 0px;
+  border-radius: 0;
+}
+
+.cud-card-radius4 .cud-cgn-task-center .cgn-task-tabs .el-tabs__content,
+.cud-process-wrap .cgn-task-tabs .el-tabs__content,
+.cud__table--list .cgn-task-tabs .el-tabs__content {
+  padding: 15px 15px 0;
+  margin: 0px;
+  border-radius: 0 4px 4px 4px;
+}
+
+.cud-card-radius8 .cud-cgn-task-center .cgn-task-tabs .el-tabs__content,
+.cud-process-wrap .cgn-task-tabs .el-tabs__content,
+.cud__table--list .cgn-task-tabs .el-tabs__content {
+  padding: 15px 15px 0;
+  margin: 0px;
+  border-radius: 0 8px 8px 8px;
+}
+
+.cud-card-radius12 .cud-cgn-task-center .cgn-task-tabs .el-tabs__content,
+.cud-process-wrap .cgn-task-tabs .el-tabs__content,
+.cud__table--list .cgn-task-tabs .el-tabs__content {
+  padding: 15px 15px 0;
+  margin: 0px;
+  border-radius: 0 12px 12px 12px;
+}
+
+.cud-card-radius16 .cud-cgn-task-center .cgn-task-tabs .el-tabs__content,
+.cud-process-wrap .cgn-task-tabs .el-tabs__content,
+.cud__table--list .cgn-task-tabs .el-tabs__content {
+  padding: 15px 15px 0;
+  margin: 0px;
+  border-radius: 0 16px 16px 16px;
+}
+
+.cud-card-radius20 .cud-cgn-task-center .cgn-task-tabs .el-tabs__content,
+.cud-process-wrap .cgn-task-tabs .el-tabs__content,
+.cud__table--list .cgn-task-tabs .el-tabs__content {
+  padding: 15px 15px 0;
+  margin: 0px;
+  border-radius: 0 20px 20px 20px;
+}
+
+/* 按钮高度 */
+.cud-btn-height24 .el-button--default,
+.cud-btn-height24 .el-button--primary {
+  height: 24px;
+  padding-top: 5px;
+}
+
+.cud-btn-height28 .el-button--default,
+.cud-btn-height28 .el-button--primary {
+  height: 28px;
+  padding-top: 8px;
+}
+
+.cud-btn-height32 .el-button--default,
+.cud-btn-height32 .el-button--primary {
+  height: 32px;
+}
+
+.cud-btn-height36 .el-button--default,
+.cud-btn-height36 .el-button--primary {
+  height: 36px;
+  padding-top: 12px;
+}
+
+.cud-btn-height40 .el-button--default,
+.cud-btn-height40 .el-button--primary {
+  height: 40px;
+  padding-top: 14px;
+}
+
+.cud-btn-height44 .el-button--default,
+.cud-btn-height44 .el-button--primary {
+  height: 44px;
+  padding-top: 15px;
+}
+
+/* 按钮圆角 */
+.cud-btn-radius0 .el-button {
+  border-radius: 0px;
+}
+
+.cud-btnradius4 .el-button {
+  border-radius: 4px;
+}
+
+.cud-btn-radius8 .el-button {
+  border-radius: 8px;
+}
+
+.cud-btn-radius12 .el-button {
+  border-radius: 12px;
+}
+
+.cud-btn-radius16 .el-button {
+  border-radius: 16px;
+}
+
+.cud-btn-radius20 .el-button {
+  border-radius: 20px;
+}
+
+/* 表格的border线样式 */
+.cud-table-border .el-table--border td,
+.cud-table-border .el-table--border th {
+  border-right: 1px solid #DBDFE2;
+}
+
+.cud-table-border .el-table--border th {
+  border-right: 1px solid #DBDFE2;
+  border-top: 1px solid #DBDFE2;
+}
+
+.cud-table-border .el-table--border th:first-child {
+  border-left: 1px solid #DBDFE2;
+}
+
+.cud-table-border .el-table--border tr td:first-child {
+  border-left: 1px solid #DBDFE2;
+}
+
+.vxe-table--render-default.border--full .vxe-body--column,
+.vxe-table--render-default.border--full .vxe-footer--column,
+.vxe-table--render-default.border--full .vxe-header--column {
+
+  background-image: none;
+}
+
+.cud-table-border .vxe-table--render-default.border--full .vxe-body--column,
+.vxe-table--render-default.border--full .vxe-footer--column,
+.cud-table-border .vxe-table--render-default.border--full .vxe-header--column {
+
+  background-image: linear-gradient(#e8eaec, #e8eaec), linear-gradient(#e8eaec, #e8eaec);
+}
+
+/* 全屏时的样式 */
+.table-container {
+  transition: all 0.3s ease;
+}
+
+.table-container:fullscreen {
+  background: white;
+  padding: 20px;
+}
+
+.table-container:-webkit-full-screen {
+  background: white;
+  padding: 20px;
+}
+
+.table-container:-moz-full-screen {
+  background: white;
+  padding: 20px;
+}
+
+.table-container:-ms-fullscreen {
+  background: white;
+  padding: 20px;
+}
+
+/* 更多下拉菜单 */
+.fullscreen-active .el-dropdown-menu,
+.fullscreen-active .el-popper,
+.fullscreen-active .vxe-table--tooltip-wrapper,
+.fullscreen-active .vxe-select--panel {
+  z-index: 10000 !important;
+}
+
+/* 如果使用append-to-body的组件，需要全局提高层级 */
+:fullscreen .el-dropdown-menu,
+:fullscreen .el-popper,
+:-webkit-full-screen .el-dropdown-menu,
+:-webkit-full-screen .el-popper,
+:-moz-full-screen .el-dropdown-menu,
+:-moz-full-screen .el-popper {
+  z-index: 2147483647 !important;
+}
+/* vxeTable的表头表格行高 */
+.cud-table-height32 .vxe-body--column {
+  height: 32px;
+}
+
+.cud-table-height32 .vxe-header--row {
+  height: 32px;
+}
+
+
+.cud-table-height42 .vxe-body--column {
+  height: 42px;
+}
+
+.cud-table-height42 .vxe-header--row {
+  height: 42px;
+}
+
+
+.cud-table-height52 .vxe-body--column {
+  height: 52px;
+}
+
+.cud-table-height52 .vxe-header--row {
+  height: 52px;
+}
+
+/* 去除vxeTable多余的边距 */
+.vxe-table--render-default .vxe-body--column:not(.col--ellipsis),
+.vxe-table--render-default .vxe-footer--column:not(.col--ellipsis),
+.vxe-table--render-default .vxe-header--column:not(.col--ellipsis) {
+  padding: 0;
+}
+
+
+/* 表格内的行高控制,紧凑32px */
+.cud-table-height32 .el-table__header th,
+.cud-table-height32 .el-table__body td {
+  padding: 0;
+  height: 32px;
+}
+
+.cud-table-height32 .el-table--enable-row-transition .el-table__body td {
+  height: 32px;
+}
+
+/* 表格内的行高控制,标准42px */
+.cud-table-height42 .el-table__header th,
+.cud-table-height42 .el-table__body td {
+  padding: 0;
+  height: 42px;
+}
+
+.cud-table-height42 .el-table--enable-row-transition .el-table__body td {
+  height: 42px;
+}
+
+/* 表格内的行高控制,宽松52px */
+.cud-table-height52 .el-table__header th,
+.cud-table-height52 .el-table__body td {
+  padding: 0;
+  height: 52px;
+}
+
+.cud-table-height52 .el-table--enable-row-transition .el-table__body td {
+  height: 52px;
+}
+/* 界面缩放dropdown向下问题 */
+.cud-pager-dropdown[x-placement^="bottom"] {
+  transform: translateY(-140%);
+
+  .popper__arrow {
+    transform: rotate(180deg);
+    position: absolute;
+    top: auto;
+    bottom: -5px;
+  }
+}
+
+.cud-lang-dropdown[x-placement^="bottom"] {
+  transform: translateY(-160%);
+
+  .popper__arrow {
+    transform: rotate(180deg);
+    position: absolute;
+    top: auto;
+    bottom: -5px;
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "id": "2653339",
+  "name": "项目1",
+  "font_family": "psc-module-icons",
+  "css_prefix_text": "psc-icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "22750510",
+      "name": "取消认领",
+      "font_class": "user-unclaim",
+      "unicode": "53d6",
+      "unicode_decimal": 21462
+    },
+    {
+      "icon_id": "22701188",
+      "name": "copy-document",
+      "font_class": "copy-document",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    },
+    {
+      "icon_id": "22701189",
+      "name": "full-screen",
+      "font_class": "full-screen",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "22683717",
+      "name": "编辑",
+      "font_class": "edit",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "22683718",
+      "name": "查看",
+      "font_class": "search",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "22683721",
+      "name": "表格-撤回",
+      "font_class": "withdraw",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "22683722",
+      "name": "催办",
+      "font_class": "urging",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "22683723",
+      "name": "待处理",
+      "font_class": "user-handle",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "22683724",
+      "name": "抄送",
+      "font_class": "user-cc",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "22683725",
+      "name": "更多",
+      "font_class": "menu",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "22683727",
+      "name": "去处理",
+      "font_class": "to-deal-with",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "22683728",
+      "name": "删 除  (1)",
+      "font_class": "delete",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "22683729",
+      "name": "删掉人员",
+      "font_class": "user-delete",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "22683730",
+      "name": "地点",
+      "font_class": "location",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "22683731",
+      "name": "流程",
+      "font_class": "process",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "22683732",
+      "name": "搜索",
+      "font_class": "sousuo",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "22683733",
+      "name": "新增",
+      "font_class": "add",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "22683734",
+      "name": "提示",
+      "font_class": "tips",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "22683735",
+      "name": "认领",
+      "font_class": "user-claim",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "22683737",
+      "name": "人员",
+      "font_class": "user",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "22683738",
+      "name": "性能",
+      "font_class": "heartbeat",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "22683739",
+      "name": "报表",
+      "font_class": "chart",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "22683740",
+      "name": "更多",
+      "font_class": "moren",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    }
+  ]
+}

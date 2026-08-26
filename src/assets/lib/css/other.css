@@ -1,0 +1,59 @@
+/* 其他不可分类的样式 */
+
+/** 其他会签事项弹窗 **/
+.other-cosign-dialog .el-table__header thead th {
+  background-color: #f6f7fb;
+}
+
+/** 内容滚动弹窗（解决内容太多，弹窗整体滚动） **/
+.body-scroll-dialog .el-dialog__body {
+  max-height: calc(70vh - 110px);
+  overflow: auto;
+}
+
+/** 流程图全屏显示dialog高度问题 **/
+.body-fullscreen-dialog .el-dialog__body {
+  max-height: calc(100vh - 110px);
+  height: calc(150vh - 49vh);
+  overflow: auto;
+}
+
+/* 流程测试用例管理 el-collapse css 修改*/
+.wf-test-config .el-collapse {
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.wf-test-config .el-collapse-item {
+  border-radius: 15px;
+  overflow: hidden;
+  margin: 20px;
+}
+
+.wf-test-config .el-collapse-item__header::before {
+  display: none;
+}
+
+.wf-test-config .el-collapse-item__header {
+  height: 50px;
+  line-height: 50px;
+  padding: 0px 20px;
+  background-color: #fff;
+}
+
+.wf-test-config .el-collapse-item__wrap {
+  border-bottom: 0;
+  border-top: 0;
+}
+
+.wf-test-config .title-line {
+  display: inline-block;
+  height: 16px;
+  border-left: 4px solid #0c7bca;
+  margin-right: 10px;
+}
+
+.wf-test-config .cud-avue-title {
+  font-size: 16px;
+  font-weight: bold;
+}

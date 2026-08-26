@@ -1,0 +1,348 @@
+[
+  {
+    "name": "workbench.workbench",
+    "iconNor": "&#xe9ae;",
+    "resource": "workbench3",
+    "children": [
+      {
+        "name": "workbench.initiating_process",
+        "url": "/start",
+        "resource": "start"
+      },
+      {
+        "name": "workbench.my_office",
+        "url": "/office",
+        "resource": "office"
+      },
+      {
+        "name": "workbench.my_drafts",
+        "url": "/drafts",
+        "resource": "drafts"
+      },
+      {
+        "name": "workbench.my_concern",
+        "url": "/concern",
+        "resource": "concern"
+      },
+      {
+        "name": "workbench.my_delegation",
+        "url": "/delegation",
+        "resource": "delegation"
+      }
+    ]
+  },
+  {
+    "name": "dm.data_model",
+    "iconNor": "&#xe9ad;",
+    "resource": "dataModel",
+    "children": [
+      {
+        "name": "dm.field_manage",
+        "url": "/fieldManage",
+        "resource": "field_manage"
+      },
+      {
+        "name": "dm.entity_manage",
+        "url": "/entityManage",
+        "resource": "entity_manage"
+      },
+      {
+        "name": "dm.model_manage",
+        "url": "/modelManage",
+        "resource": "model_manage"
+      }
+    ]
+  },
+  {
+    "name": "form.form_design",
+    "iconNor": "&#xe99f;",
+    "resource": "formDesign",
+    "children": [
+      {
+        "name": "form.form_manage",
+        "url": "/formManage",
+        "resource": "formManage"
+      }
+    ]
+  },
+  {
+    "name": "wm.workflow_manage",
+    "iconNor": "&#xe998;",
+    "resource": "workflowManage",
+    "children": [
+      {
+        "name": "wm.workflow_temp_manage",
+        "url": "/workflow_temp_manage",
+        "resource": "workflow_temp_manage"
+      },
+      {
+        "name": "wm.group_manage",
+        "url": "/group_manage",
+        "resource": "group_manage"
+      },
+      {
+        "name": "wm.workflow_rule",
+        "url": "/workflow_rule",
+        "resource": "workflow_rule"
+      },
+      {
+        "name": "wm.relate_data",
+        "url": "/relate_data",
+        "resource": "relate_data"
+      },
+      {
+        "name": "wm.proc_instance_manage",
+        "url": "/proc_instance_manage",
+        "resource": "proc_instance_manage"
+      },
+      {
+        "name": "wm.proc_instance_manage_log",
+        "url": "/proc_instance_manage_log",
+        "resource": "proc_instance_manage_log"
+      },
+      {
+        "name": "wm.task_instance_manage",
+        "url": "/task_instance_manage",
+        "resource": "task_instance_manage"
+      }
+    ]
+  },
+  {
+    "name": "form.business_form",
+    "iconNor": "&#xe9d1;",
+    "resource": "business_form_manage",
+    "children": [
+      {
+        "name": "form.business_form_management",
+        "url": "/business_form_manage",
+        "resource": "business_form_manage"
+      }
+    ]
+  },
+  {
+    "name": "smartForm.smart_form",
+    "iconNor": "&#xe9d1;",
+    "resource": "smartFormManage",
+    "children": [
+      {
+        "name": "smartForm.my_task",
+        "url": "/smartFormTask",
+        "resource": "smartFormTask"
+      },
+      {
+        "name": "smartForm.my_form",
+        "url": "/smartForm",
+        "resource": "smartForm"
+      },
+      {
+        "name": "smartForm.form_temp",
+        "url": "/smartFormTemp",
+        "resource": "smartFormTemp"
+      }
+    ]
+  },
+  {
+    "name": "dict.dict_manage",
+    "iconNor": "&#xe9c1;",
+    "resource": "dictManage",
+    "children": [
+      {
+        "name": "dict.dict_manage",
+        "url": "/dict",
+        "resource": "dict_manage"
+      }
+    ]
+  },
+  {
+    "name": "hc.connector_manage",
+    "iconNor": "&#xe9a5;",
+    "resource": "connectorManage",
+    "children": [
+      {
+        "name": "hc.http_connector",
+        "url": "/httpConnector",
+        "resource": "http_connector"
+      },
+      {
+        "name": "hc.connector_log",
+        "url": "/connectorLog",
+        "resource": "connector_log"
+      }
+    ]
+  },
+  {
+    "name": "sys.system_manage",
+    "iconNor": "&#xe9ac;",
+    "resource": "systemManage",
+    "children": [
+      {
+        "name": "sys.global_param",
+        "url": "/global_param",
+        "resource": "global_param"
+      },
+      {
+        "name": "cudFunc.func_manage",
+        "url": "/funcManage",
+        "resource": "func_manage"
+      },
+      {
+        "name": "sys.i18n_lang_manage",
+        "url": "/i18n/lang_manage",
+        "resource": "lang_manage"
+      },
+      {
+        "name": "sys.business_msg_manage",
+        "url": "/businessMsg",
+        "resource": "business_msg_manage"
+      },
+      {
+        "name": "sys.interface_log_manage",
+        "url": "/interfaceLogManage",
+        "resource": "interface_log_manage"
+      },
+      {
+        "name": "sys.audit_log_manage",
+        "url": "/auditLogManage",
+        "resource": "audit_log_manage"
+      },
+      {
+        "name": "sys.performance_log_manage",
+        "url": "/performanceLogManage",
+        "resource": "performance_log_manage"
+      },
+      {
+        "name": "sys.data_log_manage",
+        "url": "/dataLogManage",
+        "resource": "data_log_manage"
+      }
+    ]
+  },
+  {
+    "name": "tm.template_manage",
+    "iconNor": "&#xe994;",
+    "resource": "TemplateManage",
+    "children": [
+      {
+        "name": "tm.email_template",
+        "url": "/email_template",
+        "resource": "EmailTemplate"
+      },
+      {
+        "name": "tm.message_template",
+        "url": "/message_template",
+        "resource": "MessageTemplate"
+      }
+    ]
+  },
+  {
+    "name": "报表管理",
+    "iconNor": "&#xe98f;",
+    "resource": "report_design",
+    "children": [
+      {
+        "name": "数据集",
+        "url": "/data_set",
+        "resource": "data_set"
+      },
+      {
+        "name": "我的报表",
+        "url": "/my_report",
+        "resource": "my_report"
+      },
+      {
+        "name": "我的大屏",
+        "url": "/my_bigscreen",
+        "resource": "my_bigscreen"
+      },
+      {
+        "name": "我的仪表盘",
+        "url": "/my_dashboard",
+        "resource": "my_dashboard"
+      },
+      {
+        "name": "报表管理",
+        "url": "/manage_report",
+        "resource": "manage_report"
+      },
+      {
+        "name": "仪表盘管理",
+        "url": "/manage_dashboard",
+        "resource": "manage_dashboard"
+      },
+      {
+        "name": "大屏管理",
+        "url": "/manage_bigscreen",
+        "resource": "manage_bigscreen"
+      },
+      {
+        "name": "可视化组件管理",
+        "url": "/report_component",
+        "resource": "report_component"
+      },
+      {
+        "name": "报表权限管理",
+        "url": "/authorization_management",
+        "resource": "authorization_management"
+      },
+      {
+        "name": "报表连接器管理",
+        "url": "/reportHttpConnector",
+        "resource": "report_http_connector"
+      }
+    ]
+  },
+  {
+    "name": "示例库",
+    "iconNor": "&#xe994;",
+    "resource": "demoLib",
+    "children": [
+      {
+        "name": "选人选部门组件示例",
+        "url": "/globalComponents",
+        "resource": "globalComponents"
+      },
+      {
+        "name": "kkFileView预览示例",
+        "url": "/kkFileViewDemo",
+        "resource": "kkFileViewDemo"
+      },
+      {
+        "name": "预览组件示例",
+        "url": "/previewDemo",
+        "resource": "previewDemo"
+      },
+      {
+        "name": "icon图标示例",
+        "url": "/iconDemo",
+        "resource": "iconDemo"
+      },
+      {
+        "name": "二三级菜单示例",
+        "url": "/secondPage",
+        "resource": "secondPage",
+        "children": [
+          {
+            "name": "二级菜单01",
+            "url": "/thirdPage01",
+            "resource": "thirdPage01"
+          },
+          {
+            "name": "二级菜单02",
+            "url": "/thirdPage02",
+            "resource": "thirdPage02"
+          },
+          {
+            "name": "二级菜单03",
+            "url": "/thirdPage03",
+            "resource": "thirdPage03"
+          }
+        ]
+      },
+      {
+        "name": "算法示例",
+        "url": "/algorithm",
+        "resource": "algorithm"
+      }
+    ]
+  }
+]

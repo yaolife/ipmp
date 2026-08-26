@@ -1,0 +1,773 @@
+@charset "UTF-8";
+/* 全局样式，用来放一些全局通用的样式 */
+
+/* 设置全局字体 */
+body {
+  font-size: 14px;
+  font-family: "微软雅黑";
+  font-family: "Microsoft YaHei" !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* app.vue 中的样式*/
+#app {
+  margin: 0;
+  padding: 0;
+  background-color: #f2f7fb;
+}
+
+h3 {
+  margin-top: 70px;
+  position: relative;
+}
+
+/* p标签样式调整*/
+p {
+  font-size: 14px;
+  color: rgb(94, 109, 130);
+  line-height: 1.5em;
+  margin-top: -2px;
+  margin-left: 1px;
+  position: relative;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+body {
+  min-width: 1000px;
+}
+
+.pr {
+  position: relative;
+}
+
+.pa {
+  position: absolute;
+}
+
+.pt-23 {
+  padding-top: 33px;
+}
+
+.pt-25 {
+  padding-top: 25px;
+}
+
+.pt-30 {
+  padding-top: 28px;
+}
+
+.mt-10 {
+  line-height: 30px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-25 {
+  margin-bottom: 25px;
+}
+
+.mr-10 {
+  margin-right: 2px !important;
+}
+
+.ml-20 {
+  margin-left: 15px !important;
+}
+
+.mr-20 {
+  margin-right: 15px !important;
+}
+
+.float-left {
+  float: left;
+}
+
+.main-font {
+  /* font-family: "Alibaba"; */
+  color: #006aaf;
+  font-size: 27px;
+  font-weight: 100;
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.float-right {
+  float: right;
+}
+
+
+/* 左侧菜单样式 */
+.left-menu {
+  /* position: absolute; */
+  position: fixed;
+  z-index: 100;
+  height: 100%;
+}
+
+/*左侧菜单栏 样式   颜色变化*/
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
+  min-height: 400px;
+}
+
+.nav-icon {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  font-size: 22px;
+  text-align: center;
+  color: #004a86;
+  background-color: #ffffff;
+/*  position: absolute;
+  bottom: 0; */
+  /* border-top: 2px solid #f2f7fb; */
+  /* border-bottom: 2px solid #f2f7fb; */
+}
+
+.asideWidth {
+  width: 201px !important;
+  /* padding-bottom: 40px; */
+}
+
+.elContainer1 {
+  margin-left: 200px;
+}
+
+.elContainer2 {
+  margin-left: 65px;
+}
+
+.nav-background {
+  background-color: #004a86;
+}
+
+
+/* 导航条样式 */
+.nav .logo {
+  position: relative;
+  top: 7px;
+}
+
+.nav .logo-text {
+  font-size: 18px;
+  color: #fff;
+  top: -3px;
+  position: relative;
+}
+
+.nav font {
+  font-size: 14px;
+  color: #fff;
+  position: relative;
+  top: 14px;
+}
+
+.nav .logo-text {
+  font-size: 18px;
+  color: #fff;
+  top: -3px;
+  position: relative;
+}
+
+/*cuc首选项样式*/
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #005083;
+  border-color: #0069ac;
+}
+
+/*cuc次选项样式*/
+
+.btn-second:hover {
+  color: #333;
+  background-color: #ebebeb;
+  border-color: #dddddd;
+}
+
+.btn-second:focus {
+  color: #409eff;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
+}
+
+/*返回按钮鼠标移上去样式*/
+.btn-back:hover {
+  color: #333;
+  background-color: #ebebeb;
+  border-color: #dddddd;
+}
+
+
+.no_line {
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid #ebebf5;
+}
+
+/* 无边框样式调整 */
+.no_line.el-table--border::after,
+.no_line.el-table--group::after,
+.no_line.el-table::before {
+  background-color: #fff;
+  height: 0px;
+}
+
+.no_line .el-table__header-wrapper {
+  border-bottom: 1px solid #ebeef5;
+}
+
+.no_line .el-table__body tr:hover>td {
+  background-color: transparent;
+}
+
+.breadcrumbBox {
+  display: inline-block;
+  margin-left: 15px;
+  color: #aaaaaa;
+  font-size: 14px;
+  transform: translateY(4px);
+}
+
+.breadcrumbBox i {
+  vertical-align: top;
+  padding-top: 10px;
+}
+
+.el-breadcrumb {
+  margin-left: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/****************** css样式:common.css ******************/
+
+/** 文本框样式 **/
+.input-small {
+  width: 220px;
+}
+
+/**  el-row  每行的间距 **/
+.row {
+  padding-right: 200px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+
+/** 一般的按钮组 **/
+.btn-group {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 5px;
+}
+
+/*面包屑样式*/
+.brand {
+  position: relative;
+  /* height: 28px; */
+  background-color: #e5e9ec;
+}
+
+
+.common-brand .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+  display: inline-block;
+  color: #006aaf;
+}
+
+.brand-icon .el-badge__content {
+  right: 4px;
+  width: 22px;
+}
+
+.container {
+  /* background-color: #ffffff; */
+}
+
+.container-top {
+  margin-top: 15px;
+}
+
+.search {
+  margin-top: 15px;
+}
+
+.search-collapse {
+  display: block;
+}
+
+
+.search-collapse-title {
+  background-color: #f1f1f1;
+}
+
+.title-font {
+  font-family: "Microsoft YaHei";
+  color: #0c7bca;
+  cursor: pointer;
+  position: relative;
+  font-size: 14px;
+  font-weight: 400;
+  transform: translateY(-4px);
+}
+
+.collapse-content {
+  margin-left: 15px;
+  font-weight: bold;
+}
+
+.collapse-content>font {
+  color: red;
+}
+
+.search .search-collapse .search-box {
+  width: 220px;
+  height: 32px;
+  position: relative;
+  left: 10px;
+  top: 10px;
+}
+
+.search-box>input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.search-btn>.el-icon-search {
+  position: relative;
+  top: -1px;
+}
+
+.search-box>.el-input__inner {
+  line-height: 32px;
+}
+
+.search-btn {
+  position: relative;
+  height: 30px;
+  left: 5px;
+  top: 12px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/*  搜索框中的 调整时间框长度以及高度 */
+.timeform {
+  height: 32px;
+  width: 220px !important;
+}
+
+
+/* 图标颜色为白色 */
+.anticon {
+  color: white;
+  margin-right: 20px;
+}
+
+/* 鼠标滑动样式 中英文 和 皮肤 */
+.top-hover-change:hover .top-hover-change-sub {
+  color: #004a86 !important;
+  background: #fff;
+}
+
+.top-hover-change:hover {
+  color: #004a86 !important;
+  background: #fff;
+}
+
+
+/* 表格下方div 样式 */
+.table-bottom {
+  margin: 0;
+  position: relative;
+}
+
+.table-bottom>.el-pagination {
+  margin-right: 12px;
+}
+
+/* 表格下方的按钮组 */
+.table-bottom-btn-group {
+  float: left;
+  margin-left: 36px;
+}
+
+/* 按钮组按钮样式调整 */
+.table-bottom-btn-group>.btn1 {
+  position: relative;
+  margin-left: 29px;
+}
+
+.table-bottom-btn-group>.btn2 {
+  margin-left: 2px;
+}
+
+.table-bottom-btn-group>.btn3 {
+  margin: 0;
+}
+
+/* 换肤样式 */
+.skin {
+  float: right;
+  margin-top: 12px;
+  margin-right: 12px;
+}
+
+/* form中文本框样式调整 */
+.form-input {
+  width: 75% !important;
+}
+
+.form-input {
+  width: 100% !important;
+  border-color: #004a86;
+}
+
+/* form表单 文本域调整 */
+.form-input.el-textarea {
+  width: 89%;
+}
+
+/* 左侧菜单栏 标记位置调整 */
+.menu-badge>.el-badge__content {
+  margin-top: -3px;
+  margin-left: -5px;
+  width: 22px;
+}
+
+/* placeholder 微软雅黑  不同浏览器统一处理 */
+::-webkit-input-placeholder {
+  font-family: "微软雅黑";
+}
+
+:-moz-placeholder {
+  font-family: "微软雅黑";
+}
+
+::-moz-placeholder {
+  font-family: "微软雅黑";
+}
+
+:-ms-input-placeholder {
+  font-family: "微软雅黑";
+}
+
+/* 基本信息页面的样式定义  baseinfo.vue  */
+.form-item {
+  margin-top: 15px;
+  margin-bottom: 0px;
+}
+
+.upload-main {
+  display: flex;
+}
+
+.star {
+  position: relative;
+}
+
+.star::before {
+  content: "*";
+  color: #f56c6c;
+  position: absolute;
+  left: 80px;
+  top: 10px;
+  z-index: 3;
+}
+
+.hight_search .search-box {
+  z-index: 1;
+  top: 4px !important;
+}
+
+.hight_search .search-btn {
+  z-index: 1;
+  top: 6px;
+}
+
+
+/* cud开头的全局样式 */
+.cud__scroll--div {
+  overflow: hidden;
+  color: #333333;
+}
+
+.cud--right {
+  text-align: right;
+}
+
+.cud__button--search {
+  height: 30px;
+  margin: 5px 0;
+  background: #004a86;
+  border: solid 1px #004a86;
+  color: #ffffff;
+  padding: 0 10px;
+  min-width: 60px;
+  text-align: center;
+  line-height: 32px;
+}
+
+.cud__button--reset {
+  height: 30px;
+  margin: 5px 0;
+  cursor: pointer;
+  color: #333333;
+  border-color: #999999;
+  background: #ffffff;
+  padding: 0 10px;
+  min-width: 60px;
+  text-align: center;
+  line-height: 32px;
+}
+
+.cud__button--reset:hover,
+.cud__button--reset:focus {
+  background: #ffffff;
+  border-color: #004a86;
+  color: #004a86;
+}
+
+.cud__table--list {
+  padding: 0 10px;
+  background: #ffffff;
+}
+
+.cud__page {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.cud__search--row {
+  padding: 5px 10px 5px 0;
+  background: #ffffff;
+  border-left: solid 4px #004a86;
+}
+
+.cud__search--rowdialog {
+  padding: 5px 10px 0 0;
+  /* background: #ffffff; */
+}
+
+.cud__search--rowhigh {
+  padding-bottom: 10px;
+  /* background: #ffffff; */
+}
+
+.cud__form--row {
+  padding: 15px 100px 0 0;
+}
+
+.cud__tabform--row {
+  padding: 0 80px 0 0;
+}
+
+.cud__form--row .el-col {
+  margin-bottom: 8px;
+}
+
+.cud__button--div {
+  text-align: center;
+  background: #ffffff;
+  padding: 5px 0;
+  margin-bottom: 10px;
+}
+
+.cud__mt5 {
+  margin-top: 5px;
+}
+
+.cud__mt15 {
+  margin-top: 15px;
+}
+
+.cud__mt9 {
+  margin-top: 9px;
+}
+
+.cud__expandow td:first-child {
+  padding-left: 25px;
+}
+
+.cud__tree--left {
+  margin-right: 10px;
+  /* background: #ffffff; */
+  padding: 0;
+}
+
+.cud__tree--right {
+  /* background: #ffffff; */
+  padding: 0;
+}
+
+.cud__tree-overflow {
+  overflow: auto;
+}
+
+.cud__dropdown {
+  margin-left: 10px;
+}
+
+.el-dropdown-menu {
+  margin-top: -5px;
+}
+
+.cud__tree {
+  border-radius: 3px;
+}
+
+.cud__col20 {
+  margin-bottom: 10px;
+}
+
+.cud__mtb-10 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.cud__mlr-10 {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.cud__mtb-20 {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.cud__mlr-20 {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+:focus {
+  outline: none;
+}
+
+.cud_tree {
+  max-height: 370px;
+  overflow: auto;
+}
+
+.cud__label {
+  width: 90px;
+  display: inline-block;
+  text-align: right;
+  padding-right: 10px;
+}
+
+
+.cud-div-scrollbar {
+  overflow-y: scroll;
+}
+
+/* 滚动条 */
+.cud-div-scrollbar::-webkit-scrollbar {
+  z-index: 11;
+  width: 6px !important;
+}
+
+.cud-div-scrollbar::-webkit-scrollbar-track,
+.cud-div-scrollbar::-webkit-scrollbar-corner {
+  background: #fff;
+}
+
+.cud-div-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  width: 6px;
+  background: #b4bccc !important;
+  background-color: #b4bccc !important;
+}
+
+.cud-div-scrollbar::-webkit-scrollbar-track-piece {
+  background: #fff;
+  width: 6px;
+}
+
+
+*::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 4px !important;
+  width: 6px;
+  height: 6px;
+  background: #f1f1f1;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 4px;
+  /* background: #f1f1f1; */
+}
+
+
+.dialog_warp .avue-group.avue-group--header .avue-group .el-collapse-item__header{
+  display: block;
+}
+.dialog_warp .avue-group.avue-group--arrow .avue-group .el-collapse-item__arrow{
+  display: block;
+  top: 14px;
+}
+.dialog_warp .avue-group.avue-group--header .avue-group.avue-group--header .el-collapse-item__header{
+  display: none;
+}
+/* .dialog_warp .avue-group.avue-group--arrow .avue-group .el-collapse-item__arrow{
+  display: none;
+} */
+
+.widget-form-container .dialog-list{
+  position: absolute;
+  right: 4px;
+  top: 20%;
+  color: #fff;
+  display: flex;
+  z-index: 1;
+}
+
+.widget-form-container .dialog-list .left{
+  width: 24px;
+  height: 80px;
+  text-align: center;
+  border-radius: 6px;
+  background: #0775DB;
+}
+
+.widget-form-container .dialog-list .right{
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f1f1f1;
+}
+
+.widget-form-container .dialog-list .right .item{
+  background: #dce6f0;
+  color: #000;
+}
+
+.widget-form-container .dialog-list .right .item i{
+  background: #dce6f0;
+  color: #000;
+}

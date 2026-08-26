@@ -1,0 +1,842 @@
+[
+    {
+        "icon": "el-icon-platform-eleme"
+    },
+    {
+        "icon": "el-icon-eleme"
+    },
+    {
+        "icon": "el-icon-delete-solid"
+    },
+    {
+        "icon": "el-icon-delete"
+    },
+    {
+        "icon": "el-icon-s-tools"
+    },
+    {
+        "icon": "el-icon-setting"
+    },
+    {
+        "icon": "el-icon-user-solid"
+    },
+    {
+        "icon": "el-icon-user"
+    },
+    {
+        "icon": "el-icon-phone"
+    },
+    {
+        "icon": "el-icon-phone-outline"
+    },
+    {
+        "icon": "el-icon-more"
+    },
+    {
+        "icon": "el-icon-more-outline"
+    },
+    {
+        "icon": "el-icon-star-on"
+    },
+    {
+        "icon": "el-icon-star-off"
+    },
+    {
+        "icon": "el-icon-s-goods"
+    },
+    {
+        "icon": "el-icon-goods"
+    },
+    {
+        "icon": "el-icon-warning"
+    },
+    {
+        "icon": "el-icon-warning-outline"
+    },
+    {
+        "icon": "el-icon-question"
+    },
+    {
+        "icon": "el-icon-info"
+    },
+    {
+        "icon": "el-icon-remove"
+    },
+    {
+        "icon": "el-icon-circle-plus"
+    },
+    {
+        "icon": "el-icon-success"
+    },
+    {
+        "icon": "el-icon-error"
+    },
+    {
+        "icon": "el-icon-zoom-in"
+    },
+    {
+        "icon": "el-icon-zoom-out"
+    },
+    {
+        "icon": "el-icon-remove-outline"
+    },
+    {
+        "icon": "el-icon-circle-plus-outline"
+    },
+    {
+        "icon": "el-icon-circle-check"
+    },
+    {
+        "icon": "el-icon-circle-close"
+    },
+    {
+        "icon": "el-icon-s-help"
+    },
+    {
+        "icon": "el-icon-help"
+    },
+    {
+        "icon": "el-icon-minus"
+    },
+    {
+        "icon": "el-icon-plus"
+    },
+    {
+        "icon": "el-icon-check"
+    },
+    {
+        "icon": "el-icon-close"
+    },
+    {
+        "icon": "el-icon-picture"
+    },
+    {
+        "icon": "el-icon-picture-outline"
+    },
+    {
+        "icon": "el-icon-picture-outline-round"
+    },
+    {
+        "icon": "el-icon-upload"
+    },
+    {
+        "icon": "el-icon-upload2"
+    },
+    {
+        "icon": "el-icon-download"
+    },
+    {
+        "icon": "el-icon-camera-solid"
+    },
+    {
+        "icon": "el-icon-camera"
+    },
+    {
+        "icon": "el-icon-video-camera-solid"
+    },
+    {
+        "icon": "el-icon-video-camera"
+    },
+    {
+        "icon": "el-icon-message-solid"
+    },
+    {
+        "icon": "el-icon-bell"
+    },
+    {
+        "icon": "el-icon-s-cooperation"
+    },
+    {
+        "icon": "el-icon-s-order"
+    },
+    {
+        "icon": "el-icon-s-platform"
+    },
+    {
+        "icon": "el-icon-s-fold"
+    },
+    {
+        "icon": "el-icon-s-unfold"
+    },
+    {
+        "icon": "el-icon-s-operation"
+    },
+    {
+        "icon": "el-icon-s-promotion"
+    },
+    {
+        "icon": "el-icon-s-home"
+    },
+    {
+        "icon": "el-icon-s-release"
+    },
+    {
+        "icon": "el-icon-s-ticket"
+    },
+    {
+        "icon": "el-icon-s-management"
+    },
+    {
+        "icon": "el-icon-s-open"
+    },
+    {
+        "icon": "el-icon-s-shop"
+    },
+    {
+        "icon": "el-icon-s-marketing"
+    },
+    {
+        "icon": "el-icon-s-flag"
+    },
+    {
+        "icon": "el-icon-s-comment"
+    },
+    {
+        "icon": "el-icon-s-finance"
+    },
+    {
+        "icon": "el-icon-s-claim"
+    },
+    {
+        "icon": "el-icon-s-custom"
+    },
+    {
+        "icon": "el-icon-s-opportunity"
+    },
+    {
+        "icon": "el-icon-s-data"
+    },
+    {
+        "icon": "el-icon-s-check"
+    },
+    {
+        "icon": "el-icon-s-grid"
+    },
+    {
+        "icon": "el-icon-menu"
+    },
+    {
+        "icon": "el-icon-share"
+    },
+    {
+        "icon": "el-icon-d-caret"
+    },
+    {
+        "icon": "el-icon-caret-left"
+    },
+    {
+        "icon": "el-icon-caret-right"
+    },
+    {
+        "icon": "el-icon-caret-bottom"
+    },
+    {
+        "icon": "el-icon-caret-top"
+    },
+    {
+        "icon": "el-icon-bottom-left"
+    },
+    {
+        "icon": "el-icon-bottom-right"
+    },
+    {
+        "icon": "el-icon-back"
+    },
+    {
+        "icon": "el-icon-right"
+    },
+    {
+        "icon": "el-icon-bottom"
+    },
+    {
+        "icon": "el-icon-top"
+    },
+    {
+        "icon": "el-icon-top-left"
+    },
+    {
+        "icon": "el-icon-top-right"
+    },
+    {
+        "icon": "el-icon-arrow-left"
+    },
+    {
+        "icon": "el-icon-arrow-right"
+    },
+    {
+        "icon": "el-icon-arrow-down"
+    },
+    {
+        "icon": "el-icon-arrow-up"
+    },
+    {
+        "icon": "el-icon-d-arrow-left"
+    },
+    {
+        "icon": "el-icon-d-arrow-right"
+    },
+    {
+        "icon": "el-icon-video-pause"
+    },
+    {
+        "icon": "el-icon-video-play"
+    },
+    {
+        "icon": "el-icon-refresh"
+    },
+    {
+        "icon": "el-icon-refresh-right"
+    },
+    {
+        "icon": "el-icon-refresh-left"
+    },
+    {
+        "icon": "el-icon-finished"
+    },
+    {
+        "icon": "el-icon-sort"
+    },
+    {
+        "icon": "el-icon-sort-up"
+    },
+    {
+        "icon": "el-icon-sort-down"
+    },
+    {
+        "icon": "el-icon-rank"
+    },
+    {
+        "icon": "el-icon-loading"
+    },
+    {
+        "icon": "el-icon-view"
+    },
+    {
+        "icon": "el-icon-c-scale-to-original"
+    },
+    {
+        "icon": "el-icon-date"
+    },
+    {
+        "icon": "el-icon-edit"
+    },
+    {
+        "icon": "el-icon-edit-outline"
+    },
+    {
+        "icon": "el-icon-folder"
+    },
+    {
+        "icon": "el-icon-folder-opened"
+    },
+    {
+        "icon": "el-icon-folder-add"
+    },
+    {
+        "icon": "el-icon-folder-remove"
+    },
+    {
+        "icon": "el-icon-folder-delete"
+    },
+    {
+        "icon": "el-icon-folder-checked"
+    },
+    {
+        "icon": "el-icon-tickets"
+    },
+    {
+        "icon": "el-icon-document-remove"
+    },
+    {
+        "icon": "el-icon-document-delete"
+    },
+    {
+        "icon": "el-icon-document-copy"
+    },
+    {
+        "icon": "el-icon-document-checked"
+    },
+    {
+        "icon": "el-icon-document"
+    },
+    {
+        "icon": "el-icon-document-add"
+    },
+    {
+        "icon": "el-icon-printer"
+    },
+    {
+        "icon": "el-icon-paperclip"
+    },
+    {
+        "icon": "el-icon-takeaway-box"
+    },
+    {
+        "icon": "el-icon-search"
+    },
+    {
+        "icon": "el-icon-monitor"
+    },
+    {
+        "icon": "el-icon-attract"
+    },
+    {
+        "icon": "el-icon-mobile"
+    },
+    {
+        "icon": "el-icon-scissors"
+    },
+    {
+        "icon": "el-icon-umbrella"
+    },
+    {
+        "icon": "el-icon-headset"
+    },
+    {
+        "icon": "el-icon-brush"
+    },
+    {
+        "icon": "el-icon-mouse"
+    },
+    {
+        "icon": "el-icon-coordinate"
+    },
+    {
+        "icon": "el-icon-magic-stick"
+    },
+    {
+        "icon": "el-icon-reading"
+    },
+    {
+        "icon": "el-icon-data-line"
+    },
+    {
+        "icon": "el-icon-data-board"
+    },
+    {
+        "icon": "el-icon-pie-chart"
+    },
+    {
+        "icon": "el-icon-data-analysis"
+    },
+    {
+        "icon": "el-icon-collection-tag"
+    },
+    {
+        "icon": "el-icon-film"
+    },
+    {
+        "icon": "el-icon-suitcase"
+    },
+    {
+        "icon": "el-icon-suitcase-1"
+    },
+    {
+        "icon": "el-icon-receiving"
+    },
+    {
+        "icon": "el-icon-collection"
+    },
+    {
+        "icon": "el-icon-files"
+    },
+    {
+        "icon": "el-icon-notebook-1"
+    },
+    {
+        "icon": "el-icon-notebook-2"
+    },
+    {
+        "icon": "el-icon-toilet-paper"
+    },
+    {
+        "icon": "el-icon-office-building"
+    },
+    {
+        "icon": "el-icon-school"
+    },
+    {
+        "icon": "el-icon-table-lamp"
+    },
+    {
+        "icon": "el-icon-house"
+    },
+    {
+        "icon": "el-icon-no-smoking"
+    },
+    {
+        "icon": "el-icon-smoking"
+    },
+    {
+        "icon": "el-icon-shopping-cart-full"
+    },
+    {
+        "icon": "el-icon-shopping-cart-1"
+    },
+    {
+        "icon": "el-icon-shopping-cart-2"
+    },
+    {
+        "icon": "el-icon-shopping-bag-1"
+    },
+    {
+        "icon": "el-icon-shopping-bag-2"
+    },
+    {
+        "icon": "el-icon-sold-out"
+    },
+    {
+        "icon": "el-icon-sell"
+    },
+    {
+        "icon": "el-icon-present"
+    },
+    {
+        "icon": "el-icon-box"
+    },
+    {
+        "icon": "el-icon-bank-card"
+    },
+    {
+        "icon": "el-icon-money"
+    },
+    {
+        "icon": "el-icon-coin"
+    },
+    {
+        "icon": "el-icon-wallet"
+    },
+    {
+        "icon": "el-icon-discount"
+    },
+    {
+        "icon": "el-icon-price-tag"
+    },
+    {
+        "icon": "el-icon-news"
+    },
+    {
+        "icon": "el-icon-guide"
+    },
+    {
+        "icon": "el-icon-male"
+    },
+    {
+        "icon": "el-icon-female"
+    },
+    {
+        "icon": "el-icon-thumb"
+    },
+    {
+        "icon": "el-icon-cpu"
+    },
+    {
+        "icon": "el-icon-link"
+    },
+    {
+        "icon": "el-icon-connection"
+    },
+    {
+        "icon": "el-icon-open"
+    },
+    {
+        "icon": "el-icon-turn-off"
+    },
+    {
+        "icon": "el-icon-set-up"
+    },
+    {
+        "icon": "el-icon-chat-round"
+    },
+    {
+        "icon": "el-icon-chat-line-round"
+    },
+    {
+        "icon": "el-icon-chat-square"
+    },
+    {
+        "icon": "el-icon-chat-dot-round"
+    },
+    {
+        "icon": "el-icon-chat-dot-square"
+    },
+    {
+        "icon": "el-icon-chat-line-square"
+    },
+    {
+        "icon": "el-icon-message"
+    },
+    {
+        "icon": "el-icon-postcard"
+    },
+    {
+        "icon": "el-icon-position"
+    },
+    {
+        "icon": "el-icon-turn-off-microphone"
+    },
+    {
+        "icon": "el-icon-microphone"
+    },
+    {
+        "icon": "el-icon-close-notification"
+    },
+    {
+        "icon": "el-icon-bangzhu"
+    },
+    {
+        "icon": "el-icon-time"
+    },
+    {
+        "icon": "el-icon-odometer"
+    },
+    {
+        "icon": "el-icon-crop"
+    },
+    {
+        "icon": "el-icon-aim"
+    },
+    {
+        "icon": "el-icon-switch-button"
+    },
+    {
+        "icon": "el-icon-full-screen"
+    },
+    {
+        "icon": "el-icon-copy-document"
+    },
+    {
+        "icon": "el-icon-mic"
+    },
+    {
+        "icon": "el-icon-stopwatch"
+    },
+    {
+        "icon": "el-icon-medal-1"
+    },
+    {
+        "icon": "el-icon-medal"
+    },
+    {
+        "icon": "el-icon-trophy"
+    },
+    {
+        "icon": "el-icon-trophy-1"
+    },
+    {
+        "icon": "el-icon-first-aid-kit"
+    },
+    {
+        "icon": "el-icon-discover"
+    },
+    {
+        "icon": "el-icon-place"
+    },
+    {
+        "icon": "el-icon-location"
+    },
+    {
+        "icon": "el-icon-location-outline"
+    },
+    {
+        "icon": "el-icon-location-information"
+    },
+    {
+        "icon": "el-icon-add-location"
+    },
+    {
+        "icon": "el-icon-delete-location"
+    },
+    {
+        "icon": "el-icon-map-location"
+    },
+    {
+        "icon": "el-icon-alarm-clock"
+    },
+    {
+        "icon": "el-icon-timer"
+    },
+    {
+        "icon": "el-icon-watch-1"
+    },
+    {
+        "icon": "el-icon-watch"
+    },
+    {
+        "icon": "el-icon-lock"
+    },
+    {
+        "icon": "el-icon-unlock"
+    },
+    {
+        "icon": "el-icon-key"
+    },
+    {
+        "icon": "el-icon-service"
+    },
+    {
+        "icon": "el-icon-mobile-phone"
+    },
+    {
+        "icon": "el-icon-bicycle"
+    },
+    {
+        "icon": "el-icon-truck"
+    },
+    {
+        "icon": "el-icon-ship"
+    },
+    {
+        "icon": "el-icon-basketball"
+    },
+    {
+        "icon": "el-icon-football"
+    },
+    {
+        "icon": "el-icon-soccer"
+    },
+    {
+        "icon": "el-icon-baseball"
+    },
+    {
+        "icon": "el-icon-wind-power"
+    },
+    {
+        "icon": "el-icon-light-rain"
+    },
+    {
+        "icon": "el-icon-lightning"
+    },
+    {
+        "icon": "el-icon-heavy-rain"
+    },
+    {
+        "icon": "el-icon-sunrise"
+    },
+    {
+        "icon": "el-icon-sunrise-1"
+    },
+    {
+        "icon": "el-icon-sunset"
+    },
+    {
+        "icon": "el-icon-sunny"
+    },
+    {
+        "icon": "el-icon-cloudy"
+    },
+    {
+        "icon": "el-icon-partly-cloudy"
+    },
+    {
+        "icon": "el-icon-cloudy-and-sunny"
+    },
+    {
+        "icon": "el-icon-moon"
+    },
+    {
+        "icon": "el-icon-moon-night"
+    },
+    {
+        "icon": "el-icon-dish"
+    },
+    {
+        "icon": "el-icon-dish-1"
+    },
+    {
+        "icon": "el-icon-food"
+    },
+    {
+        "icon": "el-icon-chicken"
+    },
+    {
+        "icon": "el-icon-fork-spoon"
+    },
+    {
+        "icon": "el-icon-knife-fork"
+    },
+    {
+        "icon": "el-icon-burger"
+    },
+    {
+        "icon": "el-icon-tableware"
+    },
+    {
+        "icon": "el-icon-sugar"
+    },
+    {
+        "icon": "el-icon-dessert"
+    },
+    {
+        "icon": "el-icon-ice-cream"
+    },
+    {
+        "icon": "el-icon-hot-water"
+    },
+    {
+        "icon": "el-icon-water-cup"
+    },
+    {
+        "icon": "el-icon-coffee-cup"
+    },
+    {
+        "icon": "el-icon-cold-drink"
+    },
+    {
+        "icon": "el-icon-goblet"
+    },
+    {
+        "icon": "el-icon-goblet-full"
+    },
+    {
+        "icon": "el-icon-goblet-square"
+    },
+    {
+        "icon": "el-icon-goblet-square-full"
+    },
+    {
+        "icon": "el-icon-refrigerator"
+    },
+    {
+        "icon": "el-icon-grape"
+    },
+    {
+        "icon": "el-icon-watermelon"
+    },
+    {
+        "icon": "el-icon-cherry"
+    },
+    {
+        "icon": "el-icon-apple"
+    },
+    {
+        "icon": "el-icon-pear"
+    },
+    {
+        "icon": "el-icon-orange"
+    },
+    {
+        "icon": "el-icon-coffee"
+    },
+    {
+        "icon": "el-icon-ice-tea"
+    },
+    {
+        "icon": "el-icon-ice-drink"
+    },
+    {
+        "icon": "el-icon-milk-tea"
+    },
+    {
+        "icon": "el-icon-potato-strips"
+    },
+    {
+        "icon": "el-icon-lollipop"
+    },
+    {
+        "icon": "el-icon-ice-cream-square"
+    },
+    {
+        "icon": "el-icon-ice-cream-round"
+    }
+]

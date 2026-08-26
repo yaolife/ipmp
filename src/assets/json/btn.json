@@ -1,0 +1,12 @@
+{
+  "engineering_create": {
+    "monitorCode": "8b4c0e0c-9b64-4971-880c-ecaa590ffe15",
+    "name": "工程管理创建",
+    "pageUrl":"/engineering"
+  },
+  "engineering_edit": {
+    "monitorCode": "4c51bfa9-d972-4d79-8010-227a28d295fe",
+    "name": "工程管理编辑",
+    "pageUrl":"/engineering"
+  }
+}

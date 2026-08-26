@@ -1,0 +1,281 @@
+
+.dialog_warp #examine-tool {
+    width: 100%;
+    text-align: right;
+  }
+  
+  .dialog_warp /deep/ .avue-group:last-child .el-collapse-item {
+    margin-bottom: 70px;
+  }
+  
+  .dialog_warp .avue-group__header.avue-group {
+    color: #000000;
+  }
+  
+  .dialog_warp .avue-group {
+    border-radius: 15px;
+    margin-top: 20px;
+    font-size: 18px;
+    margin-top: 0;
+  }
+  
+  .avue-group:last-child {
+    margin-top: 0;
+  }
+  
+  .dialog_warp .avue-group .cud-avue-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .dialog_warp .avue-group .avue-group__header {
+    padding-left: 15px;
+    /* background-color: #ffffff; */
+    height: 45px;
+    line-height: 45px;
+  }
+  
+  .dialog_warp .avue-group .el-collapse {
+    border-bottom: transparent;
+    border-radius: 20px;
+    border-top: transparent;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item {
+    border-radius: 20px;
+    margin-bottom: 15px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__header {
+    background-color: #ffffff;
+    margin-bottom: initial;
+    border-bottom: initial;
+    border-radius: 15px;
+    padding-left: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__header::before {
+    height: 20px;
+    top: transparent;
+    margin-left: 20px;
+    display: none;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__header.is-active {
+    margin-bottom: initial;
+    border-radius: 15px;
+    padding-left: 0;
+    background-color: #ffffff;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__content {
+    margin-bottom: 10px;
+    margin-top: 5px;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__content:last-child {
+    margin-bottom: 0;
+    padding-bottom: 10px;
+    margin-top: 0;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__wrap {
+    border-radius: 15px;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item__arrow {
+    margin: 0 19px 0 auto;
+    color: #000000;
+  }
+  
+  .dialog_warp .avue-group .el-form-item {
+    padding: 5.5px;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+  
+  .dialog_warp .avue-group .el-collapse-item .is-active {
+    margin-bottom: 0;
+    color: #000000;
+  }
+  
+  .dialog_warp .avue-group .el-form-item__error {
+    position: relative;
+    top: auto;
+    left: 0px;
+  }
+  
+  .dialog_warp .avue-group .el-form-item__label {
+    font-size: 14px;
+    color: #2a2a2a;
+    text-align: left;
+    font-weight: 400;
+    margin: 0;
+    width: auto;
+  }
+  
+  .avue-form__item--right .el-form-item__label {
+    text-align: right !important;
+  }
+  
+  .dialog_warp .avue-group .el-button--mini,
+  .dialog_warp .avue-group .el-button--mini.is-round {
+    padding: 7px 8px;
+  }
+  
+  
+  .dialog_warp .avue-group .el-input__inner:focus {
+    border-color: #0c7bca !important;
+  }
+  
+  .dialog_warp .avue-group .el-input__inner:hover {
+    border-color: #0c7bca !important;
+  }
+  
+  .dialog_warp .avue-group .el-textarea__inner:focus {
+    box-shadow: initial !important;
+    border-color: #0c7bca !important;
+  }
+  
+  .dialog_warp .avue-group .el-textarea__inner:hover {
+    box-shadow: initial !important;
+    border-color: #0c7bca !important;
+  }
+  
+  .dialog_warp .avue-group .el-input__prefix {
+    color: #999 !important;
+    line-height: 38px;
+  }
+  
+  .dialog_warp .avue-group .el-input-number.is-controls-right .el-input-number__increase {
+    border-bottom: none;
+  }
+  
+  .dialog_warp .avue-group .el-input-number.is-controls-right .el-input-number__decrease {
+    border-left: none;
+  }
+  
+  .dialog_warp .avue-group .el-input-number.is-controls-right .el-input-number__increase {
+    border-left: none;
+  }
+  
+  .dialog_warp .avue-group .cost-detail .el-collapse-item,
+  .dialog_warp .avue-group .base-info .el-collapse-item {
+    border: initial;
+  }
+  
+  .dialog_warp .avue-group .cost-detail .el-collapse-item__content,
+  .dialog_warp .avue-group .base-info .el-collapse-item__content {
+    padding: 0;
+  }
+  
+  .dialog_warp .el-form--label-top .base-info .el-form-item__content {
+    margin-left: 0 !important;
+  }
+  
+  .dialog_warp .avue-group .personselect .previewBtn,
+  .dialog_warp .avue-group .orgselect .previewBtn {
+    position: absolute;
+    right: 0;
+    top: 0px;
+    border: none;
+    color: #fff !important;
+    height: 32px !important;
+    padding: 0 10px;
+    font-size: 16px;
+  }
+  
+  .dialog_warp .avue-group .personselect .previewBtn:focus,
+  .dialog_warp .avue-group .orgselect .previewBtn:focus,
+  .dialog_warp .avue-group .personselect .previewBtn:hover,
+  .dialog_warp .avue-group .orgselect .previewBtn:hover,
+  .dialog_warp .avue-group .personselect .previewBtn:active,
+  .dialog_warp .avue-group .orgselect .previewBtn:active {
+    background-color: initial !important;
+  }
+  
+  .dialog_warp .avue-group .el-pagination .el-input__inner,
+  .dialog_warp .avue-group .reportTable .el-input__inner:focus,
+  .dialog_warp .avue-group .reportTable .el-input__inner:hover {
+    /* border-color: #0c7bca !important; */
+  }
+  
+  .dialog_warp .avue-group .reportTable .el-textarea__inner {
+    border-radius: 10px !important;
+    border: 1px solid #ebebeb !important;
+  }
+  
+  .dialog_warp .avue-group .reportTable .el-textarea__inner:focus,
+  .dialog_warp .avue-group .reportTable .el-textarea__inner:hover {
+    border-color: #0c7bca !important;
+  }
+  
+  .dialog_warp .avue-group .reportTable .el-table th {
+    text-align: center;
+  }
+  
+  
+  .dialog_warp .avue-group .cud-url .el-form-item {
+    margin-right: 0px !important;
+  }
+  
+  .dialog_warp .avue-group .comment .el-collapse-item .el-collapse-item__arrow {
+    color: skyblue;
+  }
+  
+  .dialog_warp .avue-group .comment-other .el-collapse-item .el-collapse-item__arrow {
+    /* color: skyblue; */
+  }
+  
+  .dialog_warp .avue-group .commonTermsDiv {
+    width: 325px;
+    overflow: auto;
+    padding: 10px 20px 0 20px;
+    background: #ffffff;
+    border: 1px solid #ebebeb;
+    border-radius: 5px;
+    margin-left: 15px;
+  }
+  
+  .el-drawer .avue-form {
+    padding: 0;
+  }
+  
+  .dialog_warp .avue-group .commonTermsDiv .p_pointer {
+    cursor: pointer;
+    margin-right: 10px;
+    margin-bottom: 7px;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: 4px;
+    border: 0;
+    color: #666666;
+    font-size: 14px;
+    font-weight: 400;
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+  
+  .dialog_warp .avue-group .cud-avue-comment-input {
+    display: inline-block;
+    margin-left: 1%;
+    width: 1134px;
+  }
+  
+  .dialog_warp .avue-group .cud-avue-comment-input .el-input__inner {
+    width: 100%;
+    height: 42px;
+    line-height: 42px;
+    border-bottom: initial !important;
+    border: 1px solid #ebebeb !important;
+    border-radius: 10px !important;
+  }
+  
+  .dialog_warp .avue-group hr {
+    border: 0 !important;
+    border-bottom: 1px dashed #eee;
+  }
+

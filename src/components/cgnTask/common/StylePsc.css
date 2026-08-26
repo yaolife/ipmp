@@ -1,0 +1,353 @@
+@charset "UTF-8";
+/** 任务中心 **/
+.cgn-task-center {
+  padding: 20px;
+  /** 任务页签工具条 **/
+  /** 任务页签标题 **/
+  /** 任务页签内容 **/
+  /** 任务查询弹窗 **/
+  /** 任务查询结果 **/
+}
+.cgn-task-center .task-tabs {
+  background-color: #F9F9F9;
+  height: 100%;
+}
+.cgn-task-center .task-tabs .el-tabs__header {
+  background-color: #FFFFFF;
+  margin: 0;
+}
+.cgn-task-center .task-tabs .el-tabs__header .el-tabs__item {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.cgn-task-center .task-tabs .el-tabs__content {
+  min-height: 400px;
+  height: calc(100% - 48px);
+}
+.cgn-task-center .task-tabs .el-tabs__content .el-tab-pane, .cgn-task-center .task-tabs .el-tabs__content .el-tab-pane .el-loading-parent--relative {
+  height: 100%;
+}
+.cgn-task-center .task-tabs .el-tabs__nav-scroll {
+  margin-right: 400px;
+}
+.cgn-task-center .task-tabs .el-tabs__nav-prev {
+  line-height: 40px;
+}
+.cgn-task-center .task-tabs .el-tabs__nav-next {
+  right: 400px;
+  line-height: 40px;
+}
+.cgn-task-center .task-tabs .el-table, .cgn-task-center .task-tabs .el-table__body-wrapper {
+  background-color: transparent;
+}
+.cgn-task-center .task-tabs .el-table::before {
+  height: 0;
+}
+.cgn-task-center .task-tabs .el-table__body {
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  table-layout: auto;
+  background-color: transparent;
+}
+.cgn-task-center .task-tabs .el-table__body .el-table__row, .cgn-task-center .task-tabs .el-table__body .el-table__row td {
+  color: #000000;
+  border: none;
+}
+.cgn-task-center .task-tabs .el-table__body .el-table__row td:first-child {
+  border-radius: 5px 0 0 5px;
+}
+.cgn-task-center .task-tabs .el-table__body .el-table__row td:last-child {
+  border-radius: 0 5px 5px 0;
+}
+.cgn-task-center .task-tab-toolbar {
+  position: absolute;
+  z-index: 1;
+  right: 20px;
+  padding-right: 10px;
+  /** 工具选择 **/
+  /** 搜索按钮 **/
+  /** 更多按钮 **/
+}
+.cgn-task-center .task-tab-toolbar .toolbar-select {
+  display: inline-block;
+  vertical-align: top;
+  color: #7D7979;
+  line-height: 40px;
+  margin-right: 15px;
+}
+.cgn-task-center .task-tab-toolbar .toolbar-select > span {
+  font-size: 14px;
+}
+.cgn-task-center .task-tab-toolbar .toolbar-select .el-dropdown {
+  cursor: pointer;
+}
+.cgn-task-center .task-tab-toolbar .btn-search {
+  height: 40px;
+  text-align: center;
+  font-size: 18px;
+  border: none;
+  background: none;
+  padding: 0;
+}
+.cgn-task-center .task-tab-toolbar .btn-more {
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  font-size: 18px;
+  margin-left: 10px;
+}
+.cgn-task-center .task-tab-title {
+  display: inline-block;
+  margin: 0;
+}
+.cgn-task-center .task-tab-title .title {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 600;
+}
+.cgn-task-center .task-tab-title .badge {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #C55A11;
+}
+.cgn-task-center .task-tab-content {
+  height: 100%;
+}
+.cgn-task-center .query-dialog-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+}
+.cgn-task-center .query-dialog {
+  position: absolute;
+  z-index: 2;
+  background-color: #FFFFFF;
+  width: calc(100% - 10px);
+  margin-top: 2px;
+  margin-left: 5px;
+  box-shadow: 0 5px 12px 0 rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 5px 5px;
+}
+.cgn-task-center .query-dialog > .el-row {
+  padding: 20px 20px 15px 20px;
+}
+.cgn-task-center .query-dialog .btn-groups {
+  text-align: right;
+}
+.cgn-task-center .query-dialog .el-select {
+  width: 100%;
+}
+.cgn-task-center .query-dialog .date-range-item .el-date-editor {
+  width: calc((100% - 30px) * 0.5);
+}
+.cgn-task-center .query-dialog .date-range-item .split {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+}
+.cgn-task-center .query-result {
+  height: 100%;
+  /** 任务列-优先级 **/
+  /** 任务列-主题 **/
+  /** 任务列-字段 **/
+  /** 任务列-操作按钮 **/
+  /** 任务列-复选框 **/
+}
+.cgn-task-center .query-result .el-scrollbar {
+  height: calc(100% - 50px);
+}
+.cgn-task-center .query-result .el-scrollbar .el-scrollbar__wrap {
+  overflow-x: hidden;
+}
+.cgn-task-center .query-result .el-scrollbar .el-scrollbar__view {
+  padding: 5px 10px 5px 10px;
+}
+.cgn-task-center .query-result .el-pagination {
+  padding: 0px 10px;
+  margin: 15px 0 10px 0;
+}
+.cgn-task-center .query-result .vertical-align-top {
+  vertical-align: top;
+}
+.cgn-task-center .query-result .task-priority {
+  width: 17px;
+  height: 17px;
+  background-color: grey;
+  border-radius: 50%;
+  margin-top: 4px;
+}
+.cgn-task-center .query-result .task-priority.priority-high {
+  background-color: #FF0000;
+}
+.cgn-task-center .query-result .task-priority.priority-middle {
+  background-color: #FFC000;
+}
+.cgn-task-center .query-result .task-priority.priority-low {
+  background-color: #A9D18E;
+}
+.cgn-task-center .query-result .task-subject {
+  margin-bottom: 10px;
+}
+.cgn-task-center .query-result .task-subject a:visited {
+  color: #0069ac;
+}
+.cgn-task-center .query-result .task-subject .el-link--inner {
+  font-size: 16px;
+  font-weight: bold;
+}
+.cgn-task-center .query-result .task-fields .task-field {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 15px;
+}
+.cgn-task-center .query-result .task-fields .task-field .task-field-name {
+  color: #767171;
+}
+.cgn-task-center .query-result .task-oprate .el-button {
+  padding: 0;
+  font-size: 24px;
+  color: #6095ff;
+}
+.cgn-task-center .query-result .task-oprate .el-button:hover {
+  color: rgba(96, 149, 255, 0.8);
+}
+.cgn-task-center .query-result .task-selection .el-checkbox__inner {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+.cgn-task-center .query-result .task-selection .el-checkbox__inner::after {
+  border: 2px solid #fff;
+  border-left: 0;
+  border-top: 0;
+  height: 11px;
+  left: 8px;
+  top: 3px;
+  width: 4.5px;
+}
+
+/** 任务弹窗 **/
+.cgn-task-center .task-dialog .el-form .el-select, .cgn-task-toolbar .task-dialog .el-form .el-select {
+  width: 100%;
+}
+.cgn-task-center .task-dialog .dialog-empty, .cgn-task-toolbar .task-dialog .dialog-empty {
+  text-align: center;
+}
+.cgn-task-center .task-dialog .dialog-empty .el-link, .cgn-task-toolbar .task-dialog .dialog-empty .el-link {
+  font-size: 30px;
+  margin-right: 5px;
+}
+.cgn-task-center .task-dialog .dialog-empty > span, .cgn-task-toolbar .task-dialog .dialog-empty > span {
+  font-size: 18px;
+  vertical-align: middle;
+}
+.cgn-task-center .task-dialog .dialog-info .el-icon-info, .cgn-task-toolbar .task-dialog .dialog-info .el-icon-info {
+  margin-right: 5px;
+  font-size: 16px;
+}
+.cgn-task-center .task-dialog .opinion-tag-list .el-tag, .cgn-task-toolbar .task-dialog .opinion-tag-list .el-tag {
+  cursor: pointer;
+  margin-right: 10px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/** 任务提交弹窗 **/
+.cgn-task-center .task-submit-dialog, .cgn-task-toolbar .task-submit-dialog {
+  /** 任务列-操作按钮 **/
+}
+.cgn-task-center .task-submit-dialog .act-warpper, .cgn-task-toolbar .task-submit-dialog .act-warpper {
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+.cgn-task-center .task-submit-dialog .act-warpper .act-warpper__header, .cgn-task-toolbar .task-submit-dialog .act-warpper .act-warpper__header {
+  border-left: 3px solid #00aae8;
+  color: #666666;
+  font-size: 16px;
+  font-weight: bold;
+  padding-left: 5px;
+  line-height: 30px;
+  margin: 10px 0 0 0;
+}
+.cgn-task-center .task-submit-dialog .act-warpper .act-warpper__body, .cgn-task-toolbar .task-submit-dialog .act-warpper .act-warpper__body {
+  padding: 10px;
+}
+.cgn-task-center .task-submit-dialog .act-warpper .act-warpper__body .el-tabs__header, .cgn-task-toolbar .task-submit-dialog .act-warpper .act-warpper__body .el-tabs__header {
+  margin-bottom: 0;
+}
+.cgn-task-center .task-submit-dialog .act-warpper .act-warpper__body .el-tabs__content, .cgn-task-toolbar .task-submit-dialog .act-warpper .act-warpper__body .el-tabs__content {
+  border-radius: 0 0 5px 5px;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+  padding: 10px;
+}
+.cgn-task-center .task-submit-dialog .act-warpper .act-warpper__body .el-table__header thead th, .cgn-task-toolbar .task-submit-dialog .act-warpper .act-warpper__body .el-table__header thead th {
+  background-color: #F6F7FB;
+}
+.cgn-task-center .task-submit-dialog .act-warpper:first-child, .cgn-task-toolbar .task-submit-dialog .act-warpper:first-child {
+  margin-top: 0;
+}
+.cgn-task-center .task-submit-dialog .el-form .el-form-item:first-child, .cgn-task-toolbar .task-submit-dialog .el-form .el-form-item:first-child {
+  margin-top: 15px;
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate, .cgn-task-toolbar .task-submit-dialog .cosign-oprate {
+  /** 上下移动按钮 **/
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .el-button, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .el-button {
+  padding: 0;
+  font-size: 24px;
+  color: #6095ff;
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .el-button:hover, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .el-button:hover {
+  color: rgba(96, 149, 255, 0.8);
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .el-button.danger, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .el-button.danger {
+  color: #d81e06;
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .el-button:hover.danger, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .el-button:hover.danger {
+  color: rgba(216, 30, 6, 0.8);
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .el-button:disabled, .cgn-task-center .task-submit-dialog .cosign-oprate .el-button:disabled.danger, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .el-button:disabled, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .el-button:disabled.danger {
+  color: #999999;
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .btn-top-down-group, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .btn-top-down-group {
+  display: inline-block;
+  line-height: 9px;
+  vertical-align: top;
+  height: 27px;
+  padding-top: 2px;
+  margin-right: 10px;
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .btn-top-down-group .el-button, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .btn-top-down-group .el-button {
+  display: block;
+  margin: 0;
+  font-size: 24px;
+  line-height: inherit;
+  overflow: hidden;
+}
+.cgn-task-center .task-submit-dialog .cosign-oprate .btn-top-down-group .el-button > i, .cgn-task-toolbar .task-submit-dialog .cosign-oprate .btn-top-down-group .el-button > i {
+  line-height: inherit;
+}
+
+/** 其他会签事项弹窗 **/
+.other-cosign-dialog .el-table__header thead th {
+  background-color: #F6F7FB;
+}
+
+/** 内容滚动弹窗（解决内容太多，弹窗整体滚动） **/
+.body-scroll-dialog .el-dialog__body {
+  max-height: calc(70vh - 100px);
+  overflow: auto;
+}/*# sourceMappingURL=StylePsc.css.map */

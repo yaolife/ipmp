@@ -1,0 +1,57 @@
+<!--
+ * @Author: [P631038]杨旭
+ * @Date: 2024-11-08 17:13:59
+ * @LastEditors: [P631038]杨旭
+ * @LastEditTime: 2025-12-24 16:31:41
+ * @FilePath: \4.2.0-node16\cud4demo-ui\index.html
+ * @Description: 
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta http-equiv="Access-Control-Allow-Origin" content="cuddemo-d" />
+  <meta name="referrer" content="never" />
+  <title>cuddemo</title>
+  <!-- 请使用公共样式 -->
+  <link href="./static/cud3.0_iconfont/iconfont.css" rel="stylesheet" type="text/css" />
+  <link href="./static/cud4.0_iconfont/iconfont.css" rel="stylesheet" type="text/css" />
+  <link href="./static/lib/psc-module-icons/iconfont.css" rel="stylesheet" type="text/css" />
+  <link href="./static/css/el-icon.css" rel="stylesheet" type="text/css" />
+
+
+  <style>
+    .icon {
+      width: 18px;
+      height: 18px;
+      vertical-align: -0.15em;
+      fill: currentColor;
+      overflow: hidden;
+    }
+    /*查看流程图-未审批节点字体格式*/
+    /* .body-fullscreen-dialog svg .djs-element text {
+      font-weight: bold !important;
+      fill: #000 !important;
+      font-size: 15px !important;
+    } */
+    /*查看流程图-发起流程/已审批/待审批节点字体格式*/
+    .body-fullscreen-dialog svg .psc-status-activited text,
+    .body-fullscreen-dialog svg .djs-hit-all text,
+    .body-fullscreen-dialog svg .psc-status-completed text {
+      fill: #fff !important
+    }
+    /*查看流程图-每个节点的宽高*/
+    /* .body-fullscreen-dialog svg g,
+    .body-fullscreen-dialog svg g rect{
+      width: 120px !important;
+    } */
+  </style>
+</head>
+
+<body id="body" class="cud-light">
+  <div id="app"></div>
+</body>
+
+</html>
