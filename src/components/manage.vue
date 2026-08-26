@@ -405,7 +405,7 @@ export default {
           let count = res.total > 99 ? "99+" : res.total;
           store.commit("setBadgeCount", { name: "draftCount", count: count });
         }
-      });
+      }).catch(() => {});
     },
     //初始化搜索
     searchInit(val) {
@@ -512,16 +512,20 @@ export default {
     },
 
     async getPrivacyStatement() {
-      const params = { lang: this.defaultLanguage === "E" ? "cn" : "en" };
-      const { code, data } = await getPrivacyStatement(params);
-      if (code === "0") {
-        const { isAgree } = data;
-        if (isAgree) {
-          this.dialogVisible = false;
-        } else {
-          data && (this.contents = data);
-          this.dialogVisible = true;
+      try {
+        const params = { lang: this.defaultLanguage === "E" ? "cn" : "en" };
+        const { code, data } = await getPrivacyStatement(params);
+        if (code === "0") {
+          const { isAgree } = data;
+          if (isAgree) {
+            this.dialogVisible = false;
+          } else {
+            data && (this.contents = data);
+            this.dialogVisible = true;
+          }
         }
+      } catch (e) {
+        console.error("获取隐私协议失败", e);
       }
     },
     async handleArgee() {
@@ -794,42 +798,46 @@ export default {
     //获取当前用户
     async getNowUser() {
       let _this = this;
-      if (sessionStorage.getItem("user")) {
-        //解耦版本
-        // if (process.env.AUTH_TYPE !== "AEP") {
-        //   //授权系统返回的数据需特殊处理
-        //   _this.getAuthMenuPerm(sessionStorage.getItem("user"));
-        // } else {
-        _this.getMenuPerm(sessionStorage.getItem("user"));
-        // }
-        _this.nowUser = sessionStorage.getItem("user");
-        _this.userDept = sessionStorage.getItem("userDept");
-        _this.$root.NOW_USER = sessionStorage.getItem("user");
-      } else {
-        const result = await getUserInfo({ t: Math.random() });
-        _this.nowUser = result.data.data.nowUserName;
-        _this.userDept = result.data.data.userDeptName;
-        _this.$root.NOW_USER = result.data.data.nowUserName;
-        sessionStorage.setItem("user", result.data.data.nowUserName);
-        sessionStorage.setItem("userDept", result.data.data.userDeptName);
-        sessionStorage.setItem("userDeptId", result.data.data.userDeptId);
-        // 获取当前登陆人uau权限
-        const userRole = await getUserRoles({});
-        let userArr = userRole.data.data.map((item) => {
-          return item.roleName;
-        });
-        _this.role = userArr;
-        if (userArr && userArr.length > 0) {
-          let roleStr = userArr.join(",");
-          sessionStorage.setItem("role", roleStr);
+      try {
+        if (sessionStorage.getItem("user")) {
+          //解耦版本
+          // if (process.env.AUTH_TYPE !== "AEP") {
+          //   //授权系统返回的数据需特殊处理
+          //   _this.getAuthMenuPerm(sessionStorage.getItem("user"));
+          // } else {
+          _this.getMenuPerm(sessionStorage.getItem("user"));
+          // }
+          _this.nowUser = sessionStorage.getItem("user");
+          _this.userDept = sessionStorage.getItem("userDept");
+          _this.$root.NOW_USER = sessionStorage.getItem("user");
+        } else {
+          const result = await getUserInfo({ t: Math.random() });
+          _this.nowUser = result.data.data.nowUserName;
+          _this.userDept = result.data.data.userDeptName;
+          _this.$root.NOW_USER = result.data.data.nowUserName;
+          sessionStorage.setItem("user", result.data.data.nowUserName);
+          sessionStorage.setItem("userDept", result.data.data.userDeptName);
+          sessionStorage.setItem("userDeptId", result.data.data.userDeptId);
+          // 获取当前登陆人uau权限
+          const userRole = await getUserRoles({});
+          let userArr = userRole.data.data.map((item) => {
+            return item.roleName;
+          });
+          _this.role = userArr;
+          if (userArr && userArr.length > 0) {
+            let roleStr = userArr.join(",");
+            sessionStorage.setItem("role", roleStr);
+          }
+          //解耦版本
+          // if (process.env.AUTH_TYPE !== "AEP") {
+          //   //授权系统返回的数据需特殊处理
+          //   _this.getAuthMenuPerm(result.data.data);
+          // } else {
+          _this.getMenuPerm(result.data.data);
+          // }
         }
-        //解耦版本
-        // if (process.env.AUTH_TYPE !== "AEP") {
-        //   //授权系统返回的数据需特殊处理
-        //   _this.getAuthMenuPerm(result.data.data);
-        // } else {
-        _this.getMenuPerm(result.data.data);
-        // }
+      } catch (e) {
+        console.error("获取用户信息失败，使用本地菜单", e);
       }
       await _this.getMenuManagerGetFormMenuTree();
     },

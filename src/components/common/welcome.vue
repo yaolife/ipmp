@@ -6,6 +6,12 @@
         v-if="firstDataId"
         :firstDataId="firstDataId"
       ></customPreview>
+      <div v-else class="welcome-empty">
+        <i class="el-icon-monitor"></i>
+        <h2>{{ $t("lang.system_name") }}</h2>
+        <p>欢迎使用，当前为初始化环境</p>
+        <p class="welcome-empty-sub">首页门户尚未配置，后端接口暂不可用时将显示此页面。可从左侧菜单进入各功能模块。</p>
+      </div>
     </el-card>
   </div>
 </template>
@@ -103,19 +109,23 @@ export default {
     async getNowUser() {
       //获取用户信息
       let _this = this;
-      if (sessionStorage.getItem("user")) {
-        _this.nowUser = sessionStorage.getItem("user");
-        _this.userDept = sessionStorage.getItem("userDept");
-        this.getShortName();
-      } else {
-        const result = await getUserInfo({ t: Math.random() });
-        _this.nowUser = result.data.data.nowUserName;
-        _this.userDept = result.data.data.userDeptName;
-        sessionStorage.setItem("user", result.data.data.nowUserName);
-        sessionStorage.setItem("userDept", result.data.data.userDeptName);
-        sessionStorage.setItem("userDeptId", result.data.data.userDeptId);
+      try {
+        if (sessionStorage.getItem("user")) {
+          _this.nowUser = sessionStorage.getItem("user");
+          _this.userDept = sessionStorage.getItem("userDept");
+          this.getShortName();
+        } else {
+          const result = await getUserInfo({ t: Math.random() });
+          _this.nowUser = result.data.data.nowUserName;
+          _this.userDept = result.data.data.userDeptName;
+          sessionStorage.setItem("user", result.data.data.nowUserName);
+          sessionStorage.setItem("userDept", result.data.data.userDeptName);
+          sessionStorage.setItem("userDeptId", result.data.data.userDeptId);
 
-        this.getShortName();
+          this.getShortName();
+        }
+      } catch (e) {
+        console.error("获取用户信息失败", e);
       }
     },
     //名字缩写
@@ -131,12 +141,13 @@ export default {
 
     //获取首页id
     getChiefPage() {
-      getChiefPageAPI().then((res) => {
-        console.log(res.data, "res.data");
-        if (res.code == "0") {
-          this.firstDataId = res.data;
-        }
-      });
+      getChiefPageAPI()
+        .then((res) => {
+          if (res.code == "0") {
+            this.firstDataId = res.data;
+          }
+        })
+        .catch(() => {});
     },
   },
 };
@@ -177,6 +188,36 @@ export default {
 .welcome {
   padding: 15% 200px;
   text-align: center;
+}
+.welcome-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #303133;
+  text-align: center;
+  i {
+    font-size: 56px;
+    color: #409eff;
+    margin-bottom: 16px;
+  }
+  h2 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #606266;
+  }
+  .welcome-empty-sub {
+    margin-top: 8px;
+    color: #909399;
+    max-width: 480px;
+    line-height: 1.6;
+  }
 }
 .interval {
   padding-top: 20px;

@@ -226,14 +226,22 @@ Vue.use(businessMsg);
 router.beforeEach(async (to, from, next) => {
   // 解决首次进入时会显示页面再刷新的问题,直接同步加载,401跳转4A
   // 解耦版不执行该操作
-  if (process.env.AUTH_TYPE === "AEP" && !sessionStorage.getItem("user")) {
-    await getUserInfo({
-      t: Math.random()
-    }).then(result => {
+  if (
+    process.env.AUTH_TYPE === "AEP" &&
+    !sessionStorage.getItem("user") &&
+    to.path !== "/login"
+  ) {
+    try {
+      const result = await getUserInfo({
+        t: Math.random()
+      });
       sessionStorage.setItem("user", result.data.data.nowUserName);
       sessionStorage.setItem("userDept", result.data.data.userDeptName);
       sessionStorage.setItem("userDeptId", result.data.data.userDeptId);
-    });
+    } catch (e) {
+      // 后端不可用时不阻塞入口页渲染
+      console.error("获取用户信息失败，继续进入页面", e);
+    }
   }
   //邮件跳转
   if (to.path == "/workbench/view") {
