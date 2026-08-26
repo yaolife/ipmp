@@ -63,6 +63,7 @@ import FieldsConfig from "@/components/form/fieldsConfig";
 // import WorkflowModule from "../cudcomponents/workflowModule/";
 import WorkflowModule from "../lib/cud4.0/cud4-component.js";
 import "../lib/cud4.0/static/css/cud4-component.css";
+import "@/assets/lib/css/table-empty-center.css";
 
 // 引用框架提供的本地样式,不采用框架打包样式
 // require("@/assets/lib/css/global.css");

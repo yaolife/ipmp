@@ -1,0 +1,49 @@
+/* 菜单列表表格：空数据时占位图在表体区域内垂直居中 */
+.cud__table--list {
+  position: relative;
+}
+
+.cud__table--list .el-table {
+  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.cud__table--list .el-table__header-wrapper,
+.cud__table--list .el-table__footer-wrapper {
+  flex-shrink: 0;
+}
+
+.cud__table--list .el-table__body-wrapper {
+  flex: 1 1 auto;
+  height: auto !important;
+  max-height: none !important;
+  position: relative;
+  overflow: auto;
+}
+
+.el-table td.is-center,
+.el-table th.is-center {
+  text-align: center;
+}
+
+.el-table td.is-center > .cell {
+  text-align: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+}
+
+.el-table__empty-block {
+  width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.el-table__empty-text {
+  box-sizing: content-box;
+  transform: none;
+  line-height: 24px;
+}

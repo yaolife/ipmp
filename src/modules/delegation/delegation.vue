@@ -60,42 +60,42 @@
               :index="indexMethod"
             ></el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               prop="code"
               :label="$t('lang.pipe_code')"
               min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               prop="pipeName"
               :label="$t('lang.pipe_name')"
               min-width="180"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               prop="type"
               :label="$t('lang.pipe_type')"
               min-width="100"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               prop="owner"
               :label="$t('lang.pipe_owner')"
               min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               prop="updateTime"
               :label="$t('lang.update_time')"
               min-width="170"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               prop="status"
               :label="$t('lang.status')"
               width="110"
@@ -113,7 +113,7 @@
               </template>
             </el-table-column>
             <el-table-column
-              align="left"
+              align="center"
               :label="$t('cm.operate')"
               width="200"
               fixed="right"
@@ -187,5 +187,8 @@ export default delegation;
 }
 /deep/ .el-button--text {
   user-select: unset;
+}
+.table-button {
+  text-align: right;
 }
 </style>
