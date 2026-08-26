@@ -265,13 +265,7 @@
         </el-main>
       </el-container>
     </el-container>
-    <protocol-dialog
-      :lang="defaultLanguage"
-      :dialogVisible="dialogVisible"
-      @handleArgee="handleArgee"
-      v-bind="contents"
-      @closeDialog="closeDialog"
-    />
+    <!-- 初始化环境不展示隐私协议弹窗 -->
   </el-container>
 </template>
 
@@ -299,7 +293,6 @@ import LangSwitch from "./i18n/lang_switch";
 import osUtil from "@/utils/osUtil";
 import multipleTabs from "@/components/common/multipleTabs";
 import userCenter from "@/components/common/userCenter";
-import protocolDialog from "@/components/common/protocolDialog.vue";
 import draftApi from "../modules/drafts/api/index";
 // import router from "@/router/index.js"
 export default {
@@ -307,7 +300,6 @@ export default {
     LangSwitch,
     multipleTabs,
     userCenter,
-    protocolDialog,
   },
   data() {
     return {
@@ -349,7 +341,6 @@ export default {
     },
   },
   created() {
-    this.getPrivacyStatement(); //获取隐私协议
     this.$nextTick(async () => {
       await this.getNowUser(); //获取当前用户信息，右上角展示
       //能否切换用户
@@ -538,6 +529,15 @@ export default {
     iconfontFn(icon) {
       return iconfont(icon);
     },
+    filterHomeMenu(list) {
+      return (list || []).filter((item) => {
+        return (
+          item.resource !== "welcome" &&
+          item.name !== "cm.home" &&
+          item.url !== "/"
+        );
+      });
+    },
     async getMenuManagerGetFormMenuTree() {
       let newMenu = [];
       // 一级菜单
@@ -579,7 +579,8 @@ export default {
       try {
         let totalMenus = JSON.parse(sessionStorage.getItem("totalMenu"));
         if (totalMenus && totalMenus.length !== 0) {
-          this.menus = totalMenus;
+          this.menus = this.filterHomeMenu(totalMenus);
+          sessionStorage.setItem("totalMenu", JSON.stringify(this.menus));
         } else {
           let res = await getFormMenuTreeAPI();
           const list = res.data.data;
@@ -694,11 +695,11 @@ export default {
            * @menus 业务表单菜单数据
            * 业务表单新增二级/三级菜单，判断name字段，与业务表单管理/业务表单/菜单管理中新增的
            */
-          this.menus = Object.freeze([...newMenu, ...menus]);
+          this.menus = Object.freeze(this.filterHomeMenu([...newMenu, ...menus]));
           sessionStorage.setItem("totalMenu", JSON.stringify(this.menus));
         }
       } catch (error) {
-        this.menus = newMenu;
+        this.menus = this.filterHomeMenu(newMenu);
       }
     },
     /**

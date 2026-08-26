@@ -1,11 +1,5 @@
 [
   {
-    "name": "cm.home",
-    "iconNor": "&#xe98e;",
-    "resource": "welcome",
-    "url": "/"
-  },
-  {
     "name": "workbench.workbench",
     "iconNor": "&#xe9ae;",
     "resource": "workbench3",
