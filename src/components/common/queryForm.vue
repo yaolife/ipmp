@@ -28,6 +28,7 @@
             >{{ $t("cgnCommon.reset") }}</el-button
           >
           <el-popover
+            v-if="showMoreSetting"
             placement="top-end"
             width="200"
             trigger="click"
@@ -182,7 +183,7 @@
         </el-row>
       </el-form>
     </div>
-    <div class="query-collapse" v-if="fields.length > 0">
+    <div class="query-collapse" v-if="fields.length > 0 && showMoreSetting">
       <el-button
         type="text"
         @click="queryCollapse(false)"
@@ -263,6 +264,7 @@ export default {
     loading: { type: Boolean, default: false }, //列表加载中，禁用搜索按钮
     isFlowManageType: { type: Boolean, default: false }, //是否为流程分类页面
     isFullscreen: { type: Boolean, default: true }, //是否为流程分类页面
+    showMoreSetting: { type: Boolean, default: true }, //是否显示重置后的字段配置按钮
 
     // @resize: { type: Function },               //展开表单时触发，用于调整高度
     // @submit: { type: Function },               //点击搜索时触发
