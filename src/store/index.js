@@ -15,7 +15,6 @@ import user from "./modules/user";
 import app from "./modules/app";
 import proc from "./modules/proc";
 import lightAuth from "./modules/lightAuth";
-import i18n from "./modules/i18n";
 import buriedCode from "./modules/buriedCode";
 // import chart from "@report/store"
 // import designer from "@report/store/modules/designer"
@@ -27,7 +26,6 @@ const store = new vuex.Store({
     app,
     proc,
     lightAuth,
-    i18n,
     buriedCode
     // chart,
     // designer,
@@ -36,3 +34,7 @@ const store = new vuex.Store({
 });
 
 export default store;
+
+// i18n 模块会间接引用 http/router，必须在 store 导出后再加载，避免循环依赖导致 store 为 undefined
+const i18nModule = require("./modules/i18n");
+store.registerModule("i18n", i18nModule.default || i18nModule);

@@ -1,5 +1,3 @@
-import axios from '@/api/http'
-
 const itemUrl = "/sys/i18n/item/list",
   cacheKey = 'i18nObj',
   cacheVersionKey = 'i18nVersions',
@@ -105,7 +103,8 @@ export default {
     async reqI18n({state, commit}, groupCode) { 
       if (!!state.look[groupCode]) return
       commit("lookReq", groupCode)
-      const {data} = await axios.get(`${itemUrl}/${groupCode}`)
+      const http = require("@/api/http").default || require("@/api/http")
+      const {data} = await http.get(`${itemUrl}/${groupCode}`)
       if (data.code === '0') {
         commit("mergeI18nObj", data.data)
       }

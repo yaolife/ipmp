@@ -8,8 +8,8 @@
  */
 import Vue from "vue";
 import VueI18n from "vue-i18n";
-import App from "./App";
 import router from "./router";
+import App from "./App";
 import ElementUI from "element-ui";
 
 import enLocale from "element-ui/lib/locale/lang/en";
@@ -17,7 +17,6 @@ import zhLocale from "element-ui/lib/locale/lang/zh-CN";
 import axios from "axios";
 import VueAxios from "vue-axios";
 import url from "@/api/api";
-import store from "./store";
 import Vue2OrgTree from "vue2-org-tree";
 Vue.use(Vue2OrgTree);
 import dragMove from "./utils/dragMove"; // 支持弹窗移动
@@ -120,9 +119,28 @@ for (let routerWorkflow of WorkflowModule.routerDefine.WorkflowRouter) {
   router.addRoute("manage", routerWorkflow);
 }
 
-//添加Vuex的整合
-store.registerModule("workflow", WorkflowModule.store.workflowStore);
-store.registerModule("form", WorkflowModule.store.formStore);
+//添加Vuex的整合（运行时再取 store，避免循环依赖把 ES import 绑定成 undefined）
+function resolveVuexStore() {
+  const storeModule = require("./store");
+  const candidates = [
+    storeModule,
+    storeModule && storeModule.default,
+    storeModule && storeModule.a
+  ];
+  for (let i = 0; i < candidates.length; i++) {
+    const item = candidates[i];
+    if (item && typeof item.registerModule === "function") {
+      return item;
+    }
+  }
+  return null;
+}
+const vuexStore = resolveVuexStore();
+if (!vuexStore) {
+  throw new Error("Vuex store 初始化失败，请检查 src/store 循环依赖");
+}
+vuexStore.registerModule("workflow", WorkflowModule.store.workflowStore);
+vuexStore.registerModule("form", WorkflowModule.store.formStore);
 
 import LocalComponent from "@/components/form/components";
 import LocalWidget from "@/components/form/widget";
@@ -276,7 +294,7 @@ router.beforeEach(async (to, from, next) => {
         }
       } else {
         getMenuPermission(userId).then(async result => {
-          store.commit("setNavTree", result.data.data);
+          vuexStore.commit("setNavTree", result.data.data);
           sessionStorage.setItem("menus", JSON.stringify(result.data.data));
           if (hasMenuPerm(to.meta)) {
             next();
@@ -302,7 +320,7 @@ const startTime = performance.now();
 router.afterEach((to, from, next) => {
   const endTime = performance.now();
   const time = (endTime - startTime) / 1000;
-  store.dispatch("callCmmonMethod", { time, to, type: "WEB" });
+  vuexStore.dispatch("callCmmonMethod", { time, to, type: "WEB" });
 });
 
 function hasMenuPerm(url) {
@@ -322,7 +340,7 @@ new Vue({
   el: "#app",
   router,
   i18n,
-  store,
+  store: vuexStore,
   data: {
     COLLAPSE: false,
     NOW_USER: "" //当前用户信息 [pxmwxxx]xxx

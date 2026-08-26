@@ -3,8 +3,23 @@
  */
 import axios from 'axios'
 import Vue from 'vue'
-import store from '@/store'
-import router from '../router'
+
+function unwrapModule(mod) {
+  if (!mod) return mod;
+  if (mod.default) return mod.default;
+  if (mod.a && (mod.a.state || mod.a.currentRoute || typeof mod.a.registerModule === "function")) {
+    return mod.a;
+  }
+  return mod;
+}
+
+function getStore() {
+  return unwrapModule(require('@/store'));
+}
+
+function getRouter() {
+  return unwrapModule(require('../router'));
+}
 
 let vm = new Vue();
 let _this = this;
@@ -24,7 +39,7 @@ instance.interceptors.request.use(
       config.baseURL = envConfig.API_ROOT
     }
     let locationHref = sessionStorage.getItem('locationHref');
-    if (locationHref && router.currentRoute.path === '/welcome') {
+    if (locationHref && getRouter().currentRoute.path === '/welcome') {
       //登录页面不做跳转
       //解决静态扫描问题，当前URL域与跳转前记录的URL域一致时才跳转，防止被篡改跳转
       if (location.href.indexOf("/#/login") === -1 && isVaildPath(locationHref)) {
@@ -40,7 +55,7 @@ instance.interceptors.request.use(
     //中英文
     let url = config.url;
     // config.url = url.indexOf('?') == '-1' ? url + '?_=' + new Date().getTime() : url + '&_=' + new Date().getTime();
-    let lang = store.state.i18n.language;
+    let lang = getStore().state.i18n.language;
     var currentLocale = sessionStorage.getItem("locale");
     config.url = url.indexOf('?') == '-1' ? url + '?_=' + new Date().getTime() + '&lang=' + lang : url + '&_=' + new Date().getTime() + '&lang=' + lang;
 
@@ -87,8 +102,8 @@ instance.interceptors.response.use(
 
       // 邮件功能
       // 登录页面不记录
-      if (location.href.indexOf("/#/login") === -1 && router.currentRoute.fullPath) {
-        sessionStorage.setItem('locationHref', router.currentRoute.fullPath);
+      if (location.href.indexOf("/#/login") === -1 && getRouter().currentRoute.fullPath) {
+        sessionStorage.setItem('locationHref', getRouter().currentRoute.fullPath);
       }
       sessionStorage.removeItem('user');
       // PRO是否是解耦版本
