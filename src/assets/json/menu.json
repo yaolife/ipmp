@@ -1,19 +1,9 @@
 [
   {
-    "name": "workbench.workbench",
+    "name": "lang.asset_manage",
     "iconNor": "&#xe9ae;",
     "resource": "workbench3",
     "children": [
-      {
-        "name": "workbench.initiating_process",
-        "url": "/start",
-        "resource": "start"
-      },
-      {
-        "name": "workbench.my_office",
-        "url": "/office",
-        "resource": "office"
-      },
       {
         "name": "workbench.my_drafts",
         "url": "/drafts",

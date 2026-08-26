@@ -9,11 +9,6 @@ import home from "@/modules/home/index";
 // 登录页
 import login from "@/modules/login/login";
 
-/** ---------- 个人工作台 ---------- */
-// 发起流程
-import start from "@/modules/mywork/start";
-// 我的办公
-import office from "@/modules/mywork/office";
 // 我的草稿
 import drafts from "@/modules/drafts/drafts";
 // 我的关注
@@ -200,19 +195,7 @@ const _router = new Router({
           name: "401页面",
           component: nopermission
         },
-        // 个人工作台
-        {
-          path: "/office",
-          name: "我的办公",
-          component: office,
-          meta: "office"
-        },
-        {
-          path: "/start",
-          name: "发起流程",
-          component: start,
-          meta: "start"
-        },
+        // 资产管理
         {
           path: "/drafts",
           name: "我的草稿",

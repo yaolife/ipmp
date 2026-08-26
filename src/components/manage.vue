@@ -529,14 +529,35 @@ export default {
     iconfontFn(icon) {
       return iconfont(icon);
     },
-    filterHomeMenu(list) {
-      return (list || []).filter((item) => {
-        return (
-          item.resource !== "welcome" &&
-          item.name !== "cm.home" &&
-          item.url !== "/"
-        );
-      });
+    filterHiddenMenus(list) {
+      const hiddenResources = ["welcome", "start", "office"];
+      const hiddenUrls = ["/", "/start", "/office"];
+      const hiddenNames = ["cm.home", "workbench.initiating_process", "workbench.my_office"];
+      return (list || [])
+        .map((item) => {
+          const children = (item.children || []).filter((child) => {
+            return (
+              hiddenResources.indexOf(child.resource) === -1 &&
+              hiddenUrls.indexOf(child.url) === -1 &&
+              hiddenNames.indexOf(child.name) === -1
+            );
+          });
+          const renamed =
+            item.resource === "workbench3" || item.name === "workbench.workbench"
+              ? Object.assign({}, item, {
+                  name: "lang.asset_manage",
+                  children: children
+                })
+              : Object.assign({}, item, { children: children });
+          return renamed;
+        })
+        .filter((item) => {
+          return (
+            hiddenResources.indexOf(item.resource) === -1 &&
+            hiddenUrls.indexOf(item.url) === -1 &&
+            hiddenNames.indexOf(item.name) === -1
+          );
+        });
     },
     async getMenuManagerGetFormMenuTree() {
       let newMenu = [];
@@ -579,7 +600,7 @@ export default {
       try {
         let totalMenus = JSON.parse(sessionStorage.getItem("totalMenu"));
         if (totalMenus && totalMenus.length !== 0) {
-          this.menus = this.filterHomeMenu(totalMenus);
+          this.menus = this.filterHiddenMenus(totalMenus);
           sessionStorage.setItem("totalMenu", JSON.stringify(this.menus));
         } else {
           let res = await getFormMenuTreeAPI();
@@ -695,11 +716,11 @@ export default {
            * @menus 业务表单菜单数据
            * 业务表单新增二级/三级菜单，判断name字段，与业务表单管理/业务表单/菜单管理中新增的
            */
-          this.menus = Object.freeze(this.filterHomeMenu([...newMenu, ...menus]));
+          this.menus = Object.freeze(this.filterHiddenMenus([...newMenu, ...menus]));
           sessionStorage.setItem("totalMenu", JSON.stringify(this.menus));
         }
       } catch (error) {
-        this.menus = this.filterHomeMenu(newMenu);
+        this.menus = this.filterHiddenMenus(newMenu);
       }
     },
     /**

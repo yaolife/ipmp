@@ -57,7 +57,8 @@ export const lang = {
     table_noline: "表格-无线条",
     already_done_task: "已办任务",
     need_deal_task: "待办任务",
-    workbench: "个人工作台",
+    workbench: "资产管理",
+    asset_manage: "资产管理",
     purchase_order: "采购订单",
     master_slave_table: "主从表",
     baseinfo: "基本信息",
@@ -66,6 +67,5 @@ export const lang = {
     process_initialize: "流程初始化",
     need_deal_task_details: "待办任务详情",
     nofindPage: "404页面",
-    workbench: "个人工作台",
     logList: "日志列表",
 };
