@@ -15,7 +15,7 @@ export default {
   data: function () {
     return {
       hasIcon: false,
-      brand: [{ name: "workbench.workbench" }, { name: "workbench.my_drafts" }],
+      brand: [{ name: "lang.asset_manage" }, { name: "lang.pipe_database" }],
       selectnum: "0",
       isSelected: [],
       is_collapse: false,

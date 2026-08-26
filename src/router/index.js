@@ -2,18 +2,14 @@ import Vue from "vue";
 import Router from "vue-router";
 import manage from "@/components/manage";
 
-// 首页 默认重定向至待办/office
-import welcome from "@/components/common/welcome";
-// 新版首页
-import home from "@/modules/home/index";
 // 登录页
 import login from "@/modules/login/login";
 
-// 我的草稿
+// 管道数据库
 import drafts from "@/modules/drafts/drafts";
-// 我的关注
+// 支吊架数据库
 import concern from "@/modules/concern/concern";
-// 我的代理
+// 管道元件数据库
 import delegation from "@/modules/delegation/delegation";
 
 /** ---------- 字典管理 ---------- */
@@ -173,11 +169,12 @@ const _router = new Router({
         ...authManage,
         ...jurisdictionRouter,
         {
+          path: "",
+          redirect: "/pipeDatabase"
+        },
+        {
           path: "/welcome/:id?",
-          component: welcome,
-          name: "首页",
-          alias: ["/", "/welcome/:path*/:id"],
-          meta: "welcome"
+          redirect: "/pipeDatabase"
         },
         {
           path: "/breadcrumb",
@@ -197,22 +194,25 @@ const _router = new Router({
         },
         // 资产管理
         {
-          path: "/drafts",
-          name: "我的草稿",
+          path: "/pipeDatabase",
+          name: "管道数据库",
           component: drafts,
-          meta: "drafts"
+          meta: "pipeDatabase",
+          alias: "/drafts"
         },
         {
-          path: "/concern",
-          name: "我的关注",
+          path: "/hangerDatabase",
+          name: "支吊架数据库",
           component: concern,
-          meta: "concern"
+          meta: "hangerDatabase",
+          alias: "/concern"
         },
         {
-          path: "/delegation",
-          name: "我的代理",
+          path: "/pipeComponentDatabase",
+          name: "管道元件数据库",
           component: delegation,
-          meta: "delegation"
+          meta: "pipeComponentDatabase",
+          alias: "/delegation"
         },
         // 数据字典管理
         {

@@ -26,7 +26,7 @@ export default {
     if (JSON.stringify(this.$route.meta) === "{}") {
       // 路由重定向
       setTimeout(() => {
-        sessionStorage.setItem("menuCode", "office");
+        sessionStorage.setItem("menuCode", "pipeDatabase");
       }, 1000);
     } else {
       sessionStorage.setItem("menuCode", this.$route.meta);

@@ -374,10 +374,6 @@ export default {
       this.menuSelect(this.activeIndex);
       //折叠菜单
       this.menuCollapse();
-      //首页折叠其他菜单
-      if (to.path == "/welcome") {
-        this.defaultOpeneds = [];
-      }
     },
     menus(val) {
       //菜单变化时更新搜索下拉
@@ -531,17 +527,60 @@ export default {
     },
     filterHiddenMenus(list) {
       const hiddenResources = ["welcome", "start", "office"];
-      const hiddenUrls = ["/", "/start", "/office"];
+      const hiddenUrls = ["/", "/start", "/office", "/welcome"];
       const hiddenNames = ["cm.home", "workbench.initiating_process", "workbench.my_office"];
+      const menuRenameMap = {
+        "workbench.my_drafts": {
+          name: "lang.pipe_database",
+          url: "/pipeDatabase",
+          resource: "pipeDatabase"
+        },
+        "workbench.my_concern": {
+          name: "lang.hanger_database",
+          url: "/hangerDatabase",
+          resource: "hangerDatabase"
+        },
+        "workbench.my_delegation": {
+          name: "lang.pipe_component_database",
+          url: "/pipeComponentDatabase",
+          resource: "pipeComponentDatabase"
+        }
+      };
+      const urlRenameMap = {
+        "/drafts": menuRenameMap["workbench.my_drafts"],
+        "/concern": menuRenameMap["workbench.my_concern"],
+        "/delegation": menuRenameMap["workbench.my_delegation"]
+      };
+      const resourceRenameMap = {
+        drafts: menuRenameMap["workbench.my_drafts"],
+        concern: menuRenameMap["workbench.my_concern"],
+        delegation: menuRenameMap["workbench.my_delegation"]
+      };
+      const remapItem = (item) => {
+        const mapped =
+          menuRenameMap[item.name] ||
+          urlRenameMap[item.url] ||
+          resourceRenameMap[item.resource];
+        return mapped ? Object.assign({}, item, mapped) : item;
+      };
+      const isHidden = (item) => {
+        return (
+          hiddenResources.indexOf(item.resource) !== -1 ||
+          hiddenUrls.indexOf(item.url) !== -1 ||
+          hiddenNames.indexOf(item.name) !== -1
+        );
+      };
       return (list || [])
         .map((item) => {
-          const children = (item.children || []).filter((child) => {
-            return (
-              hiddenResources.indexOf(child.resource) === -1 &&
-              hiddenUrls.indexOf(child.url) === -1 &&
-              hiddenNames.indexOf(child.name) === -1
-            );
-          });
+          const children = (item.children || [])
+            .filter((child) => !isHidden(child))
+            .map((child) => {
+              const remapped = remapItem(child);
+              const nested = (remapped.children || [])
+                .filter((last) => !isHidden(last))
+                .map(remapItem);
+              return Object.assign({}, remapped, { children: nested });
+            });
           const renamed =
             item.resource === "workbench3" || item.name === "workbench.workbench"
               ? Object.assign({}, item, {
@@ -551,13 +590,7 @@ export default {
               : Object.assign({}, item, { children: children });
           return renamed;
         })
-        .filter((item) => {
-          return (
-            hiddenResources.indexOf(item.resource) === -1 &&
-            hiddenUrls.indexOf(item.url) === -1 &&
-            hiddenNames.indexOf(item.name) === -1
-          );
-        });
+        .filter((item) => !isHidden(item));
     },
     async getMenuManagerGetFormMenuTree() {
       let newMenu = [];

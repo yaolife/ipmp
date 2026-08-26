@@ -170,9 +170,16 @@ export default {
       if (this.showTabs === true) {
         let multipleTabs = sessionStorage.getItem("multipleTabs");
         if (!multipleTabs) {
-          this.addTab(this.$route);
+          if (!this.isHomeRoute(this.$route)) {
+            this.addTab(this.$route);
+          }
         } else {
-          this.multipleTabs = JSON.parse(multipleTabs);
+          this.multipleTabs = JSON.parse(multipleTabs)
+            .filter((item) => !this.isHomeTab(item))
+            .map((item) => this.remapTab(item));
+          if (!this.multipleTabs.length && !this.isHomeRoute(this.$route)) {
+            this.addTab(this.$route);
+          }
         }
         //切换到当前TAB页面
         this.currentTab = this.$route.fullPath;
@@ -196,6 +203,43 @@ export default {
     // handleMouseLeave(event) {
     //   this.$set(event, "isHover", false);
     // },
+    isHomeTab(item) {
+      const path = (item && item.path) || "";
+      const name = (item && item.name) || "";
+      const label = (item && item.label) || "";
+      return (
+        label === "首页" ||
+        path === "/" ||
+        path === "/welcome" ||
+        path.indexOf("/welcome") === 0 ||
+        name === "/" ||
+        name === "/welcome"
+      );
+    },
+    isHomeRoute(route) {
+      const path = (route && route.path) || "";
+      return (
+        path === "/" ||
+        path === "/welcome" ||
+        path.indexOf("/welcome") === 0 ||
+        route.name === "首页" ||
+        route.meta === "welcome"
+      );
+    },
+    remapTab(item) {
+      const tabRenameMap = {
+        "/drafts": { path: "/pipeDatabase", label: "管道数据库" },
+        "/concern": { path: "/hangerDatabase", label: "支吊架数据库" },
+        "/delegation": { path: "/pipeComponentDatabase", label: "管道元件数据库" }
+      };
+      const mapped = tabRenameMap[item.path] || tabRenameMap[item.name];
+      if (!mapped) return item;
+      return Object.assign({}, item, {
+        path: mapped.path,
+        name: mapped.path,
+        label: mapped.label
+      });
+    },
     //判断打开方式
     openTab(route) {
       //route 路由信息
@@ -351,6 +395,9 @@ export default {
 
     //路由切换
     routeChange(route) {
+      if (this.isHomeRoute(route)) {
+        return;
+      }
       let found = this.multipleTabs.find(item => {
         return item.name === route.fullPath;
       });

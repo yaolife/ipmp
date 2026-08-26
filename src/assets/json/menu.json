@@ -5,20 +5,20 @@
     "resource": "workbench3",
     "children": [
       {
-        "name": "workbench.my_drafts",
-        "url": "/drafts",
-        "resource": "drafts",
+        "name": "lang.pipe_database",
+        "url": "/pipeDatabase",
+        "resource": "pipeDatabase",
         "badge": "draftCount"
       },
       {
-        "name": "workbench.my_concern",
-        "url": "/concern",
-        "resource": "concern"
+        "name": "lang.hanger_database",
+        "url": "/hangerDatabase",
+        "resource": "hangerDatabase"
       },
       {
-        "name": "workbench.my_delegation",
-        "url": "/delegation",
-        "resource": "delegation"
+        "name": "lang.pipe_component_database",
+        "url": "/pipeComponentDatabase",
+        "resource": "pipeComponentDatabase"
       }
     ]
   },

@@ -728,7 +728,7 @@ export default {
               message: result.msg,
               type: "success"
             });
-            this.closeWindow("/concern");
+            this.closeWindow("/hangerDatabase");
           } else {
             this.$message({
               message: result.msg,

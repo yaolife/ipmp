@@ -30,8 +30,8 @@ export default {
       initUserId: "",
       hasIcon: false,
       brand: [
-        { name: "workbench.workbench" },
-        { name: "workbench.my_delegation" }
+        { name: "lang.asset_manage" },
+        { name: "lang.pipe_component_database" }
       ],
       ascUrl: envConfig.ASC_ROOT,
       tableData: [],

@@ -21,8 +21,8 @@ export default {
     return {
       hasIcon: false,
       brand: [
-        { name: "workbench.workbench" },
-        { name: "workbench.my_concern" }
+        { name: "lang.asset_manage" },
+        { name: "lang.hanger_database" }
       ],
       selectnum: "0",
       loading: false,
