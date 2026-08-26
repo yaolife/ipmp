@@ -7,7 +7,7 @@
  * @Description: 
  */
 export const lang = {
-    system_name: "中广核统一开发框架（CUD4.3）",
+    system_name: "智慧官网平台",
     change_text: "切换用户",
     logout: "退出登录",
     logout_confirm: '确定要退出登录?',
