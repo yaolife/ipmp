@@ -198,95 +198,191 @@
       </el-tab-pane>
     </el-tabs>
     <el-dialog
-      :title="$t('lang.edit_info')"
+      :title="$t('lang.edit_device_params')"
       :visible.sync="editVisible"
-      width="800px"
+      width="760px"
+      custom-class="pipe-edit-dialog"
       append-to-body
       @close="editVisible = false"
     >
       <el-form
         ref="editForm"
         :model="editForm"
-        label-width="160px"
+        label-width="148px"
+        label-position="left"
         size="small"
+        class="pipe-edit-form"
       >
-        <el-row :gutter="16">
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.pipeline_no')">
-              <el-input v-model="editForm.pipelineNo"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.pipe_name')">
-              <el-input v-model="editForm.pipelineName"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.pipeline_start')">
-              <el-input v-model="editForm.startPoint"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.pipeline_end')">
-              <el-input v-model="editForm.endPoint"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.working_medium')">
-              <el-input v-model="editForm.workingMedium"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.nominal_diameter')">
-              <el-input v-model="editForm.nominalDiameter"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.outer_diameter')">
-              <el-input v-model="editForm.outerDiameter"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.wall_thickness')">
-              <el-input v-model="editForm.wallThickness"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.material')">
-              <el-input v-model="editForm.material"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.spec_code')">
-              <el-input v-model="editForm.specCode"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.design_pressure')">
-              <el-input v-model="editForm.designPressure"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.design_temperature')">
-              <el-input v-model="editForm.designTemperature"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.operating_pressure')">
-              <el-input v-model="editForm.operatingPressure"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.operating_temperature')">
-              <el-input v-model="editForm.operatingTemperature"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('lang.iso_code')">
-              <el-input v-model="editForm.isoCode"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <div class="edit-section">
+          <div class="edit-section-title">{{ $t("lang.pipe_basic_info") }}</div>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.pipeline_no')">
+                <el-input
+                  v-model="editForm.pipelineNo"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.pipe_name')">
+                <el-input
+                  v-model="editForm.pipelineName"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.pipeline_start')">
+                <el-input
+                  v-model="editForm.startPoint"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.pipeline_end')">
+                <el-input
+                  v-model="editForm.endPoint"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.working_medium')">
+                <el-input
+                  v-model="editForm.workingMedium"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="edit-section">
+          <div class="edit-section-title">{{ $t("lang.spec_material") }}</div>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_nominal_diameter')">
+                <el-input
+                  v-model="editForm.nominalDiameter"
+                  class="has-unit-mm"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_mm")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_outer_diameter')">
+                <el-input
+                  v-model="editForm.outerDiameter"
+                  class="has-unit-mm"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_mm")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_wall_thickness')">
+                <el-input
+                  v-model="editForm.wallThickness"
+                  class="has-unit-mm"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_mm")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.material')">
+                <el-input
+                  v-model="editForm.material"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.spec_code')">
+                <el-input
+                  v-model="editForm.specCode"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="edit-section">
+          <div class="edit-section-title">{{ $t("lang.design_runtime") }}</div>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_design_pressure')">
+                <el-input
+                  v-model="editForm.designPressure"
+                  class="has-unit-mpa"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_mpa")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_design_temperature')">
+                <el-input
+                  v-model="editForm.designTemperature"
+                  class="has-unit-c"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_celsius")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_operating_pressure')">
+                <el-input
+                  v-model="editForm.operatingPressure"
+                  class="has-unit-mpa"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_mpa")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('lang.form_operating_temperature')">
+                <el-input
+                  v-model="editForm.operatingTemperature"
+                  class="has-unit-c"
+                  :placeholder="$t('cm.pleaseEnter')"
+                >
+                  <span slot="suffix" class="input-unit">{{
+                    $t("lang.unit_celsius")
+                  }}</span>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item :label="$t('lang.iso_code')">
+                <el-input
+                  v-model="editForm.isoCode"
+                  :placeholder="$t('cm.pleaseEnter')"
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
       </el-form>
       <span slot="footer">
         <el-button size="small" @click="editVisible = false">{{
@@ -297,7 +393,7 @@
           size="small"
           :loading="saving"
           @click="saveEdit"
-          >{{ $t("cm.confirm") }}</el-button
+          >{{ $t("cm.save") }}</el-button
         >
       </span>
     </el-dialog>
@@ -683,5 +779,78 @@ export default {
   padding: 72px 0;
   text-align: center;
   color: #909399;
+}
+.pipe-edit-form {
+  .edit-section {
+    margin-bottom: 2px;
+  }
+  .edit-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2329;
+    margin: 4px 0 6px;
+    padding-left: 8px;
+    line-height: 16px;
+    border-left: 3px solid #2f6bff;
+  }
+  .el-form-item {
+    margin-bottom: 4px;
+  }
+  .input-unit {
+    color: #8a8f99;
+    font-size: 12px;
+    padding-right: 4px;
+  }
+}
+</style>
+<style lang="less">
+.pipe-edit-dialog {
+  border-radius: 8px;
+  overflow: hidden;
+  .el-dialog__header {
+    height: 40px !important;
+    line-height: 40px !important;
+    padding: 0 16px !important;
+    overflow: hidden;
+    border-bottom: 1px solid #ebebeb;
+  }
+  .el-dialog__headerbtn {
+    top: 0 !important;
+    right: 12px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+  }
+  .el-dialog__title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 40px;
+    color: #1f2329;
+  }
+  .el-dialog__body {
+    padding: 10px 20px 2px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .el-dialog__footer {
+    padding: 8px 16px 10px;
+    border-top: 1px solid #f0f2f5;
+  }
+  .pipe-edit-form .el-form-item {
+    margin-bottom: 4px;
+  }
+  .pipe-edit-form .el-form-item__label {
+    text-align: left !important;
+    padding: 0 8px 0 11px;
+  }
+  .has-unit-mm .el-input__inner {
+    padding-right: 40px;
+  }
+  .has-unit-mpa .el-input__inner {
+    padding-right: 58px;
+  }
+  .has-unit-c .el-input__inner {
+    padding-right: 40px;
+  }
 }
 </style>
