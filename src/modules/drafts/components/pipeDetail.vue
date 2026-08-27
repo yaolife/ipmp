@@ -784,6 +784,20 @@ export default {
   .edit-section {
     margin-bottom: 2px;
   }
+  .edit-section + .edit-section {
+    position: relative;
+    margin-top: 8px;
+    padding-top: 10px;
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 11px;
+      right: 15px;
+      height: 1px;
+      background: #ebeef5;
+    }
+  }
   .edit-section-title {
     font-size: 14px;
     font-weight: 600;
@@ -842,6 +856,20 @@ export default {
   .pipe-edit-form .el-form-item__label {
     text-align: left !important;
     padding: 0 8px 0 11px;
+  }
+  .pipe-edit-form .edit-section + .edit-section {
+    position: relative;
+    margin-top: 8px;
+    padding-top: 10px;
+  }
+  .pipe-edit-form .edit-section + .edit-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 11px;
+    right: 15px;
+    height: 1px;
+    background: #ebeef5;
   }
   .has-unit-mm .el-input__inner {
     padding-right: 40px;
