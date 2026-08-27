@@ -10,8 +10,15 @@ module.exports = {
         assetsSubDirectory: "static",
         assetsPublicPath: "/",
         proxyTable: {
-            // 资源目录等业务接口，避免被 PSC /server-api/api 规则抢走
+            // 资源目录、管道等业务接口，避免被 PSC /server-api/api 规则抢走
             "/server-api/api/model-resource-directories": {
+                target: "http://192.168.0.254:8000",
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
+            "/server-api/api/pipelines": {
                 target: "http://192.168.0.254:8000",
                 changeOrigin: true,
                 pathRewrite: {

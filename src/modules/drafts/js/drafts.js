@@ -3,13 +3,15 @@ import queryForm from "@/components/common/queryForm";
 import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
+import pipeDetail from "../components/pipeDetail.vue";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
 export default {
   components: {
     breadcrumb,
-    queryForm
+    queryForm,
+    pipeDetail
   },
   data: function () {
     return {
@@ -29,38 +31,34 @@ export default {
       maxRightHeight: 0,
       treeBlockHeight: 0,
       tableBlockHeight: 0,
-      allList: [],
       tableData: [],
       queryFields: [
         {
           name: "keyword",
           label: "",
-          labelKey: "lang.resource_keyword",
+          labelKey: "lang.pipe_keyword",
           value: "",
           type: "input",
           display: true,
           order: 1
         },
         {
-          name: "modelPreview",
+          name: "responsiblePerson",
           label: "",
-          labelKey: "lang.model_preview",
+          labelKey: "lang.pipe_owner",
           value: "",
-          type: "select",
+          type: "input",
           display: true,
-          order: 2,
-          fieldMap: [
-            { label: "", labelKey: "lang.model_preview_3d", value: "3d" },
-            { label: "", labelKey: "lang.model_preview_2d", value: "2d" },
-            { label: "", labelKey: "lang.model_preview_none", value: "none" }
-          ]
+          order: 2
         }
       ],
       current: 1,
       size: 10,
       total: 0,
       multipleSelection: [],
-      loading: false
+      loading: false,
+      detailVisible: false,
+      currentPipelineId: ""
     };
   },
   computed: {
@@ -69,6 +67,9 @@ export default {
     },
     computedTableHeight() {
       return this.maxTableHeight;
+    },
+    computedDetailHeight() {
+      return this.maxRightHeight > 0 ? this.maxRightHeight + 185 : 560;
     }
   },
   watch: {
@@ -139,16 +140,10 @@ export default {
         this.getList();
       });
     },
-    collectNodeIds(node) {
-      const ids = [node.id];
-      (node.children || []).forEach(child => {
-        ids.push.apply(ids, this.collectNodeIds(child));
-      });
-      return ids;
-    },
     onTreeNodeClick(data) {
       this.currentNode = data;
       this.current = 1;
+      this.closeDetail();
       this.getList();
     },
     handleSelectionChange(val) {
@@ -167,10 +162,18 @@ export default {
       const queryForm = this.$refs.queryForm
         ? this.$refs.queryForm.getQueryForm()
         : {};
-      return {
-        keyword: (queryForm.keyword || "").trim(),
-        modelPreview: queryForm.modelPreview || ""
+      const params = {
+        current: this.current,
+        size: this.size
       };
+      if (this.currentNode && this.currentNode.id) {
+        params.directoryId = this.currentNode.id;
+      }
+      const keyword = (queryForm.keyword || "").trim();
+      const responsiblePerson = (queryForm.responsiblePerson || "").trim();
+      if (keyword) params.keyword = keyword;
+      if (responsiblePerson) params.responsiblePerson = responsiblePerson;
+      return params;
     },
     search() {
       this.current = 1;
@@ -178,67 +181,134 @@ export default {
     },
     getList() {
       this.loading = true;
-      const { keyword, modelPreview } = this.getQueryParams();
-      const nodeIds = this.currentNode ? this.collectNodeIds(this.currentNode) : [];
-      const filtered = this.allList.filter(item => {
-        const matchTree = !nodeIds.length ? true : nodeIds.indexOf(item.treeId) !== -1;
-        const matchKeyword = !keyword
-          ? true
-          : [item.code, item.pipeName, item.owner]
-              .join(" ")
-              .toLowerCase()
-              .indexOf(keyword.toLowerCase()) !== -1;
-        const matchModel = !modelPreview ? true : item.modelPreview === modelPreview;
-        return matchTree && matchKeyword && matchModel;
-      });
-      this.total = filtered.length;
-      const start = (this.current - 1) * this.size;
-      this.tableData = filtered.slice(start, start + this.size);
-      this.loading = false;
+      api
+        .pagePipelines(this.getQueryParams())
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            const data = res.data || {};
+            this.tableData = data.records || [];
+            this.total = data.total || 0;
+          } else {
+            this.tableData = [];
+            this.total = 0;
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+          this.$nextTick(() => {
+            this.initMaxHeight();
+          });
+        })
+        .catch(() => {
+          this.loading = false;
+          this.tableData = [];
+          this.total = 0;
+        });
     },
-    previewRow(row) {
-      this.$message.info(this.$t("cm.preview") + "：" + row.code);
+    viewRow(row) {
+      this.currentPipelineId = row.id;
+      this.detailVisible = true;
+    },
+    closeDetail() {
+      this.detailVisible = false;
+      this.currentPipelineId = "";
+      this.$nextTick(() => {
+        if (this.currentNode && this.$refs.resourceTree) {
+          this.$refs.resourceTree.setCurrentKey(this.currentNode.id);
+        }
+        this.initMaxHeight();
+      });
     },
     downloadRow(row) {
-      this.$message.success(this.$t("cm.download") + "：" + row.code);
+      api
+        .exportPipelines({ ids: [row.id] }, (row.pipelineNo || "管道") + ".xlsx")
+        .then(() => {
+          this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
-    handleMore(command, row) {
-      if (command === "edit") {
-        this.$message.info(this.$t("cm.edit") + "：" + row.code);
-        return;
-      }
-      if (command === "delete") {
-        this.$confirm(this.$t("cm.delete") + " " + row.code + " ?", this.$t("cm.tips"), {
+    deleteRow(row) {
+      this.$confirm(
+        this.$t("cm.delete") + " " + (row.pipelineNo || row.pipelineName) + " ?",
+        this.$t("cm.tips"),
+        {
           confirmButtonText: this.$t("cm.confirm"),
           cancelButtonText: this.$t("cm.cancel"),
           type: "warning"
+        }
+      )
+        .then(() => {
+          return api.deletePipelines({ ids: [row.id] });
         })
-          .then(() => {
-            this.allList = this.allList.filter(item => item.id !== row.id);
-            if ((this.current - 1) * this.size >= this.allList.length && this.current > 1) {
+        .then(res => {
+          if (this.isSuccessCode(res && res.code)) {
+            if ((this.current - 1) * this.size >= this.total - 1 && this.current > 1) {
               this.current -= 1;
             }
             this.getList();
             this.$message.success(this.$t("cm.success"));
-          })
-          .catch(() => {});
-      }
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {});
     },
     exportList() {
-      if (!this.tableData.length) {
-        this.$message.warning(this.$t("cm.nodata"));
-        return;
+      const params = this.getQueryParams();
+      if (this.multipleSelection.length) {
+        params.ids = this.multipleSelection.map(item => item.id);
       }
-      this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+      api
+        .exportPipelines(params, "管道数据.xlsx")
+        .then(() => {
+          this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
+    },
+    downloadTemplate() {
+      api
+        .downloadPipelineTemplate()
+        .then(() => {
+          this.$message.success(this.$t("cm.download") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
     triggerImport() {
       this.$refs.importInput && this.$refs.importInput.click();
     },
     onImportFile(e) {
       const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      this.$message.success(this.$t("lang.batch_import") + this.$t("cm.success"));
       e.target.value = "";
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      this.loading = true;
+      api
+        .importPipelines(formData)
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            const data = res.data || {};
+            this.$message.success(
+              this.$t("lang.import_result") +
+                " " +
+                (data.successCount || 0) +
+                "/" +
+                (data.total || 0)
+            );
+            this.getList();
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     }
   },
   mounted() {

@@ -3,6 +3,7 @@
     <div class="cud__scroll--div">
       <el-row>
         <el-col
+          v-if="!detailVisible"
           :span="6"
           class="cud-commom-tree-left"
           :class="{
@@ -71,9 +72,20 @@
           </el-card>
         </el-col>
         <el-col
-          :span="isTreeCollapse ? 23 : 18"
-          :class="{ 'cud-all-width-resize': isTreeCollapse }"
+          :span="detailVisible ? 24 : isTreeCollapse ? 23 : 18"
+          :class="{ 'cud-all-width-resize': isTreeCollapse || detailVisible }"
         >
+          <el-card
+            v-if="detailVisible"
+            class="pipe-detail-card"
+            :style="{ height: computedDetailHeight + 'px' }"
+          >
+            <pipe-detail
+              :pipeline-id="currentPipelineId"
+              @back="closeDetail"
+            ></pipe-detail>
+          </el-card>
+          <template v-else>
           <el-card>
             <query-form
               :queryFormId="'pipeDatabase'"
@@ -90,10 +102,13 @@
           </el-card>
           <el-card>
             <div class="table-button">
+                <el-button size="small" @click="downloadTemplate">{{
+                  $t("lang.download_template")
+                }}</el-button>
                 <el-button size="small" @click="exportList">{{
                   $t("cm.export")
                 }}</el-button>
-                <el-button type="primary" size="small" @click="triggerImport">{{
+                <el-button size="small" @click="triggerImport">{{
                   $t("lang.batch_import")
                 }}</el-button>
                 <input
@@ -135,67 +150,50 @@
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="code"
+                    prop="pipelineNo"
                     :label="$t('lang.pipe_code')"
                     min-width="140"
                     show-overflow-tooltip
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="pipeName"
+                    prop="pipelineName"
                     :label="$t('lang.pipe_name')"
                     min-width="160"
                     show-overflow-tooltip
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="unit"
-                    :label="$t('lang.pipe_unit')"
-                    min-width="100"
+                    prop="pipelineNo"
+                    :label="$t('lang.pipeline_no')"
+                    min-width="140"
                     show-overflow-tooltip
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="owner"
+                    prop="workingMedium"
+                    :label="$t('lang.working_medium')"
+                    min-width="120"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="responsiblePerson"
                     :label="$t('lang.pipe_owner')"
                     min-width="100"
                     show-overflow-tooltip
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="updateTime"
+                    prop="modifyDate"
                     :label="$t('lang.update_time')"
                     min-width="170"
                     show-overflow-tooltip
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="status"
-                    :label="$t('lang.status')"
-                    width="110"
-                  >
-                    <template slot-scope="scope">
-                      <el-tag
-                        v-if="scope.row.status === 'published'"
-                        type="success"
-                        size="mini"
-                        >{{ $t("lang.status_published") }}</el-tag
-                      >
-                      <el-tag
-                        v-else-if="scope.row.status === 'pending'"
-                        type="warning"
-                        size="mini"
-                        >{{ $t("lang.status_pending") }}</el-tag
-                      >
-                      <el-tag v-else size="mini">{{
-                        $t("lang.status_draft")
-                      }}</el-tag>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    align="center"
                     :label="$t('cm.operate')"
-                    width="200"
+                    width="180"
                     fixed="right"
                   >
                     <template slot-scope="scope">
@@ -203,8 +201,8 @@
                         type="text"
                         size="small"
                         class="cud-common-operate-edit"
-                        @click="previewRow(scope.row)"
-                        >{{ $t("cm.preview") }}</el-button
+                        @click="viewRow(scope.row)"
+                        >{{ $t("lang.detail") }}</el-button
                       >
                       <el-button
                         type="text"
@@ -213,23 +211,13 @@
                         @click="downloadRow(scope.row)"
                         >{{ $t("cm.download") }}</el-button
                       >
-                      <el-dropdown
-                        trigger="click"
-                        @command="cmd => handleMore(cmd, scope.row)"
+                      <el-button
+                        type="text"
+                        size="small"
+                        class="cud-common-operate-delete"
+                        @click="deleteRow(scope.row)"
+                        >{{ $t("cm.delete") }}</el-button
                       >
-                        <el-button type="text" size="small">
-                          {{ $t("cm.more")
-                          }}<i class="el-icon-arrow-down el-icon--right"></i>
-                        </el-button>
-                        <el-dropdown-menu slot="dropdown">
-                          <el-dropdown-item command="edit">{{
-                            $t("cm.edit")
-                          }}</el-dropdown-item>
-                          <el-dropdown-item command="delete">{{
-                            $t("cm.delete")
-                          }}</el-dropdown-item>
-                        </el-dropdown-menu>
-                      </el-dropdown>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -254,6 +242,7 @@
                 </div>
               </el-row>
           </el-card>
+          </template>
         </el-col>
       </el-row>
     </div>
@@ -282,5 +271,14 @@ export default drafts;
 }
 .cud-commom-tree-left /deep/ .el-card {
   height: 100%;
+}
+.pipe-detail-card {
+  box-sizing: border-box;
+}
+.pipe-detail-card /deep/ .el-card__body {
+  height: 100%;
+  padding: 16px 20px 16px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 </style>
