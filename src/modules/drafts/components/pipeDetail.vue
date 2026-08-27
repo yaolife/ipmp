@@ -17,7 +17,6 @@
       <div class="pipe-detail-title-row">
         <div class="pipe-detail-title">
           <h2>{{ displayVal(detail.pipelineName || detail.pipelineNo) }}</h2>
-          <span class="pipe-status">{{ $t("lang.pipe_status_normal") }}</span>
         </div>
         <div class="pipe-detail-actions">
           <el-button
@@ -500,17 +499,6 @@ export default {
     color: #303133;
     line-height: 32px;
   }
-}
-.pipe-status {
-  display: inline-block;
-  height: 20px;
-  line-height: 18px;
-  padding: 0 8px;
-  font-size: 12px;
-  color: #22c55e;
-  background: #ecfdf3;
-  border: 1px solid #86efac;
-  border-radius: 10px;
 }
 .pipe-detail-tabs {
   /deep/ .el-tabs__header {

@@ -107,7 +107,13 @@ export default {
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {
             this.treeData = Array.isArray(res.data) ? res.data : [];
-            this.selectFirstTreeNode();
+            this.currentNode = null;
+            this.$nextTick(() => {
+              if (this.$refs.resourceTree) {
+                this.$refs.resourceTree.setCurrentKey(null);
+              }
+            });
+            this.getList();
           } else {
             this.treeData = [];
             this.currentNode = null;
@@ -124,21 +130,6 @@ export default {
           this.currentNode = null;
           this.getList();
         });
-    },
-    selectFirstTreeNode() {
-      this.$nextTick(() => {
-        if (!this.treeData.length) {
-          this.currentNode = null;
-          this.getList();
-          return;
-        }
-        const first = this.treeData[0];
-        if (this.$refs.resourceTree) {
-          this.$refs.resourceTree.setCurrentKey(first.id);
-        }
-        this.currentNode = first;
-        this.getList();
-      });
     },
     onTreeNodeClick(data) {
       this.currentNode = data;
@@ -214,6 +205,8 @@ export default {
       this.$nextTick(() => {
         if (this.currentNode && this.$refs.resourceTree) {
           this.$refs.resourceTree.setCurrentKey(this.currentNode.id);
+        } else if (this.$refs.resourceTree) {
+          this.$refs.resourceTree.setCurrentKey(null);
         }
         this.initMaxHeight();
       });
