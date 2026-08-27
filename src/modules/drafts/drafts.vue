@@ -96,6 +96,7 @@
               labelWidth="180px"
               @resize="initMaxHeight"
               @submit="search"
+              @reset="resetList"
               ref="queryForm"
               class="cud-commom-form-search"
             >

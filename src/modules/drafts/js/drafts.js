@@ -170,6 +170,15 @@ export default {
       this.current = 1;
       this.getList();
     },
+    resetList() {
+      this.currentNode = null;
+      this.current = 1;
+      this.$nextTick(() => {
+        if (this.$refs.resourceTree) {
+          this.$refs.resourceTree.setCurrentKey(null);
+        }
+      });
+    },
     getList() {
       this.loading = true;
       api

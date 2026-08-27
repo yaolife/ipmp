@@ -440,6 +440,7 @@ export default {
         }
       });
       //通知父组件更新查询条件
+      this.$emit("reset", this.getQueryForm());
       this.$emit("submit", this.getQueryForm());
     },
 
