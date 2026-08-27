@@ -152,7 +152,7 @@
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="pipelineNo"
+                    prop="specCode"
                     :label="$t('lang.pipe_code')"
                     min-width="140"
                     show-overflow-tooltip
