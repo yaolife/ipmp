@@ -276,11 +276,15 @@ export default drafts;
 }
 .pipe-detail-card {
   box-sizing: border-box;
+  background: #f4f6f9 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 .pipe-detail-card /deep/ .el-card__body {
   height: 100%;
-  padding: 16px 20px 16px;
+  padding: 12px 16px 16px;
   box-sizing: border-box;
   overflow: hidden;
+  background: #f4f6f9;
 }
 </style>

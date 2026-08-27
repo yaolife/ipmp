@@ -39,147 +39,162 @@
       <el-tab-pane :label="$t('lang.tab_basic')" name="basic">
         <div class="stat-row">
           <div class="stat-card">
-            <div class="stat-ring">
-              <span>{{ stats.files }}</span>
+            <div class="stat-icon files">
+              <i class="el-icon-folder"></i>
             </div>
-            <div class="stat-label">{{ $t("lang.related_files") }}</div>
+            <div class="stat-text">
+              <div class="stat-label">{{ $t("lang.related_files") }}</div>
+              <div class="stat-value">{{ stats.files }}</div>
+            </div>
           </div>
           <div class="stat-card">
-            <div class="stat-ring">
-              <span>{{ stats.maintenance }}</span>
+            <div class="stat-icon maintain">
+              <i class="el-icon-tickets"></i>
             </div>
-            <div class="stat-label">{{ $t("lang.maintenance_records") }}</div>
+            <div class="stat-text">
+              <div class="stat-label">{{ $t("lang.maintenance_records") }}</div>
+              <div class="stat-value">{{ stats.maintenance }}</div>
+            </div>
           </div>
           <div class="stat-card">
-            <div class="stat-ring">
-              <span>{{ stats.points }}</span>
+            <div class="stat-icon monitor">
+              <i class="el-icon-data-line"></i>
             </div>
-            <div class="stat-label">{{ $t("lang.monitor_points") }}</div>
+            <div class="stat-text">
+              <div class="stat-label">{{ $t("lang.monitor_points") }}</div>
+              <div class="stat-value">{{ stats.points }}</div>
+            </div>
           </div>
         </div>
-        <div class="section-block">
+        <div class="panel-card">
           <div class="section-title">{{ $t("lang.main_model") }}</div>
           <div class="model-row">
-            <div class="model-left">
-              <div class="model-thumb">
-                <i class="el-icon-picture-outline"></i>
+            <div class="model-thumb">
+              <i class="el-icon-picture-outline"></i>
+            </div>
+            <div class="model-right">
+              <div class="model-meta">
+                <div class="model-meta-col">
+                  <div class="info-item">
+                    <label>{{ $t("lang.model_name") }}</label>
+                    <span>{{ displayVal(detail.pipelineNo) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>{{ $t("lang.model_code") }}</label>
+                    <span>{{ displayVal(detail.modelCode) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>{{ $t("lang.file_format") }}</label>
+                    <span>{{ displayVal(detail.fileFormat) }}</span>
+                  </div>
+                </div>
+                <div class="model-meta-col">
+                  <div class="info-item">
+                    <label>{{ $t("lang.current_version") }}</label>
+                    <span>{{ displayVal(detail.version) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>{{ $t("lang.update_time") }}</label>
+                    <span>{{ displayVal(detail.modifyDate) }}</span>
+                  </div>
+                </div>
               </div>
               <el-button type="primary" size="small" @click="viewModel">{{
                 $t("lang.view_model")
               }}</el-button>
             </div>
-            <div class="model-meta">
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="info-columns">
+            <div class="info-col">
+              <div class="section-title">{{ $t("lang.pipe_basic_info") }}</div>
               <div class="info-item">
-                <label>{{ $t("lang.model_name") }}</label>
+                <label>{{ $t("lang.pipeline_no") }}</label>
                 <span>{{ displayVal(detail.pipelineNo) }}</span>
               </div>
               <div class="info-item">
-                <label>{{ $t("lang.model_code") }}</label>
-                <span>{{ displayVal(detail.modelCode) }}</span>
+                <label>{{ $t("lang.pipe_name") }}</label>
+                <span>{{ displayVal(detail.pipelineName) }}</span>
               </div>
               <div class="info-item">
-                <label>{{ $t("lang.file_format") }}</label>
-                <span>{{ displayVal(detail.fileFormat) }}</span>
+                <label>{{ $t("lang.pipeline_start") }}</label>
+                <span>{{ displayVal(detail.startPoint) }}</span>
               </div>
               <div class="info-item">
-                <label>{{ $t("lang.current_version") }}</label>
-                <span>{{ displayVal(detail.version) }}</span>
+                <label>{{ $t("lang.pipeline_end") }}</label>
+                <span>{{ displayVal(detail.endPoint) }}</span>
               </div>
               <div class="info-item">
-                <label>{{ $t("lang.update_time") }}</label>
-                <span>{{ displayVal(detail.modifyDate) }}</span>
+                <label>{{ $t("lang.working_medium") }}</label>
+                <span class="medium-text">{{
+                  displayVal(detail.workingMedium)
+                }}</span>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="info-columns">
-          <div class="info-col">
-            <div class="section-title">{{ $t("lang.pipe_basic_info") }}</div>
-            <div class="info-item">
-              <label>{{ $t("lang.pipeline_no") }}</label>
-              <span>{{ displayVal(detail.pipelineNo) }}</span>
+            <div class="info-col">
+              <div class="section-title">{{ $t("lang.spec_material") }}</div>
+              <div class="info-item">
+                <label>{{ $t("lang.nominal_diameter") }}</label>
+                <span>{{ displayVal(detail.nominalDiameter) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.outer_diameter") }}</label>
+                <span>{{ displayVal(detail.outerDiameter) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.wall_thickness") }}</label>
+                <span>{{ displayVal(detail.wallThickness) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.material") }}</label>
+                <span>{{ displayVal(detail.material) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.spec_code") }}</label>
+                <span>{{ displayVal(detail.specCode) }}</span>
+              </div>
             </div>
-            <div class="info-item">
-              <label>{{ $t("lang.pipe_name") }}</label>
-              <span>{{ displayVal(detail.pipelineName) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.pipeline_start") }}</label>
-              <span>{{ displayVal(detail.startPoint) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.pipeline_end") }}</label>
-              <span>{{ displayVal(detail.endPoint) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.working_medium") }}</label>
-              <span class="medium-text">{{
-                displayVal(detail.workingMedium)
-              }}</span>
-            </div>
-          </div>
-          <div class="info-col">
-            <div class="section-title">{{ $t("lang.spec_material") }}</div>
-            <div class="info-item">
-              <label>{{ $t("lang.nominal_diameter") }}</label>
-              <span>{{ displayVal(detail.nominalDiameter) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.outer_diameter") }}</label>
-              <span>{{ displayVal(detail.outerDiameter) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.wall_thickness") }}</label>
-              <span>{{ displayVal(detail.wallThickness) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.material") }}</label>
-              <span>{{ displayVal(detail.material) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.spec_code") }}</label>
-              <span>{{ displayVal(detail.specCode) }}</span>
-            </div>
-          </div>
-          <div class="info-col">
-            <div class="section-title">{{ $t("lang.design_runtime") }}</div>
-            <div class="info-item">
-              <label>{{ $t("lang.design_pressure") }}</label>
-              <span>{{ displayVal(detail.designPressure) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.design_temperature") }}</label>
-              <span>{{ displayVal(detail.designTemperature) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.operating_pressure") }}</label>
-              <span>{{ displayVal(detail.operatingPressure) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.operating_temperature") }}</label>
-              <span>{{ displayVal(detail.operatingTemperature) }}</span>
-            </div>
-            <div class="info-item">
-              <label>{{ $t("lang.iso_code") }}</label>
-              <span>{{ displayVal(detail.isoCode) }}</span>
+            <div class="info-col">
+              <div class="section-title">{{ $t("lang.design_runtime") }}</div>
+              <div class="info-item">
+                <label>{{ $t("lang.design_pressure") }}</label>
+                <span>{{ displayVal(detail.designPressure) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.design_temperature") }}</label>
+                <span>{{ displayVal(detail.designTemperature) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.operating_pressure") }}</label>
+                <span>{{ displayVal(detail.operatingPressure) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.operating_temperature") }}</label>
+                <span>{{ displayVal(detail.operatingTemperature) }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ $t("lang.iso_code") }}</label>
+                <span>{{ displayVal(detail.isoCode) }}</span>
+              </div>
             </div>
           </div>
         </div>
       </el-tab-pane>
       <el-tab-pane :label="$t('lang.tab_maintenance')" name="maintenance">
-        <div class="empty-tab">{{ $t("cm.nodata") }}</div>
+        <div class="panel-card empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
       <el-tab-pane :label="$t('lang.tab_monitor')" name="monitor">
-        <div class="empty-tab">{{ $t("cm.nodata") }}</div>
+        <div class="panel-card empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
       <el-tab-pane :label="$t('lang.tab_safety')" name="safety">
-        <div class="empty-tab">{{ $t("cm.nodata") }}</div>
+        <div class="panel-card empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
       <el-tab-pane :label="$t('lang.tab_predict')" name="predict">
-        <div class="empty-tab">{{ $t("cm.nodata") }}</div>
+        <div class="panel-card empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
       <el-tab-pane :label="$t('lang.tab_files')" name="files">
-        <div class="empty-tab">{{ $t("cm.nodata") }}</div>
+        <div class="panel-card empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -470,7 +485,9 @@ export default {
 .pipe-detail {
   height: 100%;
   overflow: auto;
-  background: #fff;
+  background: #f4f6f9;
+  padding: 4px 4px 8px;
+  box-sizing: border-box;
 }
 .pipe-detail-back {
   margin-bottom: 8px;
@@ -496,17 +513,18 @@ export default {
     margin: 0 10px 0 0;
     font-size: 22px;
     font-weight: 600;
-    color: #303133;
+    color: #1f2329;
     line-height: 32px;
   }
 }
 .pipe-detail-tabs {
   /deep/ .el-tabs__header {
     margin-bottom: 16px;
+    background: transparent;
   }
   /deep/ .el-tabs__nav-wrap::after {
     height: 1px;
-    background-color: #ebeef5;
+    background-color: #e6e8eb;
   }
   /deep/ .el-tabs__item {
     height: 40px;
@@ -525,64 +543,80 @@ export default {
 }
 .stat-row {
   display: flex;
-  gap: 48px;
-  margin: 4px 0 24px;
+  gap: 16px;
+  margin: 0 0 16px;
 }
 .stat-card {
+  flex: 1;
   display: flex;
   align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(31, 35, 41, 0.06);
 }
-.stat-ring {
-  width: 52px;
-  height: 52px;
-  margin-right: 12px;
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  margin-right: 14px;
   border-radius: 50%;
-  box-sizing: border-box;
-  border: 5px solid #dbe7ff;
-  border-top-color: #2f6bff;
-  border-right-color: #2f6bff;
   display: flex;
   align-items: center;
   justify-content: center;
-  span {
-    font-size: 16px;
-    font-weight: 600;
+  font-size: 18px;
+  flex-shrink: 0;
+  &.files {
+    background: #e8f1ff;
     color: #2f6bff;
-    line-height: 1;
   }
+  &.maintain {
+    background: #e8f8ef;
+    color: #22c55e;
+  }
+  &.monitor {
+    background: #f1ebff;
+    color: #8b5cf6;
+  }
+}
+.stat-text {
+  min-width: 0;
 }
 .stat-label {
   font-size: 13px;
-  color: #606266;
+  color: #8a8f99;
+  line-height: 18px;
+  margin-bottom: 2px;
 }
-.section-block {
-  margin-bottom: 28px;
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2329;
+  line-height: 28px;
+}
+.panel-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(31, 35, 41, 0.06);
+  padding: 18px 20px 16px;
+  margin-bottom: 16px;
 }
 .section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #303133;
+  color: #1f2329;
   margin-bottom: 16px;
-  padding-left: 8px;
+  padding-left: 10px;
   line-height: 16px;
-  border-left: 3px solid #2f6bff;
+  border-left: 4px solid #2f6bff;
 }
 .model-row {
   display: flex;
   align-items: flex-start;
 }
-.model-left {
-  width: 148px;
-  margin-right: 28px;
-  flex-shrink: 0;
-  .el-button {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
 .model-thumb {
   width: 148px;
   height: 148px;
+  margin-right: 28px;
   border-radius: 6px;
   background: #111;
   color: #8fb3ff;
@@ -590,25 +624,41 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 40px;
+  flex-shrink: 0;
+}
+.model-right {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
 }
 .model-meta {
-  flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 48px;
-  row-gap: 14px;
-  padding-top: 8px;
+  margin-bottom: 16px;
+}
+.model-meta-col .info-item {
+  margin-bottom: 14px;
 }
 .info-columns {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 40px;
-  padding-bottom: 8px;
+  column-gap: 0;
 }
 .info-col {
   min-width: 0;
+  padding: 0 24px;
   .info-item {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  &:first-child {
+    padding-left: 0;
+  }
+  &:last-child {
+    padding-right: 0;
+  }
+  & + .info-col {
+    border-left: 1px solid #f0f2f5;
   }
 }
 .info-item {
@@ -618,11 +668,11 @@ export default {
   line-height: 22px;
   label {
     width: 130px;
-    color: #909399;
+    color: #8a8f99;
     flex-shrink: 0;
   }
   span {
-    color: #303133;
+    color: #1f2329;
     word-break: break-all;
   }
 }
@@ -630,7 +680,7 @@ export default {
   color: #22c55e !important;
 }
 .empty-tab {
-  padding: 60px 0;
+  padding: 72px 0;
   text-align: center;
   color: #909399;
 }
