@@ -83,6 +83,7 @@
             <pipe-detail
               :pipeline-id="currentPipelineId"
               @back="closeDetail"
+              @updated="getList"
             ></pipe-detail>
           </el-card>
           <template v-else>

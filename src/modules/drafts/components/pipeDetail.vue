@@ -20,6 +20,13 @@
           <span class="pipe-status">{{ $t("lang.pipe_status_normal") }}</span>
         </div>
         <div class="pipe-detail-actions">
+          <el-button
+            v-if="activeTab === 'basic'"
+            type="primary"
+            size="small"
+            @click="openEdit"
+            >{{ $t("lang.edit_info") }}</el-button
+          >
           <el-button size="small" @click="exportCurrent">{{
             $t("cm.export")
           }}</el-button>
@@ -176,6 +183,110 @@
         <div class="empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
     </el-tabs>
+    <el-dialog
+      :title="$t('lang.edit_info')"
+      :visible.sync="editVisible"
+      width="800px"
+      append-to-body
+      @close="editVisible = false"
+    >
+      <el-form
+        ref="editForm"
+        :model="editForm"
+        label-width="160px"
+        size="small"
+      >
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.pipeline_no')">
+              <el-input v-model="editForm.pipelineNo"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.pipe_name')">
+              <el-input v-model="editForm.pipelineName"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.pipeline_start')">
+              <el-input v-model="editForm.startPoint"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.pipeline_end')">
+              <el-input v-model="editForm.endPoint"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.working_medium')">
+              <el-input v-model="editForm.workingMedium"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.nominal_diameter')">
+              <el-input v-model="editForm.nominalDiameter"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.outer_diameter')">
+              <el-input v-model="editForm.outerDiameter"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.wall_thickness')">
+              <el-input v-model="editForm.wallThickness"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.material')">
+              <el-input v-model="editForm.material"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.spec_code')">
+              <el-input v-model="editForm.specCode"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.design_pressure')">
+              <el-input v-model="editForm.designPressure"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.design_temperature')">
+              <el-input v-model="editForm.designTemperature"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.operating_pressure')">
+              <el-input v-model="editForm.operatingPressure"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.operating_temperature')">
+              <el-input v-model="editForm.operatingTemperature"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.iso_code')">
+              <el-input v-model="editForm.isoCode"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <span slot="footer">
+        <el-button size="small" @click="editVisible = false">{{
+          $t("cm.cancel")
+        }}</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          :loading="saving"
+          @click="saveEdit"
+          >{{ $t("cm.confirm") }}</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -193,8 +304,27 @@ export default {
   data() {
     return {
       loading: false,
+      saving: false,
       activeTab: "basic",
       detail: {},
+      editVisible: false,
+      editForm: {
+        pipelineNo: "",
+        pipelineName: "",
+        startPoint: "",
+        endPoint: "",
+        workingMedium: "",
+        nominalDiameter: "",
+        outerDiameter: "",
+        wallThickness: "",
+        material: "",
+        specCode: "",
+        designPressure: "",
+        designTemperature: "",
+        operatingPressure: "",
+        operatingTemperature: "",
+        isoCode: ""
+      },
       stats: {
         files: 0,
         maintenance: 0,
@@ -260,6 +390,78 @@ export default {
     },
     viewModel() {
       this.$message.info(this.$t("lang.view_model"));
+    },
+    openEdit() {
+      this.editForm = {
+        pipelineNo: this.detail.pipelineNo || "",
+        pipelineName: this.detail.pipelineName || "",
+        startPoint: this.detail.startPoint || "",
+        endPoint: this.detail.endPoint || "",
+        workingMedium: this.detail.workingMedium || "",
+        nominalDiameter: this.emptyToStr(this.detail.nominalDiameter),
+        outerDiameter: this.emptyToStr(this.detail.outerDiameter),
+        wallThickness: this.emptyToStr(this.detail.wallThickness),
+        material: this.detail.material || "",
+        specCode: this.detail.specCode || "",
+        designPressure: this.emptyToStr(this.detail.designPressure),
+        designTemperature: this.emptyToStr(this.detail.designTemperature),
+        operatingPressure: this.emptyToStr(this.detail.operatingPressure),
+        operatingTemperature: this.emptyToStr(this.detail.operatingTemperature),
+        isoCode: this.detail.isoCode || ""
+      };
+      this.editVisible = true;
+    },
+    emptyToStr(val) {
+      if (val === 0) return 0;
+      if (val === null || val === undefined) return "";
+      return val;
+    },
+    toNumber(value) {
+      if (value === "" || value === null || value === undefined) return null;
+      const num = Number(value);
+      return isNaN(num) ? null : num;
+    },
+    buildUpdatePayload() {
+      return {
+        id: this.detail.id,
+        directoryId: this.detail.directoryId,
+        pipelineNo: this.editForm.pipelineNo,
+        pipelineName: this.editForm.pipelineName,
+        startPoint: this.editForm.startPoint,
+        endPoint: this.editForm.endPoint,
+        workingMedium: this.editForm.workingMedium,
+        nominalDiameter: this.toNumber(this.editForm.nominalDiameter),
+        outerDiameter: this.toNumber(this.editForm.outerDiameter),
+        wallThickness: this.toNumber(this.editForm.wallThickness),
+        material: this.editForm.material,
+        specCode: this.editForm.specCode,
+        designPressure: this.toNumber(this.editForm.designPressure),
+        designTemperature: this.toNumber(this.editForm.designTemperature),
+        operatingPressure: this.toNumber(this.editForm.operatingPressure),
+        operatingTemperature: this.toNumber(this.editForm.operatingTemperature),
+        isoCode: this.editForm.isoCode,
+        responsiblePerson: this.detail.responsiblePerson
+      };
+    },
+    saveEdit() {
+      if (!this.detail.id) return;
+      this.saving = true;
+      api
+        .updatePipeline(this.buildUpdatePayload())
+        .then(res => {
+          this.saving = false;
+          if (this.isSuccessCode(res && res.code)) {
+            this.editVisible = false;
+            this.$message.success(this.$t("cm.success"));
+            this.loadDetail();
+            this.$emit("updated");
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {
+          this.saving = false;
+        });
     }
   }
 };
