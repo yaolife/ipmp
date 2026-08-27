@@ -11,6 +11,8 @@ import drafts from "@/modules/drafts/drafts";
 import concern from "@/modules/concern/concern";
 // 管道元件数据库
 import delegation from "@/modules/delegation/delegation";
+// 日志管理
+import logManage from "@/modules/logManage/logManage.vue";
 
 /** ---------- 字典管理 ---------- */
 import dict from "@/modules/dict/dict_manage";
@@ -213,6 +215,12 @@ const _router = new Router({
           component: delegation,
           meta: "pipeComponentDatabase",
           alias: "/delegation"
+        },
+        {
+          path: "/logManage",
+          name: "日志管理",
+          component: logManage,
+          meta: "operationLogManage"
         },
         // 数据字典管理
         {

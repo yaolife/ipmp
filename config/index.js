@@ -10,9 +10,19 @@ module.exports = {
         assetsSubDirectory: "static",
         assetsPublicPath: "/",
         proxyTable: {
+            // 资源目录等业务接口，避免被 PSC /server-api/api 规则抢走
+            "/server-api/api/model-resource-directories": {
+                target: "http://192.168.0.254:8000",
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
             // 本地代理
             "/server-api": {
-                target: "http://localhost:8080",
+                // 联调后端
+                target: "http://192.168.0.254:8000",
+                // target: "http://localhost:8080",
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": "" // 需要rewrite重写的,

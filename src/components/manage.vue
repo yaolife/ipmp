@@ -526,9 +526,21 @@ export default {
       return iconfont(icon);
     },
     filterHiddenMenus(list) {
-      const hiddenResources = ["welcome", "start", "office"];
-      const hiddenUrls = ["/", "/start", "/office", "/welcome"];
-      const hiddenNames = ["cm.home", "workbench.initiating_process", "workbench.my_office"];
+      const hiddenResources = ["welcome", "start", "office", "CustomPortal", "pageManagement"];
+      const hiddenUrls = ["/", "/start", "/office", "/welcome", "/pageManagement"];
+      const hiddenNames = ["cm.home", "workbench.initiating_process", "workbench.my_office", "cm.custom_portal", "cm.portal_management"];
+      const logManageMenu = {
+        name: "lang.log_manage",
+        iconNor: "&#xe994;",
+        resource: "operationLog",
+        children: [
+          {
+            name: "lang.log_list",
+            url: "/logManage",
+            resource: "operationLogManage"
+          }
+        ]
+      };
       const menuRenameMap = {
         "workbench.my_drafts": {
           name: "lang.pipe_database",
@@ -570,7 +582,7 @@ export default {
           hiddenNames.indexOf(item.name) !== -1
         );
       };
-      return (list || [])
+      const filtered = (list || [])
         .map((item) => {
           const children = (item.children || [])
             .filter((child) => !isHidden(child))
@@ -591,6 +603,21 @@ export default {
           return renamed;
         })
         .filter((item) => !isHidden(item));
+      const hasLogManage = filtered.some(
+        (item) =>
+          item.resource === "operationLog" || item.name === "lang.log_manage"
+      );
+      if (!hasLogManage) {
+        const demoIdx = filtered.findIndex(
+          (item) => item.resource === "demoLib" || item.name === "示例库"
+        );
+        if (demoIdx >= 0) {
+          filtered.splice(demoIdx, 0, logManageMenu);
+        } else {
+          filtered.push(logManageMenu);
+        }
+      }
+      return filtered;
     },
     async getMenuManagerGetFormMenuTree() {
       let newMenu = [];

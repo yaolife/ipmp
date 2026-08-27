@@ -1,11 +1,10 @@
 import breadcrumb from "@/components/common/breadcrumb";
-import api from "../api";
-import { Filters } from "@/utils/Utils";
-import { throttle } from "@/utils/funcUtil";
-import osUtil from "@/utils/osUtil";
 import queryForm from "@/components/common/queryForm";
+import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
-import store from "@/store";
+import api from "../api";
+
+const PIPE_DIRECTORY_TYPE = 0;
 
 export default {
   components: {
@@ -16,333 +15,237 @@ export default {
     return {
       hasIcon: false,
       brand: [{ name: "lang.asset_manage" }, { name: "lang.pipe_database" }],
-      selectnum: "0",
-      isSelected: [],
-      is_collapse: false,
+      filterText: "",
+      treeData: [],
+      treeProps: {
+        children: "children",
+        label: "name"
+      },
+      currentNode: null,
+      treeLoading: false,
+      isTreeCollapse: false,
+      maxTreeHeight: 0,
+      maxTableHeight: 0,
+      maxRightHeight: 0,
+      treeBlockHeight: 0,
+      tableBlockHeight: 0,
+      allList: [],
       tableData: [],
-      objData: {
-        id: ""
-      },
-      modelVO: {
-        processName: "",
-        createDate: "",
-        createDateEnd: ""
-      },
       queryFields: [
-        { name: 'processName', label: '', labelKey: 'workbench.process_name', value: '', type: 'input', display: true, order: 1 },
-        { name: 'createDate', label: '', labelKey: 'workbench.create_date', relation: 'createDateEnd', value: '', type: 'dateRange', display: true, order: 2 },
+        {
+          name: "keyword",
+          label: "",
+          labelKey: "lang.resource_keyword",
+          value: "",
+          type: "input",
+          display: true,
+          order: 1
+        },
+        {
+          name: "modelPreview",
+          label: "",
+          labelKey: "lang.model_preview",
+          value: "",
+          type: "select",
+          display: true,
+          order: 2,
+          fieldMap: [
+            { label: "", labelKey: "lang.model_preview_3d", value: "3d" },
+            { label: "", labelKey: "lang.model_preview_2d", value: "2d" },
+            { label: "", labelKey: "lang.model_preview_none", value: "none" }
+          ]
+        }
       ],
-      delModel: {
-        id: "",
-        customForm: null
-      },
-      createDate: null,
-      currentPage: 1,
       current: 1,
-      pageSize: 10,
       size: 10,
       total: 0,
       multipleSelection: [],
-      show: false,
-      loading: false,
-      fullscreenLoading: false,
-      maxTableHeight: 0
+      loading: false
     };
   },
-
-  watch: {
-    /**
-     * 切换语言时重新查询表单
-     */
-    "$i18n.locale"() {
-      this.search();
-    }
-  },
   computed: {
+    computedTreeHeight() {
+      return this.maxTreeHeight;
+    },
     computedTableHeight() {
       return this.maxTableHeight;
     }
   },
-
+  watch: {
+    filterText(val) {
+      this.filterText = (val || "").trim();
+      this.$refs.resourceTree && this.$refs.resourceTree.filter(this.filterText);
+    }
+  },
   methods: {
-    // 动态计算高度
     initMaxHeight() {
       calcHeight(this);
     },
-    checkSelected: function (val) {
-      //val 为更新后的值
-      if (val == true) {
-        let rows = this.tableData;
-        rows.forEach(row => {
-          this.$refs.multipleSelection.toggleRowSelection(row, true);
-        });
-      } else {
-        this.$refs.multipleSelection.clearSelection();
-      }
+    indexMethod(index) {
+      return (this.current - 1) * this.size + index + 1;
     },
-
-    handleClick(row) {
-      let params = {
-        processInfoId: row.processInfoId,
-        flowStatus: row.flowStatus
-      };
-      api.checkDrafts(params).then(res => {
-        if (res.code === "0") {
-          row.procNode = 1;
-          // row.procNode = 3;
-          sessionStorage.removeItem("procItem");
-          sessionStorage.setItem("procItem", JSON.stringify(row));
-          if (row.formUrl) {
-            this.$router.push({
-              path: row.formUrl,
-              query: {
-                actId: row.actId,
-                procNode: row.procNode,
-                procVersion: row.procVersion,
-                procId: row.procId,
-                id: row.procTaskId,//待确定
-                actInstId: row.actInstId,//待确定
-                procInstId: row.procInstId,
-                procName: row.procName,
-                r: Math.random(),
-                flowStatus: row.flowStatus
-              }
-            });
-          } else {
-            //打开页签
-            this.openTab({
-              path: "/workbench/view",
-              query: {
-                // item: row
-                procName: row.procName,
-                r: Math.random()
-              }
-            });
-          }
-        } else {
-          this.$alert(res.msg);
-          this.search();
-        }
+    toggleTreeExpand() {
+      this.isTreeCollapse = !this.isTreeCollapse;
+      this.$nextTick(() => {
+        this.initMaxHeight();
       });
     },
-    //改变每页显示数
-    handleSizeChange: function (size) {
-      let params = {
-        current: 1,
-        size: size
-      };
-      this.size = size;
-      this.current = 1;
-      //params = Object.assign(params,this.searchParams);
-      this.getFlowList(params);
+    filterTreeNode(value, data) {
+      if (!value) return true;
+      const keyword = value.toLowerCase();
+      return (data.name || "").toLowerCase().indexOf(keyword) !== -1;
     },
-
-    //翻页
-    handleCurrentChange: function (current) {
-      let params = {
-        current: current,
-        size: this.size
-      };
-      this.current = current;
-      this.getFlowList(params);
+    isSuccessCode(code) {
+      return code === 0 || code === "0";
     },
-
-    delClick(row) {
-      let _this = this;
-      _this
-        .$confirm(_this.$t("cm.is_delete"), _this.$t("cm.tips"), {
-          type: "warning",
-          confirmButtonText: _this.$t("cm.confirm"),
-          cancelButtonText: _this.$t("cm.cancel"),
-          cancelButtonClass: "btn-second",
-          confirmButtonClass: "btn-default"
-        })
-        .then(() => {
-          let params = {};
-          _this.delModel.id = row.processInfoId;
-          if (row.formUrl) {
-            _this.delModel.customForm = 1
+    getTreeList() {
+      this.treeLoading = true;
+      api
+        .getResourceDirectoryTree({ type: PIPE_DIRECTORY_TYPE })
+        .then(res => {
+          this.treeLoading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            this.treeData = Array.isArray(res.data) ? res.data : [];
+            this.selectFirstTreeNode();
           } else {
-            _this.delModel.customForm = 0
+            this.treeData = [];
+            this.currentNode = null;
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+            this.getList();
           }
-          params = Object.assign(params, _this.delModel);
-          this.fullscreenLoading = true;
-          console.log(params, 'params')
-          api
-            .deleteMyDraftsV2({ reqDeleteDraftDtoList: params })
-            .then(result => {
-              this.fullscreenLoading = false;
-              if (result.code == "0") {
-                let params = {
-                  pageIndex: 1,
-                  size: this.size
-                };
-                _this.$message({
-                  message: result.msg,
-                  type: "success"
-                });
-                _this.resetData();
-                _this.getFlowList(params);
-              } else {
-                _this.$message({
-                  message: result.msg,
-                  type: "warning"
-                });
-              }
-            })
-            .catch(err => {
-              _this.$message({
-                message: err,
-                type: "warning"
-              });
-            });
+          this.$nextTick(() => {
+            this.initMaxHeight();
+          });
         })
         .catch(() => {
-          //取消操作
-          this.fullscreenLoading = false;
+          this.treeLoading = false;
+          this.treeData = [];
+          this.currentNode = null;
+          this.getList();
         });
     },
-
-    batchDel: function (rows) {
-      //进行批量删除操作
-      let _this = this;
-      console.log(_this.multipleSelection, '_this.multipleSelection')
-      if (_this.multipleSelection.length > 0) {
-        _this
-          .$confirm(this.$t("workbench.delete_batch"), _this.$t("cm.tips"), {
-            type: "warning",
-            confirmButtonText: _this.$t("cm.confirm"),
-            cancelButtonText: _this.$t("cm.cancel"),
-            cancelButtonClass: "btn-second",
-            confirmButtonClass: "btn-default"
-          })
-          .then(() => {
-            let arr = [];
-            for (var i = 0; i < _this.multipleSelection.length; i++) {
-              if (_this.multipleSelection[i].formUrl) {
-                arr.push({
-                  customForm: 1,
-                  id: _this.multipleSelection[i].processInfoId
-                })
-              } else {
-                arr.push({
-                  customForm: 0,
-                  id: _this.multipleSelection[i].processInfoId
-                })
-
-              }
-            }
-            this.fullscreenLoading = true;
-            api
-              .deleteMyDraftsV2({ reqDeleteDraftDtoList: arr })
-              .then(result => {
-                this.fullscreenLoading = false;
-                if (result.code == "0") {
-                  let params = {
-                    pageIndex: 1,
-                    size: this.size
-                  };
-                  _this.$message({
-                    message: result.msg,
-                    type: "success"
-                  });
-                  _this.resetData();
-                  _this.getFlowList(params);
-                } else {
-                  _this.$message({
-                    message: result.msg,
-                    type: "warning"
-                  });
-                }
-              })
-              .catch(err => {
-                _this.$message({
-                  message: err,
-                  type: "warning"
-                });
-              });
-          })
-          .catch(() => {
-            //取消操作
-          });
-      } else {
-        _this.$message({
-          message: "tm.no_any_selected",
-          type: "warning"
-        });
-      }
-    },
-    handleSelectionChange: function (val) {
-      this.multipleSelection = val;
-      this.selectnum = val.length;
-    },
-
-    //普通搜索
-    search: function () {
-      let queryForm = this.$refs.queryForm.getQueryForm();
-      this.current = 1;
-      //除去搜索条件前后空格内容
-      this.modelVO.processName = queryForm.processName.trim();
-      this.modelVO.createDate = queryForm.createDate;
-      this.modelVO.createDateEnd = queryForm.createDateEnd;
-
-      let params = {
-        pageIndex: 1,
-        size: 10
-      };
-      params = Object.assign(params, this.modelVO);
-      this.getFlowList(params);
-    },
-    //重置操作
-    resetData: function () {
-      this.multipleSelection = [];
-      this.modelVO.processName = "";
-      this.modelVO.createDate = "";
-      this.modelVO.createDateEnd = "";
-    },
-
-    //获取列表
-    getFlowList: function (params) {
-      this.values = false;
-      this.loading = true;
-      if (!params) {
-        params = {
-          current: this.current,
-          size: this.size
-        };
-      }
-      let _this = this;
-      api.pageListAPI(params).then(res => {
-        this.loading = false;
-        if (res.code === "0") {
-          _this.tableData = res.records;
-          _this.total = res.total;
-          //设置草稿菜单数量标记
-          let count = res.total > 99 ? '99+' : res.total;
-          //提交到store
-          store.commit('setBadgeCount', { name: 'draftCount', count: count });
+    selectFirstTreeNode() {
+      this.$nextTick(() => {
+        if (!this.treeData.length) {
+          this.currentNode = null;
+          this.getList();
+          return;
         }
+        const first = this.treeData[0];
+        if (this.$refs.resourceTree) {
+          this.$refs.resourceTree.setCurrentKey(first.id);
+        }
+        this.currentNode = first;
+        this.getList();
       });
     },
-    //日期拼接
-    dateGet(param) {
-      if (param) {
-        return Filters.timeFormat(param, "yyyy/MM/dd HH:mm");
+    collectNodeIds(node) {
+      const ids = [node.id];
+      (node.children || []).forEach(child => {
+        ids.push.apply(ids, this.collectNodeIds(child));
+      });
+      return ids;
+    },
+    onTreeNodeClick(data) {
+      this.currentNode = data;
+      this.current = 1;
+      this.getList();
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleSizeChange(size) {
+      this.size = size;
+      this.current = 1;
+      this.getList();
+    },
+    handleCurrentChange(current) {
+      this.current = current;
+      this.getList();
+    },
+    getQueryParams() {
+      const queryForm = this.$refs.queryForm
+        ? this.$refs.queryForm.getQueryForm()
+        : {};
+      return {
+        keyword: (queryForm.keyword || "").trim(),
+        modelPreview: queryForm.modelPreview || ""
+      };
+    },
+    search() {
+      this.current = 1;
+      this.getList();
+    },
+    getList() {
+      this.loading = true;
+      const { keyword, modelPreview } = this.getQueryParams();
+      const nodeIds = this.currentNode ? this.collectNodeIds(this.currentNode) : [];
+      const filtered = this.allList.filter(item => {
+        const matchTree = !nodeIds.length ? true : nodeIds.indexOf(item.treeId) !== -1;
+        const matchKeyword = !keyword
+          ? true
+          : [item.code, item.pipeName, item.owner]
+              .join(" ")
+              .toLowerCase()
+              .indexOf(keyword.toLowerCase()) !== -1;
+        const matchModel = !modelPreview ? true : item.modelPreview === modelPreview;
+        return matchTree && matchKeyword && matchModel;
+      });
+      this.total = filtered.length;
+      const start = (this.current - 1) * this.size;
+      this.tableData = filtered.slice(start, start + this.size);
+      this.loading = false;
+    },
+    previewRow(row) {
+      this.$message.info(this.$t("cm.preview") + "：" + row.code);
+    },
+    downloadRow(row) {
+      this.$message.success(this.$t("cm.download") + "：" + row.code);
+    },
+    handleMore(command, row) {
+      if (command === "edit") {
+        this.$message.info(this.$t("cm.edit") + "：" + row.code);
+        return;
       }
+      if (command === "delete") {
+        this.$confirm(this.$t("cm.delete") + " " + row.code + " ?", this.$t("cm.tips"), {
+          confirmButtonText: this.$t("cm.confirm"),
+          cancelButtonText: this.$t("cm.cancel"),
+          type: "warning"
+        })
+          .then(() => {
+            this.allList = this.allList.filter(item => item.id !== row.id);
+            if ((this.current - 1) * this.size >= this.allList.length && this.current > 1) {
+              this.current -= 1;
+            }
+            this.getList();
+            this.$message.success(this.$t("cm.success"));
+          })
+          .catch(() => {});
+      }
+    },
+    exportList() {
+      if (!this.tableData.length) {
+        this.$message.warning(this.$t("cm.nodata"));
+        return;
+      }
+      this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+    },
+    triggerImport() {
+      this.$refs.importInput && this.$refs.importInput.click();
+    },
+    onImportFile(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      this.$message.success(this.$t("lang.batch_import") + this.$t("cm.success"));
+      e.target.value = "";
     }
   },
-
   mounted() {
     this.initMaxHeight();
-    // throttleFunc记录当前的节流方法，用于在页面销毁时释放
     this.throttleFunc = throttle(this.initMaxHeight, 500);
     window.addEventListener("resize", this.throttleFunc);
-    let params = {
-      pageIndex: 1,
-      size: 10
-    };
-    this.getFlowList(params);
-    window.refreshAllTaskCount = this.getFlowList;
+    this.getTreeList();
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.throttleFunc);

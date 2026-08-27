@@ -339,14 +339,14 @@
     "authType": "LOCAL"
   },
   {
-    "name": "cm.custom_portal",
+    "name": "lang.log_manage",
     "iconNor": "&#xe994;",
-    "resource": "CustomPortal",
+    "resource": "operationLog",
     "children": [
       {
-        "name": "cm.portal_management",
-        "url": "/pageManagement",
-        "resource": "pageManagement"
+        "name": "lang.log_list",
+        "url": "/logManage",
+        "resource": "operationLogManage"
       }
     ]
   },

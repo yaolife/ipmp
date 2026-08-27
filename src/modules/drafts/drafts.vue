@@ -1,135 +1,261 @@
 <template>
   <div class="cud-commom-form-style">
-    <!-- <div class="brand">
-      <breadcrumb :arrayName="brand" :hasIcon="hasIcon"></breadcrumb>
-    </div> -->
     <div class="cud__scroll--div">
-      <el-card>
-        <query-form
-          :queryFormId="'drafts'"
-          :queryFields="queryFields"
-          :loading="loading"
-          @resize="initMaxHeight"
-          @submit="search"
-          ref="queryForm"
-          class="cud-commom-form-search"
+      <el-row>
+        <el-col
+          :span="6"
+          class="cud-commom-tree-left"
+          :class="{
+            'cud-commom-tree-content-hidden': isTreeCollapse,
+            'cud-commom-tree-content-show': !isTreeCollapse
+          }"
+          :style="isTreeCollapse ? { height: maxRightHeight + 'px' } : {}"
         >
-        </query-form>
-      </el-card>
-      <el-card>
-        <div class="table-button">
-          <el-button
-            size="small"
-            @click="batchDel(tableData)"
-            :disabled="selectnum == '0'"
-            v-loading.fullscreen.lock="fullscreenLoading"
-            >{{ $t("cm.delete") }}</el-button
-          >
-        </div>
-        <el-row
-          class="cud__table--list"
-          :style="{ height: computedTableHeight + 'px' }"
-        >
-          <el-table
-            :data="tableData"
-            ref="multipleSelection"
-            @selection-change="handleSelectionChange"
-            v-loading="loading"
-            :empty-text="$t('cm.nodata')"
-            highlight-current-row
-            border
-            stripe
-            :max-height="computedTableHeight"
-            :default-sort="{ prop: 'createDate', order: 'descending' }"
-            header-row-class-name="cud-office-table-header"
-            class="cud-office-table"
-          >
-            <el-table-column
-              align="center"
-              type="selection"
-              width="55"
-            ></el-table-column>
-            <div style="display: inline-block" v-if="show">
-              <el-table-column
-                align="left"
-                prop="processInfoId"
-                :label="$t('workbench.process_info_id')"
-                width="55"
-              ></el-table-column>
-              <el-table-column
-                align="left"
-                prop="createUserNo"
-                :label="$t('workbench.process_info_id')"
-                width="55"
-              ></el-table-column>
+          <el-card>
+            <div class="cud__tree--left">
+              <div class="cud-common-tree-content">
+                <div class="tree-search-box">
+                  <el-input
+                    v-model="filterText"
+                    :placeholder="$t('lang.resource_search_placeholder')"
+                    maxlength="32"
+                    suffix-icon="el-icon-search"
+                    size="small"
+                    clearable
+                  >
+                  </el-input>
+                </div>
+                <div class="cud-common-tree-title-wrap">
+                  <span class="cud-commom-tree-title-text">
+                    <span
+                      class="cud3-icon-blue font_family icon-icon_process_classification"
+                    ></span>
+                    &nbsp;&nbsp;{{ $t("lang.resource_catalog") }}
+                  </span>
+                </div>
+                <div class="cud__mtb-10 ml-20 mr-20" v-loading="treeLoading">
+                  <el-tree
+                    ref="resourceTree"
+                    node-key="id"
+                    :data="treeData"
+                    :props="treeProps"
+                    highlight-current
+                    default-expand-all
+                    :expand-on-click-node="false"
+                    :filter-node-method="filterTreeNode"
+                    :style="{
+                      height: computedTreeHeight + 'px',
+                      maxHeight: computedTreeHeight + 'px'
+                    }"
+                    class="cud_tree"
+                    @node-click="onTreeNodeClick"
+                  >
+                    <span class="custom-tree-node" slot-scope="{ node }">
+                      <span>{{ node.label }}</span>
+                    </span>
+                  </el-tree>
+                </div>
+              </div>
+              <div
+                class="cud__tree--expand-trigger"
+                :class="{ 'cud__tree--expand-shadow': isTreeCollapse }"
+                @click="toggleTreeExpand"
+              >
+                <i
+                  v-if="isTreeCollapse"
+                  class="cud3-icon-blue el-icon-caret-right"
+                ></i>
+                <i v-else class="cud3-icon-blue el-icon-caret-left"></i>
+              </div>
             </div>
-            <el-table-column
-              align="left"
-              prop="procTitle"
-              :label="$t('workbench.work_title')"
+          </el-card>
+        </el-col>
+        <el-col
+          :span="isTreeCollapse ? 23 : 18"
+          :class="{ 'cud-all-width-resize': isTreeCollapse }"
+        >
+          <el-card>
+            <query-form
+              :queryFormId="'pipeDatabase'"
+              :queryFields="queryFields"
+              :loading="loading"
+              :showMoreSetting="false"
+              labelWidth="180px"
+              @resize="initMaxHeight"
+              @submit="search"
+              ref="queryForm"
+              class="cud-commom-form-search"
             >
-              <template slot-scope="scope">
-                <el-button
-                  size="small"
-                  type="text"
-                  @click="handleClick(scope.row)"
-                  >{{ scope.row.procTitle }}</el-button
+            </query-form>
+          </el-card>
+          <el-card>
+            <div class="table-button">
+                <el-button size="small" @click="exportList">{{
+                  $t("cm.export")
+                }}</el-button>
+                <el-button type="primary" size="small" @click="triggerImport">{{
+                  $t("lang.batch_import")
+                }}</el-button>
+                <input
+                  ref="importInput"
+                  type="file"
+                  accept=".xls,.xlsx,.csv"
+                  style="display: none"
+                  @change="onImportFile"
+                />
+              </div>
+              <el-row
+                class="cud__table--list"
+                :style="{ height: computedTableHeight + 'px' }"
+              >
+                <el-table
+                  :data="tableData"
+                  ref="multipleSelection"
+                  @selection-change="handleSelectionChange"
+                  v-loading="loading"
+                  :empty-text="$t('cm.nodata')"
+                  highlight-current-row
+                  border
+                  stripe
+                  :max-height="computedTableHeight"
+                  header-row-class-name="cud-office-table-header"
+                  class="cud-office-table"
                 >
-              </template>
-            </el-table-column>
-            <el-table-column
-              align="left"
-              prop="procName"
-              :label="$t('workbench.process_name')"
-            ></el-table-column>
-            <el-table-column align="left" :label="$t('workbench.create_user')">
-              <template slot-scope="scope">
-                {{ scope.row.createUserName }}
-              </template>
-            </el-table-column>
-            <el-table-column
-              align="left"
-              :label="$t('workbench.create_date')"
-              prop="createDate"
-              sortable
-            >
-              <!-- <template slot-scope="scope">
-                {{ dateGet(scope.row.createDate) }}
-              </template> -->
-            </el-table-column>
-            <el-table-column align="left" :label="$t('tm.operate')" width="160">
-              <template slot-scope="scope">
-                <el-button
-                  type="text"
-                  size="small"
-                  class="cud-common-operate-delete"
-                  @click="delClick(scope.row)"
-                >
-                  {{ $t("cm.delete") }}</el-button
-                >
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-row>
-        <el-row>
-          <div class="cud-special-pagination cud-special-pagination-button">
-            <el-pagination popper-class="cud-pager-dropdown"
-              ref="pager"
-              class="cud__page"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="current"
-              :page-sizes="[10, 20, 30, 40]"
-              :page-size="size"
-              layout="total,sizes, prev, pager, next"
-              :pager-count="5"
-              :total="total"
-              :disabled="loading"
-            >
-            </el-pagination>
-          </div>
-        </el-row>
-      </el-card>
+                  <el-table-column
+                    align="center"
+                    type="selection"
+                    width="55"
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    type="index"
+                    :label="$t('cm.no')"
+                    width="60"
+                    :index="indexMethod"
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="code"
+                    :label="$t('lang.pipe_code')"
+                    min-width="140"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="pipeName"
+                    :label="$t('lang.pipe_name')"
+                    min-width="160"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="unit"
+                    :label="$t('lang.pipe_unit')"
+                    min-width="100"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="owner"
+                    :label="$t('lang.pipe_owner')"
+                    min-width="100"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="updateTime"
+                    :label="$t('lang.update_time')"
+                    min-width="170"
+                    show-overflow-tooltip
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="status"
+                    :label="$t('lang.status')"
+                    width="110"
+                  >
+                    <template slot-scope="scope">
+                      <el-tag
+                        v-if="scope.row.status === 'published'"
+                        type="success"
+                        size="mini"
+                        >{{ $t("lang.status_published") }}</el-tag
+                      >
+                      <el-tag
+                        v-else-if="scope.row.status === 'pending'"
+                        type="warning"
+                        size="mini"
+                        >{{ $t("lang.status_pending") }}</el-tag
+                      >
+                      <el-tag v-else size="mini">{{
+                        $t("lang.status_draft")
+                      }}</el-tag>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    align="center"
+                    :label="$t('cm.operate')"
+                    width="200"
+                    fixed="right"
+                  >
+                    <template slot-scope="scope">
+                      <el-button
+                        type="text"
+                        size="small"
+                        class="cud-common-operate-edit"
+                        @click="previewRow(scope.row)"
+                        >{{ $t("cm.preview") }}</el-button
+                      >
+                      <el-button
+                        type="text"
+                        size="small"
+                        class="cud-common-operate-edit"
+                        @click="downloadRow(scope.row)"
+                        >{{ $t("cm.download") }}</el-button
+                      >
+                      <el-dropdown
+                        trigger="click"
+                        @command="cmd => handleMore(cmd, scope.row)"
+                      >
+                        <el-button type="text" size="small">
+                          {{ $t("cm.more")
+                          }}<i class="el-icon-arrow-down el-icon--right"></i>
+                        </el-button>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item command="edit">{{
+                            $t("cm.edit")
+                          }}</el-dropdown-item>
+                          <el-dropdown-item command="delete">{{
+                            $t("cm.delete")
+                          }}</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-row>
+              <el-row>
+                <div class="cud-special-pagination cud-special-pagination-button">
+                  <el-pagination
+                    popper-class="cud-pager-dropdown"
+                    ref="pager"
+                    class="cud__page"
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="current"
+                    :page-sizes="[10, 20, 30, 40]"
+                    :page-size="size"
+                    layout="total,sizes, prev, pager, next"
+                    :pager-count="5"
+                    :total="total"
+                    :disabled="loading"
+                  >
+                  </el-pagination>
+                </div>
+              </el-row>
+          </el-card>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>
@@ -139,11 +265,22 @@ import drafts from "./js/drafts.js";
 export default drafts;
 </script>
 <style lang="less" scoped>
-// @import "src/assets/css/style";
-.el-card.is-always-shadow {
-  margin-left: 15px;
-}
 /deep/ .el-button--text {
-  user-select: unset  // 设置按钮text类型的时候可以复制
+  user-select: unset;
+}
+.table-button {
+  text-align: right;
+}
+/deep/ .el-form-item__label {
+  white-space: nowrap;
+}
+.custom-tree-node {
+  font-size: 14px;
+}
+/deep/ .cud_tree {
+  overflow: auto;
+}
+.cud-commom-tree-left /deep/ .el-card {
+  height: 100%;
 }
 </style>
