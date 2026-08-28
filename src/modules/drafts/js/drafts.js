@@ -4,6 +4,7 @@ import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
 import pipeDetail from "../components/pipeDetail.vue";
+import pipeFormDialog from "../components/pipeFormDialog.vue";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
@@ -11,7 +12,8 @@ export default {
   components: {
     breadcrumb,
     queryForm,
-    pipeDetail
+    pipeDetail,
+    pipeFormDialog
   },
   data: function () {
     return {
@@ -58,7 +60,8 @@ export default {
       multipleSelection: [],
       loading: false,
       detailVisible: false,
-      currentPipelineId: ""
+      currentPipelineId: "",
+      creating: false
     };
   },
   computed: {
@@ -268,6 +271,40 @@ export default {
         })
         .catch(err => {
           this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
+    },
+    openCreate() {
+      if (!this.currentNode || !this.currentNode.id) {
+        this.$message.warning(this.$t("lang.select_resource_node"));
+        return;
+      }
+      this.$refs.pipeFormDialog && this.$refs.pipeFormDialog.open();
+    },
+    saveCreate(form) {
+      if (!this.currentNode || !this.currentNode.id) {
+        this.$message.warning(this.$t("lang.select_resource_node"));
+        return;
+      }
+      this.creating = true;
+      api
+        .createPipeline({
+          id: "",
+          directoryId: this.currentNode.id,
+          ...form,
+          responsiblePerson: ""
+        })
+        .then(res => {
+          this.creating = false;
+          if (this.isSuccessCode(res && res.code)) {
+            this.$refs.pipeFormDialog && this.$refs.pipeFormDialog.close();
+            this.$message.success(this.$t("cm.success"));
+            this.getList();
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {
+          this.creating = false;
         });
     },
     downloadTemplate() {

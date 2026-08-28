@@ -180,6 +180,7 @@ export const lang = {
   tab_files: 'Related Files',
   download_template: 'Download Template',
   create_pipeline: 'Create Pipeline',
+  select_resource_node: 'Please select a node in the resource directory first',
   import_result: 'Import finished',
   example_rpt: 'echarts demo',
   voucher_template: 'voucher template'

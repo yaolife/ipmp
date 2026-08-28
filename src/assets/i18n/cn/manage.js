@@ -169,5 +169,6 @@ export const lang = {
     tab_files: "关联文件",
     download_template: "下载模板",
     create_pipeline: "新建管道",
+    select_resource_node: "请先在左侧资源目录中选择一个节点",
     import_result: "导入完成",
 };

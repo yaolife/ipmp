@@ -104,6 +104,9 @@
           </el-card>
           <el-card>
             <div class="table-button">
+                <el-button type="primary" size="small" @click="openCreate">{{
+                  $t("lang.create_pipeline")
+                }}</el-button>
                 <el-button size="small" @click="downloadTemplate">{{
                   $t("lang.download_template")
                 }}</el-button>
@@ -248,6 +251,12 @@
         </el-col>
       </el-row>
     </div>
+    <pipe-form-dialog
+      ref="pipeFormDialog"
+      :title="$t('lang.create_pipeline')"
+      :saving="creating"
+      @save="saveCreate"
+    ></pipe-form-dialog>
   </div>
 </template>
 

@@ -197,214 +197,24 @@
         <div class="panel-card empty-tab">{{ $t("cm.nodata") }}</div>
       </el-tab-pane>
     </el-tabs>
-    <el-dialog
+    <pipe-form-dialog
+      ref="pipeFormDialog"
       :title="$t('lang.edit_device_params')"
-      :visible.sync="editVisible"
-      width="760px"
-      custom-class="pipe-edit-dialog"
-      append-to-body
-      @close="editVisible = false"
-    >
-      <el-form
-        ref="editForm"
-        :model="editForm"
-        label-width="148px"
-        label-position="left"
-        size="small"
-        class="pipe-edit-form"
-      >
-        <div class="edit-section">
-          <div class="edit-section-title">{{ $t("lang.pipe_basic_info") }}</div>
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.pipeline_no')">
-                <el-input
-                  v-model="editForm.pipelineNo"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.pipe_name')">
-                <el-input
-                  v-model="editForm.pipelineName"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.pipeline_start')">
-                <el-input
-                  v-model="editForm.startPoint"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.pipeline_end')">
-                <el-input
-                  v-model="editForm.endPoint"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.working_medium')">
-                <el-input
-                  v-model="editForm.workingMedium"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </div>
-        <div class="edit-section">
-          <div class="edit-section-title">{{ $t("lang.spec_material") }}</div>
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_nominal_diameter')">
-                <el-input
-                  v-model="editForm.nominalDiameter"
-                  class="has-unit-mm"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_mm")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_outer_diameter')">
-                <el-input
-                  v-model="editForm.outerDiameter"
-                  class="has-unit-mm"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_mm")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_wall_thickness')">
-                <el-input
-                  v-model="editForm.wallThickness"
-                  class="has-unit-mm"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_mm")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.material')">
-                <el-input
-                  v-model="editForm.material"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.spec_code')">
-                <el-input
-                  v-model="editForm.specCode"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </div>
-        <div class="edit-section">
-          <div class="edit-section-title">{{ $t("lang.design_runtime") }}</div>
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_design_pressure')">
-                <el-input
-                  v-model="editForm.designPressure"
-                  class="has-unit-mpa"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_mpa")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_design_temperature')">
-                <el-input
-                  v-model="editForm.designTemperature"
-                  class="has-unit-c"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_celsius")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_operating_pressure')">
-                <el-input
-                  v-model="editForm.operatingPressure"
-                  class="has-unit-mpa"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_mpa")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item :label="$t('lang.form_operating_temperature')">
-                <el-input
-                  v-model="editForm.operatingTemperature"
-                  class="has-unit-c"
-                  :placeholder="$t('cm.pleaseEnter')"
-                >
-                  <span slot="suffix" class="input-unit">{{
-                    $t("lang.unit_celsius")
-                  }}</span>
-                </el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="24">
-              <el-form-item :label="$t('lang.iso_code')">
-                <el-input
-                  v-model="editForm.isoCode"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </div>
-      </el-form>
-      <span slot="footer">
-        <el-button size="small" @click="editVisible = false">{{
-          $t("cm.cancel")
-        }}</el-button>
-        <el-button
-          type="primary"
-          size="small"
-          :loading="saving"
-          @click="saveEdit"
-          >{{ $t("cm.save") }}</el-button
-        >
-      </span>
-    </el-dialog>
+      :saving="saving"
+      @save="saveEdit"
+    ></pipe-form-dialog>
   </div>
 </template>
 
 <script>
 import api from "../api";
+import pipeFormDialog from "./pipeFormDialog.vue";
 
 export default {
   name: "PipeDetail",
+  components: {
+    pipeFormDialog
+  },
   props: {
     pipelineId: {
       type: [String, Number],
@@ -417,24 +227,6 @@ export default {
       saving: false,
       activeTab: "basic",
       detail: {},
-      editVisible: false,
-      editForm: {
-        pipelineNo: "",
-        pipelineName: "",
-        startPoint: "",
-        endPoint: "",
-        workingMedium: "",
-        nominalDiameter: "",
-        outerDiameter: "",
-        wallThickness: "",
-        material: "",
-        specCode: "",
-        designPressure: "",
-        designTemperature: "",
-        operatingPressure: "",
-        operatingTemperature: "",
-        isoCode: ""
-      },
       stats: {
         files: 0,
         maintenance: 0,
@@ -502,66 +294,22 @@ export default {
       this.$message.info(this.$t("lang.view_model"));
     },
     openEdit() {
-      this.editForm = {
-        pipelineNo: this.detail.pipelineNo || "",
-        pipelineName: this.detail.pipelineName || "",
-        startPoint: this.detail.startPoint || "",
-        endPoint: this.detail.endPoint || "",
-        workingMedium: this.detail.workingMedium || "",
-        nominalDiameter: this.emptyToStr(this.detail.nominalDiameter),
-        outerDiameter: this.emptyToStr(this.detail.outerDiameter),
-        wallThickness: this.emptyToStr(this.detail.wallThickness),
-        material: this.detail.material || "",
-        specCode: this.detail.specCode || "",
-        designPressure: this.emptyToStr(this.detail.designPressure),
-        designTemperature: this.emptyToStr(this.detail.designTemperature),
-        operatingPressure: this.emptyToStr(this.detail.operatingPressure),
-        operatingTemperature: this.emptyToStr(this.detail.operatingTemperature),
-        isoCode: this.detail.isoCode || ""
-      };
-      this.editVisible = true;
+      this.$refs.pipeFormDialog && this.$refs.pipeFormDialog.open(this.detail);
     },
-    emptyToStr(val) {
-      if (val === 0) return 0;
-      if (val === null || val === undefined) return "";
-      return val;
-    },
-    toNumber(value) {
-      if (value === "" || value === null || value === undefined) return null;
-      const num = Number(value);
-      return isNaN(num) ? null : num;
-    },
-    buildUpdatePayload() {
-      return {
-        id: this.detail.id,
-        directoryId: this.detail.directoryId,
-        pipelineNo: this.editForm.pipelineNo,
-        pipelineName: this.editForm.pipelineName,
-        startPoint: this.editForm.startPoint,
-        endPoint: this.editForm.endPoint,
-        workingMedium: this.editForm.workingMedium,
-        nominalDiameter: this.toNumber(this.editForm.nominalDiameter),
-        outerDiameter: this.toNumber(this.editForm.outerDiameter),
-        wallThickness: this.toNumber(this.editForm.wallThickness),
-        material: this.editForm.material,
-        specCode: this.editForm.specCode,
-        designPressure: this.toNumber(this.editForm.designPressure),
-        designTemperature: this.toNumber(this.editForm.designTemperature),
-        operatingPressure: this.toNumber(this.editForm.operatingPressure),
-        operatingTemperature: this.toNumber(this.editForm.operatingTemperature),
-        isoCode: this.editForm.isoCode,
-        responsiblePerson: this.detail.responsiblePerson
-      };
-    },
-    saveEdit() {
+    saveEdit(form) {
       if (!this.detail.id) return;
       this.saving = true;
       api
-        .updatePipeline(this.buildUpdatePayload())
+        .updatePipeline({
+          id: this.detail.id,
+          directoryId: this.detail.directoryId,
+          ...form,
+          responsiblePerson: this.detail.responsiblePerson
+        })
         .then(res => {
           this.saving = false;
           if (this.isSuccessCode(res && res.code)) {
-            this.editVisible = false;
+            this.$refs.pipeFormDialog && this.$refs.pipeFormDialog.close();
             this.$message.success(this.$t("cm.success"));
             this.loadDetail();
             this.$emit("updated");
@@ -779,106 +527,5 @@ export default {
   padding: 72px 0;
   text-align: center;
   color: #909399;
-}
-.pipe-edit-form {
-  .edit-section {
-    margin-bottom: 2px;
-  }
-  .edit-section + .edit-section {
-    position: relative;
-    margin-top: 8px;
-    padding-top: 10px;
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 11px;
-      right: 15px;
-      height: 1px;
-      background: #ebeef5;
-    }
-  }
-  .edit-section-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2329;
-    margin: 4px 0 6px;
-    padding-left: 8px;
-    line-height: 16px;
-    border-left: 3px solid #2f6bff;
-  }
-  .el-form-item {
-    margin-bottom: 4px;
-  }
-  .input-unit {
-    color: #8a8f99;
-    font-size: 12px;
-    padding-right: 4px;
-  }
-}
-</style>
-<style lang="less">
-.pipe-edit-dialog {
-  border-radius: 8px;
-  overflow: hidden;
-  .el-dialog__header {
-    height: 40px !important;
-    line-height: 40px !important;
-    padding: 0 16px !important;
-    overflow: hidden;
-    border-bottom: 1px solid #ebebeb;
-  }
-  .el-dialog__headerbtn {
-    top: 0 !important;
-    right: 12px;
-    height: 40px;
-    line-height: 40px;
-    font-size: 16px;
-  }
-  .el-dialog__title {
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 40px;
-    color: #1f2329;
-  }
-  .el-dialog__body {
-    padding: 10px 20px 2px;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-  .el-dialog__footer {
-    padding: 8px 16px 10px;
-    border-top: 1px solid #f0f2f5;
-  }
-  .pipe-edit-form .el-form-item {
-    margin-bottom: 4px;
-  }
-  .pipe-edit-form .el-form-item__label {
-    text-align: left !important;
-    padding: 0 8px 0 11px;
-  }
-  .pipe-edit-form .edit-section + .edit-section {
-    position: relative;
-    margin-top: 8px;
-    padding-top: 10px;
-  }
-  .pipe-edit-form .edit-section + .edit-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 11px;
-    right: 15px;
-    height: 1px;
-    background: #ebeef5;
-  }
-  .has-unit-mm .el-input__inner {
-    padding-right: 40px;
-  }
-  .has-unit-mpa .el-input__inner {
-    padding-right: 58px;
-  }
-  .has-unit-c .el-input__inner {
-    padding-right: 40px;
-  }
 }
 </style>
