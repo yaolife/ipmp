@@ -136,7 +136,7 @@ export const lang = {
   edit_device_params: 'Edit Equipment Parameters',
   unit_mm: 'mm',
   unit_mpa: 'MPa.g',
-  unit_celsius: '°C',
+  unit_celsius: '℃',
   form_nominal_diameter: 'Nominal Diameter',
   form_outer_diameter: 'Outer Diameter',
   form_wall_thickness: 'Wall Thickness',

@@ -125,7 +125,7 @@ export const lang = {
     edit_device_params: "编辑设备参数",
     unit_mm: "mm",
     unit_mpa: "MPa.g",
-    unit_celsius: "°C",
+    unit_celsius: "℃",
     form_nominal_diameter: "公称直径",
     form_outer_diameter: "管道外径",
     form_wall_thickness: "管道壁厚",

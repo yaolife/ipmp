@@ -66,41 +66,44 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_nominal_diameter')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.nominalDiameter"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_mm") }}</span>
-              </div>
+              <el-input
+                :value="editForm.nominalDiameter"
+                class="has-unit-mm"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('nominalDiameter', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_mm")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_outer_diameter')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.outerDiameter"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_mm") }}</span>
-              </div>
+              <el-input
+                :value="editForm.outerDiameter"
+                class="has-unit-mm"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('outerDiameter', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_mm")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_wall_thickness')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.wallThickness"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_mm") }}</span>
-              </div>
+              <el-input
+                :value="editForm.wallThickness"
+                class="has-unit-mm"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('wallThickness', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_mm")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -126,54 +129,58 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_design_pressure')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.designPressure"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_mpa") }}</span>
-              </div>
+              <el-input
+                :value="editForm.designPressure"
+                class="has-unit-mpa"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('designPressure', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_mpa")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_design_temperature')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.designTemperature"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_celsius") }}</span>
-              </div>
+              <el-input
+                :value="editForm.designTemperature"
+                class="has-unit-c"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('designTemperature', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_celsius")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_operating_pressure')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.operatingPressure"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_mpa") }}</span>
-              </div>
+              <el-input
+                :value="editForm.operatingPressure"
+                class="has-unit-mpa"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('operatingPressure', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_mpa")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_operating_temperature')">
-              <div class="number-with-unit">
-                <el-input-number
-                  v-model="editForm.operatingTemperature"
-                  :controls="false"
-                  class="pipe-number-input"
-                  :placeholder="$t('cm.pleaseEnter')"
-                ></el-input-number>
-                <span class="input-unit">{{ $t("lang.unit_celsius") }}</span>
-              </div>
+              <el-input
+                :value="editForm.operatingTemperature"
+                class="has-unit-c"
+                :placeholder="$t('cm.pleaseEnter')"
+                @input="val => setNumberField('operatingTemperature', val)"
+              >
+                <span slot="suffix" class="input-unit">{{
+                  $t("lang.unit_celsius")
+                }}</span>
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -210,15 +217,15 @@ function emptyForm() {
     startPoint: "",
     endPoint: "",
     workingMedium: "",
-    nominalDiameter: undefined,
-    outerDiameter: undefined,
-    wallThickness: undefined,
+    nominalDiameter: "",
+    outerDiameter: "",
+    wallThickness: "",
     material: "",
     specCode: "",
-    designPressure: undefined,
-    designTemperature: undefined,
-    operatingPressure: undefined,
-    operatingTemperature: undefined,
+    designPressure: "",
+    designTemperature: "",
+    operatingPressure: "",
+    operatingTemperature: "",
     isoCode: ""
   };
 }
@@ -264,10 +271,27 @@ export default {
     }
   },
   methods: {
-    toInputNumber(val) {
-      if (val === "" || val === null || val === undefined) return undefined;
-      const num = Number(val);
-      return isNaN(num) ? undefined : num;
+    emptyToStr(val) {
+      if (val === 0) return 0;
+      if (val === null || val === undefined) return "";
+      return val;
+    },
+    sanitizeNumber(val) {
+      if (val === "" || val === null || val === undefined) return "";
+      let str = String(val).replace(/[^\d.-]/g, "");
+      const negative = str.charAt(0) === "-";
+      str = str.replace(/-/g, "");
+      const dotIndex = str.indexOf(".");
+      if (dotIndex !== -1) {
+        str =
+          str.slice(0, dotIndex + 1) +
+          str.slice(dotIndex + 1).replace(/\./g, "");
+      }
+      if (negative) str = "-" + str;
+      return str;
+    },
+    setNumberField(key, val) {
+      this.editForm[key] = this.sanitizeNumber(val);
     },
     toNumber(value) {
       if (value === "" || value === null || value === undefined) return null;
@@ -282,15 +306,15 @@ export default {
         startPoint: source.startPoint || "",
         endPoint: source.endPoint || "",
         workingMedium: source.workingMedium || "",
-        nominalDiameter: this.toInputNumber(source.nominalDiameter),
-        outerDiameter: this.toInputNumber(source.outerDiameter),
-        wallThickness: this.toInputNumber(source.wallThickness),
+        nominalDiameter: this.emptyToStr(source.nominalDiameter),
+        outerDiameter: this.emptyToStr(source.outerDiameter),
+        wallThickness: this.emptyToStr(source.wallThickness),
         material: source.material || "",
         specCode: source.specCode || "",
-        designPressure: this.toInputNumber(source.designPressure),
-        designTemperature: this.toInputNumber(source.designTemperature),
-        operatingPressure: this.toInputNumber(source.operatingPressure),
-        operatingTemperature: this.toInputNumber(source.operatingTemperature),
+        designPressure: this.emptyToStr(source.designPressure),
+        designTemperature: this.emptyToStr(source.designTemperature),
+        operatingPressure: this.emptyToStr(source.operatingPressure),
+        operatingTemperature: this.emptyToStr(source.operatingTemperature),
         isoCode: source.isoCode || ""
       };
       this.dialogVisible = true;
@@ -364,21 +388,10 @@ export default {
   .el-form-item {
     margin-bottom: 18px;
   }
-  .number-with-unit {
-    display: flex;
-    align-items: center;
-    width: 100%;
-  }
-  .pipe-number-input {
-    flex: 1;
-    width: 100%;
-  }
   .input-unit {
     color: #8a8f99;
     font-size: 12px;
-    margin-left: 8px;
-    flex-shrink: 0;
-    white-space: nowrap;
+    padding-right: 4px;
   }
 }
 </style>
@@ -436,11 +449,14 @@ export default {
     height: 1px;
     background: #ebeef5;
   }
-  .pipe-number-input.el-input-number {
-    width: 100%;
+  .has-unit-mm .el-input__inner {
+    padding-right: 40px;
   }
-  .pipe-number-input .el-input__inner {
-    text-align: left;
+  .has-unit-mpa .el-input__inner {
+    padding-right: 58px;
+  }
+  .has-unit-c .el-input__inner {
+    padding-right: 40px;
   }
 }
 </style>
