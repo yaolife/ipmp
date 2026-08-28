@@ -93,12 +93,12 @@
               :queryFields="queryFields"
               :loading="loading"
               :showMoreSetting="false"
-              labelWidth="180px"
+              labelWidth="120px"
               @resize="initMaxHeight"
               @submit="search"
               @reset="resetList"
               ref="queryForm"
-              class="cud-commom-form-search"
+              class="cud-commom-form-search pipe-query-form"
             >
             </query-form>
           </el-card>
@@ -264,6 +264,10 @@ export default drafts;
 }
 /deep/ .el-form-item__label {
   white-space: nowrap;
+}
+.pipe-query-form /deep/ .query-form-left > .el-col {
+  width: 50% !important;
+  max-width: 50%;
 }
 .custom-tree-node {
   font-size: 14px;

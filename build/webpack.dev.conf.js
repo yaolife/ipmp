@@ -39,6 +39,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     hot: true, // 是否启用模块代码热更新
     host: HOST || config.dev.host, // 服务url
     port: PORT || config.dev.port, // 端口
+    disableHostCheck: true, // 允许局域网通过 IP 访问
     open: config.dev.autoOpenBrowser, // 是否自动打开页面
     overlay: config.dev.errorOverlay //当编译器错误时,浏览器中显示全屏覆盖层
       ? { warnings: false, errors: true }

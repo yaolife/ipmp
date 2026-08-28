@@ -80,7 +80,7 @@ module.exports = {
                 }
             },
         },
-        host: "localhost",
+        host: "0.0.0.0",
         port: 8010,
         autoOpenBrowser: false,
         errorOverlay: true,
