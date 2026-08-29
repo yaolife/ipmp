@@ -94,31 +94,7 @@ window.envConfig = WorkflowModule.envFn(process.env)
 //   router.addRoute("manage", routerReport);
 // }
 
-// 添加Vue router整合
-for (let routerFunc of WorkflowModule.routerDefine.Func) {
-  router.addRoute("manage", routerFunc);
-}
-for (let routerForm of WorkflowModule.routerDefine.Form) {
-  router.addRoute("manage", routerForm);
-}
-for (let routerRule of WorkflowModule.routerDefine.Rule) {
-  router.addRoute("manage", routerRule);
-}
-for (let routerPrintTemp of WorkflowModule.routerDefine.PrintTemp) {
-  router.addRoute("manage", routerPrintTemp);
-}
-for (let routerWorkbench of WorkflowModule.routerDefine.Workbench) {
-  router.addRoute("manage", routerWorkbench);
-}
-for (let routerNewWorkbench of WorkflowModule.routerDefine.NewWorkflowRouter) {
-  router.addRoute("manage", routerNewWorkbench);
-}
-for (let routerDataModel of WorkflowModule.routerDefine.DataModelRouter) {
-  router.addRoute("manage", routerDataModel);
-}
-for (let routerWorkflow of WorkflowModule.routerDefine.WorkflowRouter) {
-  router.addRoute("manage", routerWorkflow);
-}
+// 仅保留资产管理、日志管理页面，不再注册表单/流程/数据模型等模块路由
 
 //添加Vuex的整合（运行时再取 store，避免循环依赖把 ES import 绑定成 undefined）
 function resolveVuexStore() {
@@ -161,9 +137,6 @@ Vue.use(smartFormModule, {
   httpAxios: HttpAxios,
   fieldsConfig: FieldsConfig
 });
-for (let routerSmartForm of smartFormModule.router) {
-  router.addRoute("manage", routerSmartForm);
-}
 
 const i18n = new VueI18n({
   locale: "zh-CN", //语言标识，通过切换locale的值来实现语言切换，this.$18n.locale
