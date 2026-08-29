@@ -6,7 +6,7 @@
           :queryFormId="'overhaulRecord'"
           :queryFields="queryFields"
           :loading="loading"
-          :showMoreSetting="true"
+          :showMoreSetting="false"
           labelWidth="120px"
           @resize="initMaxHeight"
           @submit="search"
@@ -92,21 +92,6 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="recordTime"
-              :label="$t('lang.record_time')"
-              min-width="170"
-              sortable
-              show-overflow-tooltip
-            ></el-table-column>
-            <el-table-column
-              align="center"
-              prop="islandType"
-              :label="$t('lang.island_type')"
-              min-width="120"
-              show-overflow-tooltip
-            ></el-table-column>
-            <el-table-column
-              align="center"
               prop="defectDesc"
               :label="$t('lang.defect_desc')"
               min-width="160"
@@ -117,6 +102,13 @@
               prop="handleMeasure"
               :label="$t('lang.handle_measure')"
               min-width="150"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="islandType"
+              :label="$t('lang.island_type')"
+              min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
@@ -152,6 +144,14 @@
               prop="inspector"
               :label="$t('lang.overhaul_inspector')"
               min-width="140"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="recordTime"
+              :label="$t('lang.record_time')"
+              min-width="170"
+              sortable
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column

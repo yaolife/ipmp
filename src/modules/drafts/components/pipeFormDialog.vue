@@ -59,6 +59,14 @@
               ></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('lang.pipe_owner')">
+              <el-input
+                v-model="editForm.responsiblePerson"
+                :placeholder="$t('cm.pleaseEnter')"
+              ></el-input>
+            </el-form-item>
+          </el-col>
         </el-row>
       </div>
       <div class="edit-section">
@@ -217,6 +225,7 @@ function emptyForm() {
     startPoint: "",
     endPoint: "",
     workingMedium: "",
+    responsiblePerson: "",
     nominalDiameter: "",
     outerDiameter: "",
     wallThickness: "",
@@ -306,6 +315,7 @@ export default {
         startPoint: source.startPoint || "",
         endPoint: source.endPoint || "",
         workingMedium: source.workingMedium || "",
+        responsiblePerson: source.responsiblePerson || "",
         nominalDiameter: this.emptyToStr(source.nominalDiameter),
         outerDiameter: this.emptyToStr(source.outerDiameter),
         wallThickness: this.emptyToStr(source.wallThickness),
@@ -335,6 +345,7 @@ export default {
         startPoint: this.editForm.startPoint,
         endPoint: this.editForm.endPoint,
         workingMedium: this.editForm.workingMedium,
+        responsiblePerson: (this.editForm.responsiblePerson || "").trim(),
         nominalDiameter: this.toNumber(this.editForm.nominalDiameter),
         outerDiameter: this.toNumber(this.editForm.outerDiameter),
         wallThickness: this.toNumber(this.editForm.wallThickness),

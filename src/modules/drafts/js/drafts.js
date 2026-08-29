@@ -290,8 +290,7 @@ export default {
         .createPipeline({
           id: "",
           directoryId: this.currentNode.id,
-          ...form,
-          responsiblePerson: ""
+          ...form
         })
         .then(res => {
           this.creating = false;

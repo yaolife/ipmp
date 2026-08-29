@@ -303,8 +303,7 @@ export default {
         .updatePipeline({
           id: this.detail.id,
           directoryId: this.detail.directoryId,
-          ...form,
-          responsiblePerson: this.detail.responsiblePerson
+          ...form
         })
         .then(res => {
           this.saving = false;
