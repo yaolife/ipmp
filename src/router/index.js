@@ -11,6 +11,8 @@ import drafts from "@/modules/drafts/drafts";
 import concern from "@/modules/concern/concern";
 // 管道元件数据库
 import delegation from "@/modules/delegation/delegation";
+// 检修记录管理
+import overhaulRecord from "@/modules/overhaul/overhaulRecord.vue";
 // 日志管理
 import logManage from "@/modules/logManage/logManage.vue";
 
@@ -85,6 +87,12 @@ const _router = new Router({
           component: delegation,
           meta: "pipeComponentDatabase",
           alias: "/delegation"
+        },
+        {
+          path: "/overhaulRecord",
+          name: "检修记录管理",
+          component: overhaulRecord,
+          meta: "overhaulRecordManage"
         },
         {
           path: "/logManage",
