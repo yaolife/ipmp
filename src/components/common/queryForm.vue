@@ -183,7 +183,7 @@
         </el-row>
       </el-form>
     </div>
-    <div class="query-collapse" v-if="fields.length > 0 && showMoreSetting">
+    <div class="query-collapse" v-if="fields.length > 0">
       <el-button
         type="text"
         @click="queryCollapse(false)"
