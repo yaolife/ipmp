@@ -1,37 +1,74 @@
 import axios from '@/api/http';
-const flowTreeUrl = '/assembly/procTree';
-const saveUrl = '/assembly/createDelegation';
-const deleteUrl = '/assembly/deleteDelegation';
-const pageListUrl = '/assembly/queryDelegation';
-const getTransFinancalUrl  = '/assembly/getTransFinancal';
-const updateUrl = '/assembly/updateDelegation';
 
-const getRecentUserUrl = '/assembly/getRecentUser'
+const componentBaseUrl = '/api/pipeline-components';
 
-export default{
-  //获取当前用户信息
-    getUserInfo : params => {
-      return axios.post("user/getCurrentUser",params);
-    },
-    funcTreeAPI: function(params) {
-      return axios.post(flowTreeUrl, params, {apiTitle: "树查询"}).then(res => res.data);
-    },
-    deleteAPI: function(params) {
-      return axios.post(deleteUrl ,params, {apiTitle: "删除代理"}).then(res => res.data);
-    },
-    saveAPI: function(params) {
-      return axios.post(saveUrl, params, {apiTitle: "保存代理"}).then(res => res.data);
-    },
-    updateAPI: function(params) {
-      return axios.post(updateUrl, params, {apiTitle: "更新代理"}).then(res => res.data);
-    },
-    pageListAPI: function(params) {
-      return axios.post(pageListUrl + "?pageIndex=" + params.current + "&pageSize=" + params.size, params).then(res => res.data);
-    },
-    getTransFinancalAPI: function(params) {
-      return axios.post(getTransFinancalUrl , params).then(res => res.data);
-    },
-    getRecentUserAPI: function(params) {
-      return axios.post(getRecentUserUrl).then(res => res.data);
+function saveBlob(res, fallbackName) {
+    const blob = res && res.data;
+    if (!blob) {
+        return Promise.reject({ msg: '导出失败' });
     }
+    const type = blob.type || '';
+    if (type.indexOf('application/json') !== -1) {
+        return blob.text().then(text => {
+            try {
+                return Promise.reject(JSON.parse(text));
+            } catch (e) {
+                return Promise.reject({ msg: text || '导出失败' });
+            }
+        });
+    }
+    const headers = (res && res.headers) || {};
+    const disposition = headers['content-disposition'] || headers['Content-Disposition'] || '';
+    let filename = fallbackName;
+    const matched = disposition.match(/filename\*?=(?:UTF-8'')?["']?([^;"']+)/i);
+    if (matched && matched[1]) {
+        try {
+            filename = decodeURIComponent(matched[1]);
+        } catch (e) {
+            filename = matched[1];
+        }
+    }
+    if (window.navigator.msSaveBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, filename);
+        return Promise.resolve();
+    }
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return Promise.resolve();
 }
+
+export default {
+    pageComponents: function(params) {
+        return axios.post(componentBaseUrl + '/page', params, {
+            apiTitle: '分页查询管道元件'
+        }).then(res => res.data);
+    },
+    deleteComponents: function(params) {
+        return axios.post(componentBaseUrl + '/delete', params, {
+            apiTitle: '删除管道元件'
+        }).then(res => res.data);
+    },
+    importComponents: function(formData) {
+        return axios.post(componentBaseUrl + '/import', formData, {
+            apiTitle: '导入管道元件'
+        }).then(res => res.data);
+    },
+    exportComponents: function(params, filename) {
+        return axios.post(componentBaseUrl + '/export', params, {
+            responseType: 'blob',
+            apiTitle: '导出管道元件'
+        }).then(res => saveBlob(res, filename || '管道元件数据.xlsx'));
+    },
+    downloadComponentTemplate: function() {
+        return axios.get(componentBaseUrl + '/export-template', {
+            responseType: 'blob',
+            apiTitle: '下载管道元件导入模板'
+        }).then(res => saveBlob(res, '管道元件导入模板.xlsx'));
+    }
+};

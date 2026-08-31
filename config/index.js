@@ -25,6 +25,13 @@ module.exports = {
                     "^/server-api": ""
                 }
             },
+            "/server-api/api/pipeline-components": {
+                target: "http://192.168.0.254:8000",
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
             // 本地代理
             "/server-api": {
                 // 联调后端

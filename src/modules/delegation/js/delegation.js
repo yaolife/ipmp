@@ -2,21 +2,7 @@ import breadcrumb from "@/components/common/breadcrumb";
 import queryForm from "@/components/common/queryForm";
 import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
-
-const MOCK_LIST = [
-  { id: 1, code: "s11", pipeName: "Condensate line", type: "弯头", owner: "张三", updateTime: "2020-05-20 10:20:45", status: "published", desc: "凝结水管线弯头" },
-  { id: 2, code: "ZABF002", pipeName: "Condensate line", type: "管线", owner: "李四", updateTime: "2020-05-20 10:20:45", status: "pending", desc: "凝结水管线" },
-  { id: 3, code: "ZABF003", pipeName: "Condensate line", type: "弯头", owner: "王五", updateTime: "2020-06-12 09:18:22", status: "published", desc: "凝结水管线弯头" },
-  { id: 4, code: "ZABF004", pipeName: "Feedwater line", type: "三通", owner: "张三", updateTime: "2020-07-01 14:05:10", status: "pending", desc: "给水管线三通" },
-  { id: 5, code: "ZABF005", pipeName: "Feedwater line", type: "法兰", owner: "李四", updateTime: "2020-07-08 16:32:01", status: "published", desc: "给水管线法兰" },
-  { id: 6, code: "ZABF006", pipeName: "Main steam line", type: "管线", owner: "王五", updateTime: "2020-08-11 11:11:11", status: "published", desc: "主蒸汽管线" },
-  { id: 7, code: "ZABF007", pipeName: "Main steam line", type: "弯头", owner: "张三", updateTime: "2020-08-15 08:40:00", status: "pending", desc: "主蒸汽管线弯头" },
-  { id: 8, code: "ZABF008", pipeName: "Condensate line", type: "法兰", owner: "李四", updateTime: "2020-09-03 13:26:45", status: "published", desc: "凝结水管线法兰" },
-  { id: 9, code: "ZABF009", pipeName: "LP heater line", type: "管线", owner: "王五", updateTime: "2020-09-20 10:20:45", status: "pending", desc: "低压加热器管线" },
-  { id: 10, code: "ZABF010", pipeName: "LP heater line", type: "三通", owner: "张三", updateTime: "2020-10-02 17:08:19", status: "published", desc: "低压加热器管线三通" },
-  { id: 11, code: "ZABF011", pipeName: "Condensate line", type: "管线", owner: "李四", updateTime: "2020-10-18 09:55:33", status: "published", desc: "凝结水管线" },
-  { id: 12, code: "ZABF012", pipeName: "Feedwater line", type: "弯头", owner: "王五", updateTime: "2020-11-05 15:21:08", status: "pending", desc: "给水管线弯头" }
-];
+import api from "../api";
 
 export default {
   components: {
@@ -30,32 +16,34 @@ export default {
         { name: "lang.asset_manage" },
         { name: "lang.pipe_component_database" }
       ],
-      allList: MOCK_LIST.slice(),
       tableData: [],
       queryFields: [
         {
-          name: "keyword",
+          name: "componentName",
           label: "",
-          labelKey: "lang.resource_keyword",
+          labelKey: "lang.component_name",
           value: "",
           type: "input",
           display: true,
           order: 1
         },
         {
-          name: "type",
+          name: "componentType",
           label: "",
-          labelKey: "lang.type_query",
+          labelKey: "lang.component_type",
           value: "",
-          type: "select",
+          type: "input",
           display: true,
-          order: 2,
-          fieldMap: [
-            { label: "", labelKey: "lang.type_elbow", value: "弯头" },
-            { label: "", labelKey: "lang.type_pipeline", value: "管线" },
-            { label: "", labelKey: "lang.type_tee", value: "三通" },
-            { label: "", labelKey: "lang.type_flange", value: "法兰" }
-          ]
+          order: 2
+        },
+        {
+          name: "responsiblePerson",
+          label: "",
+          labelKey: "lang.pipe_owner",
+          value: "",
+          type: "input",
+          display: true,
+          order: 3
         }
       ],
       current: 1,
@@ -78,6 +66,9 @@ export default {
     indexMethod(index) {
       return (this.current - 1) * this.size + index + 1;
     },
+    isSuccessCode(code) {
+      return code === 0 || code === "0";
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
@@ -94,10 +85,17 @@ export default {
       const queryForm = this.$refs.queryForm
         ? this.$refs.queryForm.getQueryForm()
         : {};
-      return {
-        keyword: (queryForm.keyword || "").trim(),
-        type: queryForm.type || ""
+      const params = {
+        current: this.current,
+        size: this.size
       };
+      const componentName = (queryForm.componentName || "").trim();
+      const componentType = (queryForm.componentType || "").trim();
+      const responsiblePerson = (queryForm.responsiblePerson || "").trim();
+      if (componentName) params.componentName = componentName;
+      if (componentType) params.componentType = componentType;
+      if (responsiblePerson) params.responsiblePerson = responsiblePerson;
+      return params;
     },
     search() {
       this.current = 1;
@@ -105,65 +103,130 @@ export default {
     },
     getList() {
       this.loading = true;
-      const { keyword, type } = this.getQueryParams();
-      const filtered = this.allList.filter(item => {
-        const matchKeyword = !keyword
-          ? true
-          : [item.code, item.pipeName, item.desc, item.owner]
-              .join(" ")
-              .toLowerCase()
-              .indexOf(keyword.toLowerCase()) !== -1;
-        const matchType = !type ? true : item.type === type;
-        return matchKeyword && matchType;
-      });
-      this.total = filtered.length;
-      const start = (this.current - 1) * this.size;
-      this.tableData = filtered.slice(start, start + this.size);
-      this.loading = false;
+      api
+        .pageComponents(this.getQueryParams())
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            const data = res.data || {};
+            this.tableData = data.records || [];
+            this.total = data.total || 0;
+          } else {
+            this.tableData = [];
+            this.total = 0;
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+          this.$nextTick(() => {
+            this.initMaxHeight();
+          });
+        })
+        .catch(() => {
+          this.loading = false;
+          this.tableData = [];
+          this.total = 0;
+        });
     },
-    viewRow(row) {
-      this.$message.info(this.$t("cm.look") + "：" + row.code);
+    viewRow() {},
+    downloadRow(row) {
+      api
+        .exportComponents(
+          { ids: [row.id] },
+          (row.componentName || "管道元件") + ".xlsx"
+        )
+        .then(() => {
+          this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
-    updateRow(row) {
-      this.$message.info(this.$t("cm.update") + "：" + row.code);
-    },
-    handleMore(command, row) {
-      if (command === "edit") {
-        this.updateRow(row);
-        return;
-      }
-      if (command === "delete") {
-        this.$confirm(this.$t("cm.delete") + " " + row.code + " ?", this.$t("cm.tips"), {
+    deleteRow(row) {
+      this.$confirm(
+        this.$t("cm.delete") +
+          " " +
+          (row.componentName || row.componentType) +
+          " ?",
+        this.$t("cm.tips"),
+        {
           confirmButtonText: this.$t("cm.confirm"),
           cancelButtonText: this.$t("cm.cancel"),
           type: "warning"
+        }
+      )
+        .then(() => {
+          return api.deleteComponents({ ids: [row.id] });
         })
-          .then(() => {
-            this.allList = this.allList.filter(item => item.id !== row.id);
-            if ((this.current - 1) * this.size >= this.allList.length && this.current > 1) {
+        .then(res => {
+          if (this.isSuccessCode(res && res.code)) {
+            if (
+              (this.current - 1) * this.size >= this.total - 1 &&
+              this.current > 1
+            ) {
               this.current -= 1;
             }
             this.getList();
             this.$message.success(this.$t("cm.success"));
-          })
-          .catch(() => {});
-      }
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {});
     },
     exportList() {
-      if (!this.tableData.length) {
-        this.$message.warning(this.$t("cm.nodata"));
-        return;
+      const params = this.getQueryParams();
+      if (this.multipleSelection.length) {
+        params.ids = this.multipleSelection.map(item => item.id);
       }
-      this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+      api
+        .exportComponents(params, "管道元件数据.xlsx")
+        .then(() => {
+          this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
+    },
+    downloadTemplate() {
+      api
+        .downloadComponentTemplate()
+        .then(() => {
+          this.$message.success(this.$t("cm.download") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
     triggerImport() {
       this.$refs.importInput && this.$refs.importInput.click();
     },
     onImportFile(e) {
       const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      this.$message.success(this.$t("lang.batch_import") + this.$t("cm.success"));
       e.target.value = "";
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+      this.loading = true;
+      api
+        .importComponents(formData)
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            const data = res.data || {};
+            this.$message.success(
+              this.$t("lang.import_result") +
+                " " +
+                (data.successCount || 0) +
+                "/" +
+                (data.total || 0)
+            );
+            this.getList();
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     }
   },
   mounted() {

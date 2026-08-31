@@ -17,10 +17,13 @@
       </el-card>
       <el-card>
         <div class="table-button">
+          <el-button size="small" @click="downloadTemplate">{{
+            $t("lang.download_template")
+          }}</el-button>
           <el-button size="small" @click="exportList">{{
             $t("cm.export")
           }}</el-button>
-          <el-button type="primary" size="small" @click="triggerImport">{{
+          <el-button size="small" @click="triggerImport">{{
             $t("lang.batch_import")
           }}</el-button>
           <input
@@ -62,61 +65,36 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="code"
-              :label="$t('lang.pipe_code')"
-              min-width="120"
-              show-overflow-tooltip
-            ></el-table-column>
-            <el-table-column
-              align="center"
-              prop="pipeName"
-              :label="$t('lang.pipe_name')"
+              prop="componentName"
+              :label="$t('lang.component_name')"
               min-width="180"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="type"
-              :label="$t('lang.pipe_type')"
-              min-width="100"
+              prop="componentType"
+              :label="$t('lang.component_type')"
+              min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="owner"
+              prop="responsiblePerson"
               :label="$t('lang.pipe_owner')"
               min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="updateTime"
+              prop="modifyDate"
               :label="$t('lang.update_time')"
               min-width="170"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="status"
-              :label="$t('lang.status')"
-              width="110"
-            >
-              <template slot-scope="scope">
-                <el-tag
-                  v-if="scope.row.status === 'published'"
-                  type="success"
-                  size="mini"
-                  >{{ $t("lang.status_published") }}</el-tag
-                >
-                <el-tag v-else type="warning" size="mini">{{
-                  $t("lang.status_pending")
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              align="center"
               :label="$t('cm.operate')"
-              width="200"
+              width="180"
               fixed="right"
             >
               <template slot-scope="scope">
@@ -125,31 +103,22 @@
                   size="small"
                   class="cud-common-operate-edit"
                   @click="viewRow(scope.row)"
-                  >{{ $t("cm.look") }}</el-button
+                  >{{ $t("lang.detail") }}</el-button
                 >
                 <el-button
                   type="text"
                   size="small"
                   class="cud-common-operate-edit"
-                  @click="updateRow(scope.row)"
-                  >{{ $t("cm.update") }}</el-button
+                  @click="downloadRow(scope.row)"
+                  >{{ $t("cm.download") }}</el-button
                 >
-                <el-dropdown
-                  trigger="click"
-                  @command="cmd => handleMore(cmd, scope.row)"
+                <el-button
+                  type="text"
+                  size="small"
+                  class="cud-common-operate-delete"
+                  @click="deleteRow(scope.row)"
+                  >{{ $t("cm.delete") }}</el-button
                 >
-                  <el-button type="text" size="small">
-                    {{ $t("cm.more") }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="edit">{{
-                      $t("cm.edit")
-                    }}</el-dropdown-item>
-                    <el-dropdown-item command="delete">{{
-                      $t("cm.delete")
-                    }}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
               </template>
             </el-table-column>
           </el-table>
