@@ -100,11 +100,56 @@
                 [{{ scope.row.startUser }}] {{ scope.row.startCnUserName }}
               </template>
             </el-table-column>
-            <el-table-column align="left" :label="$t('workbench.create_date')">
+            <el-table-column
+              align="left"
+              prop="createDate"
+              :label="$t('lang.create_date')"
+              min-width="170"
+              show-overflow-tooltip
+            >
               <template slot-scope="scope">
                 {{ dateGet(scope.row.createDate) }}
               </template>
             </el-table-column>
+            <el-table-column
+              align="left"
+              prop="createUserNo"
+              :label="$t('lang.create_user_no')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="left"
+              prop="createUserName"
+              :label="$t('lang.create_user_name')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="left"
+              prop="modifyDate"
+              :label="$t('lang.modify_date')"
+              min-width="170"
+              show-overflow-tooltip
+            >
+              <template slot-scope="scope">
+                {{ dateGet(scope.row.modifyDate) }}
+              </template>
+            </el-table-column>
+            <el-table-column
+              align="left"
+              prop="modifyUserNo"
+              :label="$t('lang.modify_user_no')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="left"
+              prop="modifyUserName"
+              :label="$t('lang.modify_user_name')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
             <el-table-column
               align="left"
               :label="$t('tm.operate')"

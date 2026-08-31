@@ -79,9 +79,44 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="modifyDate"
-              :label="$t('lang.update_time')"
+              prop="createDate"
+              :label="$t('lang.create_date')"
               min-width="170"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="createUserNo"
+              :label="$t('lang.create_user_no')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="createUserName"
+              :label="$t('lang.create_user_name')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="modifyDate"
+              :label="$t('lang.modify_date')"
+              min-width="170"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="modifyUserNo"
+              :label="$t('lang.modify_user_no')"
+              min-width="120"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="modifyUserName"
+              :label="$t('lang.modify_user_name')"
+              min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
