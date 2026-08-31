@@ -81,14 +81,15 @@ export default {
       this.current = current;
       this.getList();
     },
-    getQueryParams() {
+    getQueryParams(withPage = true) {
       const queryForm = this.$refs.queryForm
         ? this.$refs.queryForm.getQueryForm()
         : {};
-      const params = {
-        current: this.current,
-        size: this.size
-      };
+      const params = {};
+      if (withPage) {
+        params.current = this.current;
+        params.size = this.size;
+      }
       const componentName = (queryForm.componentName || "").trim();
       const componentType = (queryForm.componentType || "").trim();
       const responsiblePerson = (queryForm.responsiblePerson || "").trim();
@@ -173,7 +174,7 @@ export default {
         .catch(() => {});
     },
     exportList() {
-      const params = this.getQueryParams();
+      const params = this.getQueryParams(false);
       if (this.multipleSelection.length) {
         params.ids = this.multipleSelection.map(item => item.id);
       }

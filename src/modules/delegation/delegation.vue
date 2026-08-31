@@ -79,13 +79,6 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="responsiblePerson"
-              :label="$t('lang.pipe_owner')"
-              min-width="120"
-              show-overflow-tooltip
-            ></el-table-column>
-            <el-table-column
-              align="center"
               prop="modifyDate"
               :label="$t('lang.update_time')"
               min-width="170"
