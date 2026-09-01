@@ -2,31 +2,28 @@
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
       <el-card>
-        <div class="table-toolbar">
-          <div class="search-wrap">
-            <el-input
-              v-model="keyword"
-              size="small"
-              clearable
-              :placeholder="$t('lang.component_name_placeholder')"
-              @keyup.enter.native="search"
-            ></el-input>
-            <el-button
-              size="small"
-              type="primary"
-              :loading="loading"
-              @click="search"
-              >{{ $t("cm.query") }}</el-button
-            >
-          </div>
-          <div class="table-button">
-            <el-button size="small" @click="openCreate">{{
-              $t("cm.add")
-            }}</el-button>
-            <el-button size="small" type="primary" @click="batchDownload">{{
-              $t("lang.batch_download")
-            }}</el-button>
-          </div>
+        <query-form
+          :queryFormId="'pipeComponent'"
+          :queryFields="queryFields"
+          :loading="loading"
+          :showMoreSetting="false"
+          labelWidth="120px"
+          @resize="initMaxHeight"
+          @submit="search"
+          @reset="search"
+          ref="queryForm"
+          class="cud-commom-form-search"
+        >
+        </query-form>
+      </el-card>
+      <el-card>
+        <div class="table-button">
+          <el-button size="small" @click="openCreate">{{
+            $t("cm.add")
+          }}</el-button>
+          <el-button size="small" type="primary" @click="batchDownload">{{
+            $t("lang.batch_download")
+          }}</el-button>
         </div>
         <el-row
           class="cud__table--list"
@@ -201,20 +198,6 @@ export default delegation;
 }
 /deep/ .el-button--text {
   user-select: unset;
-}
-.table-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.search-wrap {
-  display: flex;
-  align-items: center;
-  .el-input {
-    width: 260px;
-    margin-right: 8px;
-  }
 }
 .table-button {
   text-align: right;

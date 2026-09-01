@@ -104,7 +104,7 @@
           </el-card>
           <el-card>
             <div class="table-button">
-                <el-button type="primary" size="small" @click="openCreate">{{
+                <el-button size="small" @click="openCreate">{{
                   $t("lang.create_pipeline")
                 }}</el-button>
                 <el-button size="small" @click="downloadTemplate">{{
@@ -113,7 +113,7 @@
                 <el-button size="small" @click="exportList">{{
                   $t("cm.export")
                 }}</el-button>
-                <el-button size="small" @click="triggerImport">{{
+                <el-button type="primary" size="small" @click="triggerImport">{{
                   $t("lang.batch_import")
                 }}</el-button>
                 <input

@@ -1,4 +1,5 @@
 import breadcrumb from "@/components/common/breadcrumb";
+import queryForm from "@/components/common/queryForm";
 import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
@@ -26,6 +27,7 @@ function formatFileSize(bytes) {
 export default {
   components: {
     breadcrumb,
+    queryForm,
     componentFormDialog
   },
   data: function () {
@@ -36,7 +38,17 @@ export default {
         { name: "lang.pipe_component_database" }
       ],
       tableData: [],
-      keyword: "",
+      queryFields: [
+        {
+          name: "componentName",
+          label: "",
+          labelKey: "lang.component_name",
+          value: "",
+          type: "input",
+          display: true,
+          order: 1
+        }
+      ],
       current: 1,
       size: 10,
       total: 0,
@@ -76,12 +88,15 @@ export default {
       return (row && (row.fileId || row.sysFileId)) || "";
     },
     getQueryParams(withPage = true) {
+      const queryForm = this.$refs.queryForm
+        ? this.$refs.queryForm.getQueryForm()
+        : {};
       const params = {};
       if (withPage) {
         params.current = this.current;
         params.size = this.size;
       }
-      const componentName = (this.keyword || "").trim();
+      const componentName = (queryForm.componentName || "").trim();
       if (componentName) params.componentName = componentName;
       return params;
     },
