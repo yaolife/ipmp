@@ -87,6 +87,7 @@ export const lang = {
     please_upload_model: "请上传模型文件",
     file_type_invalid: "仅支持 .rvt / .ifc / .fbx / .obj / .glb 格式",
     file_size_invalid: "单个文件不能超过 2GB",
+    file_uploading: "文件正在上传，请稍候",
     select_download_item: "请先勾选需要下载的元件",
     no_file_to_download: "当前元件没有可下载的模型文件",
     delete_component_title: "删除确认",

@@ -32,7 +32,7 @@ module.exports = {
                     "^/server-api": ""
                 }
             },
-            "/server-api/sys-files": {
+            "/server-api/api/sys-files": {
                 target: "http://192.168.0.254:8000",
                 changeOrigin: true,
                 pathRewrite: {

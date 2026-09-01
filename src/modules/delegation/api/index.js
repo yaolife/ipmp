@@ -1,7 +1,7 @@
 import axios from '@/api/http';
 
 const componentBaseUrl = '/api/pipeline-components';
-const sysFileBaseUrl = '/sys-files';
+const sysFileBaseUrl = '/api/sys-files';
 
 function saveBlob(res, fallbackName) {
     const blob = res && res.data;

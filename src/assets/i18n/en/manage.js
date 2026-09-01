@@ -78,6 +78,7 @@ export const lang = {
   please_upload_model: 'Please upload a model file',
   file_type_invalid: 'Only .rvt / .ifc / .fbx / .obj / .glb files are supported',
   file_size_invalid: 'File size cannot exceed 2GB',
+  file_uploading: 'File is uploading, please wait',
   select_download_item: 'Please select components to download',
   no_file_to_download: 'No model file available for download',
   delete_component_title: 'Delete Confirmation',

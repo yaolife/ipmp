@@ -15,15 +15,19 @@
       </div>
       <div v-if="displayFile" class="current-file">
         <div class="current-file-info">
-          <i class="el-icon-document"></i>
+          <i :class="uploading ? 'el-icon-loading' : 'el-icon-document'"></i>
           <span class="file-name" :title="displayFile.name">{{
             displayFile.name
           }}</span>
           <span class="file-size">{{ displayFile.sizeText }}</span>
         </div>
-        <el-button size="small" @click="triggerFileSelect">{{
-          isEdit ? $t("lang.replace_model_file") : $t("lang.reselect_file")
-        }}</el-button>
+        <el-button
+          size="small"
+          :disabled="uploading || saving"
+          @click="triggerFileSelect"
+          >{{
+            isEdit ? $t("lang.replace_model_file") : $t("lang.reselect_file")
+          }}</el-button>
       </div>
       <el-upload
         v-else
@@ -35,7 +39,7 @@
         accept=".rvt,.ifc,.fbx,.obj,.glb"
         :on-change="onFileChange"
         :on-exceed="onFileExceed"
-        :disabled="saving"
+        :disabled="saving || uploading"
       >
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">{{ $t("lang.upload_model_hint") }}</div>
@@ -82,14 +86,14 @@
       </div>
     </el-form>
     <span slot="footer">
-      <el-button size="small" :disabled="saving" @click="dialogVisible = false">{{
+      <el-button size="small" :disabled="saving || uploading" @click="dialogVisible = false">{{
         $t("cm.cancel")
       }}</el-button>
       <el-button
         v-if="!isEdit"
         size="small"
         :loading="saving && saveType === 'draft'"
-        :disabled="saving"
+        :disabled="saving || uploading"
         @click="submit('draft')"
         >{{ $t("lang.save_draft") }}</el-button
       >
@@ -97,7 +101,7 @@
         type="primary"
         size="small"
         :loading="saving && saveType !== 'draft'"
-        :disabled="saving"
+        :disabled="saving || uploading"
         @click="submit(isEdit ? 'save' : 'confirm')"
         >{{ isEdit ? $t("cm.save") : $t("lang.confirm_add") }}</el-button
       >
@@ -157,8 +161,10 @@ export default {
       dialogVisible: false,
       isEdit: false,
       saving: false,
+      uploading: false,
       saveType: "",
       pendingFile: null,
+      replacedOldFileId: "",
       editForm: emptyForm()
     };
   },
@@ -210,7 +216,9 @@ export default {
       const source = row || {};
       this.isEdit = !!source.id;
       this.saveType = "";
+      this.uploading = false;
       this.pendingFile = null;
+      this.replacedOldFileId = "";
       this.editForm = {
         id: source.id || "",
         componentName: source.componentName || "",
@@ -230,8 +238,10 @@ export default {
     },
     onClose() {
       this.saving = false;
+      this.uploading = false;
       this.saveType = "";
       this.pendingFile = null;
+      this.replacedOldFileId = "";
       this.editForm = emptyForm();
       if (this.$refs.fileInput) this.$refs.fileInput.value = "";
     },
@@ -263,68 +273,72 @@ export default {
         return;
       }
       this.pendingFile = file;
+      this.uploadSelectedFile(file);
+    },
+    uploadSelectedFile(file) {
+      this.uploading = true;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("directory", FILE_DIRECTORY);
+      api
+        .uploadSysFile(formData)
+        .then(res => {
+          this.uploading = false;
+          if (!this.isSuccessCode(res && res.code) || !res.data) {
+            this.pendingFile = null;
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+            return;
+          }
+          const data = res.data || {};
+          const newFileId = data.id || "";
+          const prevFileId = this.editForm.fileId || "";
+          if (prevFileId && prevFileId !== newFileId) {
+            if (this.isEdit && !this.replacedOldFileId) {
+              this.replacedOldFileId = prevFileId;
+            } else if (prevFileId !== this.replacedOldFileId) {
+              api.deleteSysFiles({ ids: [prevFileId] }).catch(() => {});
+            }
+          }
+          this.editForm.fileId = newFileId;
+          this.editForm.fileSize = file.size;
+          this.editForm.originalName = data.originalName || file.name;
+          this.editForm.fileSuffix = data.fileSuffix || getExt(file.name);
+        })
+        .catch(err => {
+          this.uploading = false;
+          this.pendingFile = null;
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
     submit(type) {
       this.$refs.editForm.validate(valid => {
         if (!valid) return;
-        if (type === "confirm" && !this.pendingFile && !this.editForm.fileId) {
+        if (this.uploading) {
+          this.$message.warning(this.$t("lang.file_uploading"));
+          return;
+        }
+        if (type === "confirm" && !this.editForm.fileId) {
           this.$message.warning(this.$t("lang.please_upload_model"));
           return;
         }
         this.saveType = type;
         this.saving = true;
-        this.ensureFileUploaded()
-          .then(fileData => {
-            this.$emit("save", {
-              id: this.editForm.id,
-              componentName: (this.editForm.componentName || "").trim(),
-              remark: (this.editForm.remark || "").trim(),
-              fileId: fileData.fileId || "",
-              fileSize: fileData.fileSize,
-              originalName: fileData.originalName || "",
-              fileSuffix: fileData.fileSuffix || "",
-              oldFileId: this.editForm.fileId || "",
-              draft: type === "draft"
-            });
-          })
-          .catch(err => {
-            this.saving = false;
-            this.saveType = "";
-            this.$message.error((err && err.msg) || this.$t("cm.fail"));
-          });
+        this.$emit("save", {
+          id: this.editForm.id,
+          componentName: (this.editForm.componentName || "").trim(),
+          remark: (this.editForm.remark || "").trim(),
+          fileId: this.editForm.fileId || "",
+          fileSize: this.editForm.fileSize,
+          originalName: this.editForm.originalName || "",
+          fileSuffix: this.editForm.fileSuffix || "",
+          oldFileId: this.replacedOldFileId || "",
+          draft: type === "draft"
+        });
       });
     },
     finishSave() {
       this.saving = false;
       this.saveType = "";
-    },
-    ensureFileUploaded() {
-      if (!this.pendingFile) {
-        return Promise.resolve({
-          fileId: this.editForm.fileId,
-          fileSize: this.editForm.fileSize,
-          originalName: this.editForm.originalName,
-          fileSuffix: this.editForm.fileSuffix
-        });
-      }
-      const formData = new FormData();
-      formData.append("file", this.pendingFile);
-      formData.append("directory", FILE_DIRECTORY);
-      if ((this.editForm.remark || "").trim()) {
-        formData.append("remark", this.editForm.remark.trim());
-      }
-      return api.uploadSysFile(formData).then(res => {
-        if (!this.isSuccessCode(res && res.code) || !res.data) {
-          return Promise.reject({ msg: (res && res.msg) || this.$t("cm.fail") });
-        }
-        const data = res.data || {};
-        return {
-          fileId: data.id || "",
-          fileSize: this.pendingFile.size,
-          originalName: data.originalName || this.pendingFile.name,
-          fileSuffix: data.fileSuffix || getExt(this.pendingFile.name)
-        };
-      });
     }
   }
 };

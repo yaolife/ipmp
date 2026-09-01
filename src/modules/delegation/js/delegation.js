@@ -85,7 +85,13 @@ export default {
       this.getList();
     },
     getFileId(row) {
-      return (row && (row.fileId || row.sysFileId)) || "";
+      if (!row) return "";
+      const files = row.files;
+      if (Array.isArray(files) && files.length) {
+        const first = files[0] || {};
+        return first.id || first.fileId || "";
+      }
+      return row.fileId || row.sysFileId || "";
     },
     getQueryParams(withPage = true) {
       const queryForm = this.$refs.queryForm
@@ -101,7 +107,8 @@ export default {
       return params;
     },
     mergeFileMeta(row, file) {
-      const meta = file || {};
+      const files = (row && row.files) || [];
+      const meta = file || files[0] || {};
       const fileSuffix = meta.fileSuffix || row.fileSuffix || "";
       const fileSize =
         meta.fileSize != null
@@ -111,7 +118,7 @@ export default {
             : null;
       return {
         ...row,
-        fileId: meta.id || row.fileId || row.sysFileId || "",
+        fileId: meta.id || this.getFileId(row),
         originalName: meta.originalName || row.originalName || "",
         fileSuffix,
         fileSize,
@@ -124,6 +131,7 @@ export default {
       const rows = (records || []).slice();
       const ids = [];
       rows.forEach(row => {
+        if (Array.isArray(row.files) && row.files.length) return;
         const id = this.getFileId(row);
         if (id && ids.indexOf(id) === -1) ids.push(id);
       });
@@ -203,11 +211,13 @@ export default {
       const body = {
         componentName: payload.componentName,
         remark: payload.remark,
-        fileId: payload.fileId,
         fileSize: payload.fileSize,
         originalName: payload.originalName,
         fileSuffix: payload.fileSuffix
       };
+      if (payload.fileId) {
+        body.fileIds = [payload.fileId];
+      }
       const req = isEdit
         ? api.updateComponent({
             id: payload.id,
