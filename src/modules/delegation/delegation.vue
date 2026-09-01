@@ -89,21 +89,21 @@
             <el-table-column
               align="center"
               prop="createDate"
-              :label="$t('lang.create_date')"
+              :label="$t('lang.upload_date')"
               min-width="170"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
               prop="createUserNo"
-              :label="$t('lang.create_user_no')"
+              :label="$t('lang.upload_user_no')"
               min-width="120"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
               prop="createUserName"
-              :label="$t('lang.create_user_name')"
+              :label="$t('lang.upload_user_name')"
               min-width="120"
               show-overflow-tooltip
             ></el-table-column>
@@ -185,6 +185,10 @@
       ref="componentFormDialog"
       @save="saveComponent"
     ></component-form-dialog>
+    <component-confirm-dialog
+      ref="componentConfirmDialog"
+      @confirm="onConfirmAction"
+    ></component-confirm-dialog>
   </div>
 </template>
 

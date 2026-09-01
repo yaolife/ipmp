@@ -90,17 +90,9 @@
         $t("cm.cancel")
       }}</el-button>
       <el-button
-        v-if="!isEdit"
-        size="small"
-        :loading="saving && saveType === 'draft'"
-        :disabled="saving || uploading"
-        @click="submit('draft')"
-        >{{ $t("lang.save_draft") }}</el-button
-      >
-      <el-button
         type="primary"
         size="small"
-        :loading="saving && saveType !== 'draft'"
+        :loading="saving"
         :disabled="saving || uploading"
         @click="submit(isEdit ? 'save' : 'confirm')"
         >{{ isEdit ? $t("cm.save") : $t("lang.confirm_add") }}</el-button
@@ -317,7 +309,7 @@ export default {
           this.$message.warning(this.$t("lang.file_uploading"));
           return;
         }
-        if (type === "confirm" && !this.editForm.fileId) {
+        if (!this.isEdit && !this.editForm.fileId) {
           this.$message.warning(this.$t("lang.please_upload_model"));
           return;
         }
@@ -331,8 +323,7 @@ export default {
           fileSize: this.editForm.fileSize,
           originalName: this.editForm.originalName || "",
           fileSuffix: this.editForm.fileSuffix || "",
-          oldFileId: this.replacedOldFileId || "",
-          draft: type === "draft"
+          oldFileId: this.replacedOldFileId || ""
         });
       });
     },

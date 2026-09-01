@@ -4,6 +4,7 @@ import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
 import componentFormDialog from "../components/componentFormDialog.vue";
+import componentConfirmDialog from "../components/componentConfirmDialog.vue";
 
 function formatFileSize(bytes) {
   if (bytes === 0) return "0B";
@@ -28,7 +29,8 @@ export default {
   components: {
     breadcrumb,
     queryForm,
-    componentFormDialog
+    componentFormDialog,
+    componentConfirmDialog
   },
   data: function () {
     return {
@@ -257,14 +259,12 @@ export default {
       return api.downloadSysFile(fileId, filename);
     },
     downloadRow(row) {
-      this.downloadByFile(row)
-        .then(() => {
-          this.$message.success(this.$t("cm.download") + this.$t("cm.success"));
-        })
-        .catch(err => {
-          if (err && err.msg === this.$t("lang.no_file_to_download")) return;
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
+      if (!this.getFileId(row)) {
+        this.$message.warning(this.$t("lang.no_file_to_download"));
+        return;
+      }
+      this.$refs.componentConfirmDialog &&
+        this.$refs.componentConfirmDialog.open("download", row);
     },
     batchDownload() {
       if (!this.multipleSelection.length) {
@@ -276,7 +276,30 @@ export default {
         this.$message.warning(this.$t("lang.no_file_to_download"));
         return;
       }
-      rows
+      this.$refs.componentConfirmDialog &&
+        this.$refs.componentConfirmDialog.open("download", rows);
+    },
+    deleteRow(row) {
+      this.$refs.componentConfirmDialog &&
+        this.$refs.componentConfirmDialog.open("delete", row);
+    },
+    onConfirmAction({ type, rows }) {
+      if (type === "delete") {
+        this.doDeleteRow(rows && rows[0]);
+        return;
+      }
+      this.doDownloadRows(rows || []);
+    },
+    doDownloadRows(rows) {
+      const dialog = this.$refs.componentConfirmDialog;
+      const list = (rows || []).filter(item => this.getFileId(item));
+      if (!list.length) {
+        dialog && dialog.finish();
+        this.$message.warning(this.$t("lang.no_file_to_download"));
+        return;
+      }
+      const isBatch = list.length > 1;
+      list
         .reduce((promise, row, index) => {
           return promise.then(() => {
             return new Promise(resolve => {
@@ -285,29 +308,28 @@ export default {
           });
         }, Promise.resolve())
         .then(() => {
+          dialog && dialog.close();
           this.$message.success(
-            this.$t("lang.batch_download") + this.$t("cm.success")
+            (isBatch ? this.$t("lang.batch_download") : this.$t("cm.download")) +
+              this.$t("cm.success")
           );
         })
         .catch(err => {
+          dialog && dialog.finish();
+          if (err && err.msg === this.$t("lang.no_file_to_download")) return;
           this.$message.error((err && err.msg) || this.$t("cm.fail"));
         });
     },
-    deleteRow(row) {
-      this.$confirm(
-        this.$t("lang.delete_component_confirm"),
-        this.$t("lang.delete_component_title"),
-        {
-          confirmButtonText: this.$t("lang.confirm_delete"),
-          cancelButtonText: this.$t("cm.cancel"),
-          type: "warning",
-          confirmButtonClass: "el-button--danger"
-        }
-      )
-        .then(() => {
-          return api.deleteComponents({ ids: [row.id] });
-        })
+    doDeleteRow(row) {
+      const dialog = this.$refs.componentConfirmDialog;
+      if (!row || !row.id) {
+        dialog && dialog.finish();
+        return;
+      }
+      api
+        .deleteComponents({ ids: [row.id] })
         .then(res => {
+          dialog && dialog.finish();
           if (this.isSuccessCode(res && res.code)) {
             const fileId = this.getFileId(row);
             if (fileId) {
@@ -319,13 +341,16 @@ export default {
             ) {
               this.current -= 1;
             }
+            dialog && dialog.close();
             this.getList();
             this.$message.success(this.$t("cm.success"));
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          dialog && dialog.finish();
+        });
     }
   },
   mounted() {
