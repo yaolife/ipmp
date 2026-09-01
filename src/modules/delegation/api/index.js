@@ -1,11 +1,12 @@
 import axios from '@/api/http';
 
 const componentBaseUrl = '/api/pipeline-components';
+const sysFileBaseUrl = '/sys-files';
 
 function saveBlob(res, fallbackName) {
     const blob = res && res.data;
     if (!blob) {
-        return Promise.reject({ msg: '导出失败' });
+        return Promise.reject({ msg: '下载失败' });
     }
     const type = blob.type || '';
     if (type.indexOf('application/json') !== -1) {
@@ -13,7 +14,7 @@ function saveBlob(res, fallbackName) {
             try {
                 return Promise.reject(JSON.parse(text));
             } catch (e) {
-                return Promise.reject({ msg: text || '导出失败' });
+                return Promise.reject({ msg: text || '下载失败' });
             }
         });
     }
@@ -49,26 +50,45 @@ export default {
             apiTitle: '分页查询管道元件'
         }).then(res => res.data);
     },
+    createComponent: function(params) {
+        return axios.post(componentBaseUrl, params, {
+            apiTitle: '新增管道元件'
+        }).then(res => res.data);
+    },
+    updateComponent: function(params) {
+        return axios.post(componentBaseUrl + '/update', params, {
+            apiTitle: '修改管道元件'
+        }).then(res => res.data);
+    },
     deleteComponents: function(params) {
         return axios.post(componentBaseUrl + '/delete', params, {
             apiTitle: '删除管道元件'
         }).then(res => res.data);
     },
-    importComponents: function(formData) {
-        return axios.post(componentBaseUrl + '/import', formData, {
-            apiTitle: '导入管道元件'
+    uploadSysFile: function(formData) {
+        return axios.post(sysFileBaseUrl + '/upload', formData, {
+            apiTitle: '上传公共文件'
         }).then(res => res.data);
     },
-    exportComponents: function(params, filename) {
-        return axios.post(componentBaseUrl + '/export', params, {
-            responseType: 'blob',
-            apiTitle: '导出管道元件'
-        }).then(res => saveBlob(res, filename || '管道元件数据.xlsx'));
+    listSysFiles: function(params) {
+        return axios.post(sysFileBaseUrl + '/list', params, {
+            apiTitle: '批量查询文件对象'
+        }).then(res => res.data);
     },
-    downloadComponentTemplate: function() {
-        return axios.get(componentBaseUrl + '/export-template', {
+    listSysFilesByIdString: function(params) {
+        return axios.post(sysFileBaseUrl + '/list-by-id-string', params, {
+            apiTitle: '按文件ID字符串查询文件对象'
+        }).then(res => res.data);
+    },
+    deleteSysFiles: function(params) {
+        return axios.post(sysFileBaseUrl + '/delete', params, {
+            apiTitle: '删除公共文件'
+        }).then(res => res.data);
+    },
+    downloadSysFile: function(id, filename) {
+        return axios.get(sysFileBaseUrl + '/stream/' + id, {
             responseType: 'blob',
-            apiTitle: '下载管道元件导入模板'
-        }).then(res => saveBlob(res, '管道元件导入模板.xlsx'));
+            apiTitle: '获取文件流'
+        }).then(res => saveBlob(res, filename || '模型文件'));
     }
 };

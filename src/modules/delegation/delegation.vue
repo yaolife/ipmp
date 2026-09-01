@@ -2,37 +2,31 @@
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
       <el-card>
-        <query-form
-          :queryFormId="'pipeComponent'"
-          :queryFields="queryFields"
-          :loading="loading"
-          :showMoreSetting="false"
-          labelWidth="180px"
-          @resize="initMaxHeight"
-          @submit="search"
-          ref="queryForm"
-          class="cud-commom-form-search"
-        >
-        </query-form>
-      </el-card>
-      <el-card>
-        <div class="table-button">
-          <el-button size="small" @click="downloadTemplate">{{
-            $t("lang.download_template")
-          }}</el-button>
-          <el-button size="small" @click="exportList">{{
-            $t("cm.export")
-          }}</el-button>
-          <el-button size="small" @click="triggerImport">{{
-            $t("lang.batch_import")
-          }}</el-button>
-          <input
-            ref="importInput"
-            type="file"
-            accept=".xls,.xlsx,.csv"
-            style="display: none"
-            @change="onImportFile"
-          />
+        <div class="table-toolbar">
+          <div class="search-wrap">
+            <el-input
+              v-model="keyword"
+              size="small"
+              clearable
+              :placeholder="$t('lang.component_name_placeholder')"
+              @keyup.enter.native="search"
+            ></el-input>
+            <el-button
+              size="small"
+              type="primary"
+              :loading="loading"
+              @click="search"
+              >{{ $t("cm.query") }}</el-button
+            >
+          </div>
+          <div class="table-button">
+            <el-button size="small" @click="openCreate">{{
+              $t("cm.add")
+            }}</el-button>
+            <el-button size="small" type="primary" @click="batchDownload">{{
+              $t("lang.batch_download")
+            }}</el-button>
+          </div>
         </div>
         <el-row
           class="cud__table--list"
@@ -72,11 +66,29 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="componentType"
-              :label="$t('lang.component_type')"
-              min-width="120"
+              prop="modelFormat"
+              :label="$t('lang.model_format')"
+              min-width="110"
               show-overflow-tooltip
             ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="modelSize"
+              :label="$t('lang.model_size')"
+              min-width="110"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="remark"
+              :label="$t('lang.remark')"
+              min-width="140"
+              show-overflow-tooltip
+            >
+              <template slot-scope="scope">{{
+                scope.row.remark || "-"
+              }}</template>
+            </el-table-column>
             <el-table-column
               align="center"
               prop="createDate"
@@ -130,8 +142,8 @@
                   type="text"
                   size="small"
                   class="cud-common-operate-edit"
-                  @click="viewRow(scope.row)"
-                  >{{ $t("lang.detail") }}</el-button
+                  @click="editRow(scope.row)"
+                  >{{ $t("cm.edit") }}</el-button
                 >
                 <el-button
                   type="text"
@@ -172,6 +184,10 @@
         </el-row>
       </el-card>
     </div>
+    <component-form-dialog
+      ref="componentFormDialog"
+      @save="saveComponent"
+    ></component-form-dialog>
   </div>
 </template>
 
@@ -185,6 +201,20 @@ export default delegation;
 }
 /deep/ .el-button--text {
   user-select: unset;
+}
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.search-wrap {
+  display: flex;
+  align-items: center;
+  .el-input {
+    width: 260px;
+    margin-right: 8px;
+  }
 }
 .table-button {
   text-align: right;
