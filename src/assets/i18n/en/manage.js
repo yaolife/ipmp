@@ -81,6 +81,8 @@ export const lang = {
   file_uploading: 'File is uploading, please wait',
   select_download_item: 'Please select components to download',
   no_file_to_download: 'No model file available for download',
+  no_file_to_preview: 'No model file available for preview',
+  no_model_file: 'No associated model file for this component',
   download_model_title: 'Download Model File',
   download_model_confirm: 'Download the model file of this component?',
   download_model_batch_confirm: 'Download the selected model files?',

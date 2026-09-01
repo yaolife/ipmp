@@ -95,6 +95,23 @@ export default {
       }
       return row.fileId || row.sysFileId || "";
     },
+    getAbsoluteFileUrl(row) {
+      const file = ((row && row.files) || [])[0] || {};
+      return String(file.absoluteFileUrl || (row && row.absoluteFileUrl) || "").trim();
+    },
+    fetchComponentDetail(id) {
+      if (!id) {
+        return Promise.reject({ msg: this.$t("cm.fail") });
+      }
+      return api.getComponentDetail(id).then(res => {
+        if (this.isSuccessCode(res && res.code) && res.data) {
+          return this.mergeFileMeta(res.data);
+        }
+        const err = { msg: (res && res.msg) || this.$t("cm.fail") };
+        this.$message.error(err.msg);
+        return Promise.reject(err);
+      });
+    },
     getQueryParams(withPage = true) {
       const queryForm = this.$refs.queryForm
         ? this.$refs.queryForm.getQueryForm()
@@ -124,6 +141,7 @@ export default {
         originalName: meta.originalName || row.originalName || "",
         fileSuffix,
         fileSize,
+        absoluteFileUrl: meta.absoluteFileUrl || row.absoluteFileUrl || "",
         remark: row.remark || meta.remark || "",
         modelFormat: fileSuffix ? String(fileSuffix).replace(/^\./, "").toUpperCase() : "-",
         modelSize: formatFileSize(fileSize)
@@ -190,22 +208,12 @@ export default {
       this.$refs.componentFormDialog && this.$refs.componentFormDialog.open();
     },
     editRow(row) {
-      const open = data => {
-        this.$refs.componentFormDialog && this.$refs.componentFormDialog.open(data);
-      };
-      const fileId = this.getFileId(row);
-      if (fileId && !row.originalName) {
-        api
-          .listSysFiles({ ids: [fileId] })
-          .then(res => {
-            const file =
-              this.isSuccessCode(res && res.code) && res.data && res.data[0];
-            open(this.mergeFileMeta(row, file || null));
-          })
-          .catch(() => open(row));
-        return;
-      }
-      open(row);
+      this.fetchComponentDetail(row && row.id)
+        .then(detail => {
+          this.$refs.componentFormDialog &&
+            this.$refs.componentFormDialog.open(detail);
+        })
+        .catch(() => {});
     },
     saveComponent(payload) {
       const dialog = this.$refs.componentFormDialog;
@@ -250,38 +258,71 @@ export default {
         });
     },
     downloadByFile(row) {
-      const fileId = this.getFileId(row);
-      if (!fileId) {
+      if (!this.getAbsoluteFileUrl(row)) {
         this.$message.warning(this.$t("lang.no_file_to_download"));
         return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
       }
+      const fileId = this.getFileId(row);
       const filename = row.originalName || row.componentName || "模型文件";
-      return api.downloadSysFile(fileId, filename);
+      if (fileId) {
+        return api.downloadSysFile(fileId, filename);
+      }
+      window.open(this.getAbsoluteFileUrl(row), "_blank");
+      return Promise.resolve();
+    },
+    previewRow(row) {
+      this.fetchComponentDetail(row && row.id)
+        .then(detail => {
+          const url = this.getAbsoluteFileUrl(detail);
+          if (!url) {
+            this.$message.warning(this.$t("lang.no_file_to_preview"));
+            return;
+          }
+          window.open(url, "_blank");
+        })
+        .catch(() => {});
     },
     downloadRow(row) {
-      if (!this.getFileId(row)) {
-        this.$message.warning(this.$t("lang.no_file_to_download"));
-        return;
-      }
-      this.$refs.componentConfirmDialog &&
-        this.$refs.componentConfirmDialog.open("download", row);
+      this.fetchComponentDetail(row && row.id)
+        .then(detail => {
+          if (!this.getAbsoluteFileUrl(detail)) {
+            this.$message.warning(this.$t("lang.no_file_to_download"));
+            return;
+          }
+          this.$refs.componentConfirmDialog &&
+            this.$refs.componentConfirmDialog.open("download", detail);
+        })
+        .catch(() => {});
     },
     batchDownload() {
       if (!this.multipleSelection.length) {
         this.$message.warning(this.$t("lang.select_download_item"));
         return;
       }
-      const rows = this.multipleSelection.filter(item => this.getFileId(item));
-      if (!rows.length) {
-        this.$message.warning(this.$t("lang.no_file_to_download"));
-        return;
-      }
-      this.$refs.componentConfirmDialog &&
-        this.$refs.componentConfirmDialog.open("download", rows);
+      const ids = this.multipleSelection.map(item => item.id).filter(Boolean);
+      Promise.all(ids.map(id => this.fetchComponentDetail(id)))
+        .then(details => {
+          const rows = (details || []).filter(item => this.getAbsoluteFileUrl(item));
+          if (!rows.length) {
+            this.$message.warning(this.$t("lang.no_file_to_download"));
+            return;
+          }
+          this.$refs.componentConfirmDialog &&
+            this.$refs.componentConfirmDialog.open("download", rows);
+        })
+        .catch(() => {});
     },
     deleteRow(row) {
-      this.$refs.componentConfirmDialog &&
-        this.$refs.componentConfirmDialog.open("delete", row);
+      this.fetchComponentDetail(row && row.id)
+        .then(detail => {
+          if (!this.getAbsoluteFileUrl(detail)) {
+            this.$message.warning(this.$t("lang.no_model_file"));
+            return;
+          }
+          this.$refs.componentConfirmDialog &&
+            this.$refs.componentConfirmDialog.open("delete", detail);
+        })
+        .catch(() => {});
     },
     onConfirmAction({ type, rows }) {
       if (type === "delete") {
@@ -292,7 +333,7 @@ export default {
     },
     doDownloadRows(rows) {
       const dialog = this.$refs.componentConfirmDialog;
-      const list = (rows || []).filter(item => this.getFileId(item));
+      const list = (rows || []).filter(item => this.getAbsoluteFileUrl(item));
       if (!list.length) {
         dialog && dialog.finish();
         this.$message.warning(this.$t("lang.no_file_to_download"));

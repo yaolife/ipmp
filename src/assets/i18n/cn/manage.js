@@ -90,6 +90,8 @@ export const lang = {
     file_uploading: "文件正在上传，请稍候",
     select_download_item: "请先勾选需要下载的元件",
     no_file_to_download: "当前元件没有可下载的模型文件",
+    no_file_to_preview: "当前元件没有可预览的模型文件",
+    no_model_file: "当前元件没有关联的模型文件",
     download_model_title: "下载模型文件",
     download_model_confirm: "确认下载当前元件的模型文件吗？",
     download_model_batch_confirm: "确认下载选中的模型文件吗？",

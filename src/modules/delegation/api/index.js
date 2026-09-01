@@ -50,6 +50,11 @@ export default {
             apiTitle: '分页查询管道元件'
         }).then(res => res.data);
     },
+    getComponentDetail: function(id) {
+        return axios.get(componentBaseUrl + '/' + id, {
+            apiTitle: '查询管道元件详情'
+        }).then(res => res.data);
+    },
     createComponent: function(params) {
         return axios.post(componentBaseUrl, params, {
             apiTitle: '新增管道元件'
