@@ -443,8 +443,14 @@ export default {
     margin-bottom: 18px;
   }
   .pipe-edit-form .el-form-item__label {
+    position: relative;
     text-align: left !important;
-    padding: 0 8px 0 11px;
+    padding: 0 8px 0 12px;
+  }
+  .pipe-edit-form .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
+    position: absolute;
+    left: 0;
+    margin-right: 0;
   }
   .pipe-edit-form .edit-section + .edit-section {
     position: relative;
