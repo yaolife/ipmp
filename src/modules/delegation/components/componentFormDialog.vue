@@ -385,12 +385,6 @@ export default {
   margin-left: 12px;
   color: #909399;
 }
-.component-edit-form {
-  /deep/ .el-form-item__label {
-    text-align: left;
-    padding-right: 8px;
-  }
-}
 /deep/ .el-upload {
   width: 100%;
 }
@@ -429,6 +423,16 @@ export default {
   .el-dialog__footer {
     padding: 8px 16px 12px;
     border-top: 1px solid #f0f2f5;
+  }
+  .component-edit-form .el-form-item__label {
+    position: relative;
+    text-align: left !important;
+    padding: 0 8px 0 12px;
+  }
+  .component-edit-form .el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
+    position: absolute;
+    left: 0;
+    margin-right: 0;
   }
 }
 </style>

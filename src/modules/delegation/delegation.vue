@@ -131,17 +131,10 @@
             <el-table-column
               align="center"
               :label="$t('cm.operate')"
-              width="230"
+              width="180"
               fixed="right"
             >
               <template slot-scope="scope">
-                <el-button
-                  type="text"
-                  size="small"
-                  class="cud-common-operate-edit"
-                  @click="previewRow(scope.row)"
-                  >{{ $t("cm.preview") }}</el-button
-                >
                 <el-button
                   type="text"
                   size="small"
