@@ -1,0 +1,204 @@
+<template>
+  <div class="model-tree-panel">
+    <div class="panel-header">{{ $t("lang.screen_tree_title") }}</div>
+    <div class="panel-search">
+      <el-input
+        v-model="filterText"
+        :placeholder="$t('lang.screen_tree_search')"
+        maxlength="32"
+        suffix-icon="el-icon-search"
+        size="small"
+        clearable
+      ></el-input>
+    </div>
+    <div class="panel-tree" v-loading="loading">
+      <el-tree
+        ref="resourceTree"
+        node-key="id"
+        :data="treeData"
+        :props="treeProps"
+        highlight-current
+        default-expand-all
+        :expand-on-click-node="false"
+        :filter-node-method="filterTreeNode"
+        :empty-text="$t('cm.nodata')"
+        @node-click="onNodeClick"
+      >
+        <span class="tree-node" slot-scope="{ node }">
+          <span class="tree-node-label" :title="node.label">{{ node.label }}</span>
+        </span>
+      </el-tree>
+    </div>
+  </div>
+</template>
+
+<script>
+import api from "@/modules/drafts/api";
+
+const PIPE_DIRECTORY_TYPE = 0;
+
+export default {
+  name: "ModelTreePanel",
+  data() {
+    return {
+      loading: false,
+      filterText: "",
+      treeData: [],
+      treeProps: {
+        children: "children",
+        label: "name"
+      }
+    };
+  },
+  watch: {
+    filterText(val) {
+      const keyword = (val || "").trim();
+      this.$refs.resourceTree && this.$refs.resourceTree.filter(keyword);
+    }
+  },
+  mounted() {
+    this.loadTree();
+  },
+  methods: {
+    isSuccessCode(code) {
+      return code === 0 || code === "0";
+    },
+    filterTreeNode(value, data) {
+      if (!value) return true;
+      const keyword = value.toLowerCase();
+      return (data.name || "").toLowerCase().indexOf(keyword) !== -1;
+    },
+    loadTree() {
+      this.loading = true;
+      api
+        .getResourceDirectoryTree({ type: PIPE_DIRECTORY_TYPE })
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            this.treeData = Array.isArray(res.data) ? res.data : [];
+          } else {
+            this.treeData = [];
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+          this.$emit("loaded", this.treeData);
+        })
+        .catch(() => {
+          this.loading = false;
+          this.treeData = [];
+          this.$emit("loaded", []);
+        });
+    },
+    onNodeClick(data) {
+      this.$emit("select", data);
+    },
+    setCurrentKey(id) {
+      this.$nextTick(() => {
+        if (this.$refs.resourceTree) {
+          this.$refs.resourceTree.setCurrentKey(id || null);
+        }
+      });
+    }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+.model-tree-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 318px;
+  height: 100%;
+  padding: 12px 12px 10px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(5.5px);
+  backdrop-filter: blur(5.5px);
+  color: #ffffff;
+  overflow: hidden;
+}
+.panel-header {
+  flex-shrink: 0;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 4px 8px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+.panel-search {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+  /deep/ .el-input__inner {
+    height: 32px;
+    line-height: 32px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 2px;
+  }
+  /deep/ .el-input__inner::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+  /deep/ .el-input__icon,
+  /deep/ .el-input__suffix {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+.panel-tree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  /deep/ .el-loading-mask {
+    background: rgba(0, 0, 0, 0.35);
+  }
+  /deep/ .el-tree {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.88);
+  }
+  /deep/ .el-tree-node__content {
+    height: 32px;
+    background: transparent;
+  }
+  /deep/ .el-tree-node__content:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  /deep/ .el-tree--highlight-current
+    .el-tree-node.is-current
+    > .el-tree-node__content {
+    background: #1677ff;
+    color: #ffffff;
+  }
+  /deep/ .el-tree-node__expand-icon {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  /deep/ .el-tree-node__expand-icon.is-leaf {
+    color: transparent;
+  }
+  /deep/ .el-tree__empty-text {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+.panel-tree::-webkit-scrollbar,
+.panel-tree /deep/ .el-tree::-webkit-scrollbar {
+  width: 6px;
+}
+.panel-tree::-webkit-scrollbar-thumb,
+.panel-tree /deep/ .el-tree::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+}
+.tree-node {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  font-size: 13px;
+}
+.tree-node-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

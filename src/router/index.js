@@ -7,6 +7,8 @@ import login from "@/modules/login/login";
 
 // 管道数据库
 import drafts from "@/modules/drafts/drafts";
+// 数字孪生可视化
+import digitalTwinScreen from "@/modules/screen/index";
 // 支吊架数据库
 import concern from "@/modules/concern/concern";
 // 管道元件数据库
@@ -85,6 +87,12 @@ const _router = new Router({
           component: delegation,
           meta: "pipeComponentDatabase",
           alias: "/delegation"
+        },
+        {
+          path: "/screen",
+          name: "数字孪生可视化",
+          component: digitalTwinScreen,
+          meta: "digitalTwin"
         },
         {
           path: "/logManage",

@@ -19,6 +19,11 @@
         "name": "lang.pipe_component_database",
         "url": "/pipeComponentDatabase",
         "resource": "pipeComponentDatabase"
+      },
+      {
+        "name": "lang.digital_twin",
+        "url": "/screen",
+        "resource": "digitalTwin"
       }
     ]
   },
