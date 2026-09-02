@@ -6,25 +6,6 @@ import api from "../api";
 import componentFormDialog from "../components/componentFormDialog.vue";
 import componentConfirmDialog from "../components/componentConfirmDialog.vue";
 
-function formatFileSize(bytes) {
-  if (bytes === 0) return "0B";
-  const n = Number(bytes);
-  if (bytes === null || bytes === undefined || bytes === "" || isNaN(n) || n < 0) {
-    return "-";
-  }
-  if (n < 1024) return n + "B";
-  if (n < 1024 * 1024) {
-    const kb = n / 1024;
-    return (kb >= 100 ? kb.toFixed(0) : kb.toFixed(1).replace(/\.0$/, "")) + "KB";
-  }
-  if (n < 1024 * 1024 * 1024) {
-    const mb = n / (1024 * 1024);
-    return (mb >= 100 ? mb.toFixed(0) : mb.toFixed(1).replace(/\.0$/, "")) + "MB";
-  }
-  const gb = n / (1024 * 1024 * 1024);
-  return gb.toFixed(1).replace(/\.0$/, "") + "GB";
-}
-
 export default {
   components: {
     breadcrumb,
@@ -143,8 +124,11 @@ export default {
         fileSize,
         absoluteFileUrl: meta.absoluteFileUrl || row.absoluteFileUrl || "",
         remark: row.remark || meta.remark || "",
-        modelFormat: fileSuffix ? String(fileSuffix).replace(/^\./, "").toUpperCase() : "-",
-        modelSize: formatFileSize(fileSize)
+        modelFormat: fileSuffix || "-",
+        modelSize:
+          fileSize === null || fileSize === undefined || fileSize === ""
+            ? "-"
+            : fileSize + "kb"
       };
     },
     fillFileMeta(records) {
