@@ -1566,13 +1566,20 @@ export default {
     border-bottom: 1px solid #e2e8f0;
   }
   /deep/ .el-table .cell {
-    padding: 0 4px;
+    padding: 0 12px;
+    overflow: visible;
+  }
+  /deep/ .el-input {
+    width: 100%;
+    display: block;
   }
   /deep/ .el-input__inner {
+    width: 100%;
     height: 32px;
     line-height: 32px;
     border-radius: 4px;
     border-color: #e2e8f0;
+    box-sizing: border-box;
   }
   /deep/ .el-table__row:last-child td {
     border-bottom: none;
