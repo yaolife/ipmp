@@ -256,7 +256,7 @@ export default {
   align-items: center;
   height: 38px;
   min-height: 38px;
-  padding: 0 40px 0 20px;
+  padding: 0 40px 0 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 .panel-tab {
@@ -313,7 +313,8 @@ export default {
   align-items: center;
   flex-shrink: 0;
   min-height: 56px;
-  padding: 12px 20px 8px;
+  margin: 0 20px;
+  padding: 12px 16px 8px;
   background: rgba(255, 255, 255, 0.04);
 }
 .panel-title {
