@@ -314,14 +314,15 @@ export default {
   flex-shrink: 0;
   min-height: 56px;
   margin: 0 20px;
-  padding: 12px 16px 8px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 0;
+  background: transparent;
+  border-bottom: 1px solid rgba(104, 190, 254, 0.22);
 }
 .panel-title {
   margin: 0 12px 0 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 600;
-  line-height: 32px;
+  line-height: 36px;
   color: #ffffff;
 }
 .status-badge {
@@ -346,8 +347,9 @@ export default {
 .info-section {
   margin-bottom: 12px;
   padding: 12px 16px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(104, 190, 254, 0.35);
+  background: rgba(8, 36, 59, 0.94);
 }
 .section-title {
   margin-bottom: 12px;
@@ -368,16 +370,17 @@ export default {
   display: flex;
   align-items: flex-start;
   min-width: 0;
-  font-size: 13px;
   line-height: 20px;
 }
 .info-label {
   width: 108px;
   flex-shrink: 0;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
 }
 .info-value {
+  font-size: 14px;
   color: #ffffff;
   word-break: break-all;
 }
