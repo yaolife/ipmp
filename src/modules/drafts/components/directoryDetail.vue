@@ -117,89 +117,106 @@
               </el-col>
             </el-row>
 
-            <div class="private-wrap">
-              <div class="private-title">{{ $t("lang.private_attrs") }}</div>
-              <el-table
-                :data="privateAttrs"
-                border
-                size="small"
-                :empty-text="$t('cm.nodata')"
-              >
-                <el-table-column
-                  :label="$t('lang.attr_name')"
-                  min-width="160"
+            <div class="private-panel">
+              <div class="sub-label">{{ $t("lang.private_attrs") }}</div>
+              <div class="private-table-wrap">
+                <el-table
+                  :data="privateAttrs"
+                  class="private-table"
+                  size="small"
+                  :empty-text="$t('cm.nodata')"
                 >
-                  <template slot-scope="scope">
-                    <el-input
-                      v-model="scope.row.name"
-                      size="mini"
-                      placeholder="key"
-                    ></el-input>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  :label="$t('lang.attr_value')"
-                  min-width="160"
-                >
-                  <template slot-scope="scope">
-                    <el-input
-                      v-model="scope.row.value"
-                      size="mini"
-                      placeholder="value"
-                    ></el-input>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  :label="$t('cm.operate')"
-                  width="80"
-                  align="center"
-                >
-                  <template slot-scope="scope">
-                    <el-button
-                      type="text"
-                      size="small"
-                      class="cud-common-operate-delete"
-                      @click="removePrivateAttr(scope.$index)"
-                      >{{ $t("cm.delete") }}</el-button
-                    >
-                  </template>
-                </el-table-column>
-              </el-table>
+                  <el-table-column
+                    :label="$t('lang.attr_name')"
+                    min-width="200"
+                  >
+                    <template slot-scope="scope">
+                      <el-input
+                        v-model="scope.row.name"
+                        size="small"
+                        placeholder="key"
+                      ></el-input>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    :label="$t('lang.attr_value')"
+                    min-width="200"
+                  >
+                    <template slot-scope="scope">
+                      <el-input
+                        v-model="scope.row.value"
+                        size="small"
+                        placeholder="value"
+                      ></el-input>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    :label="$t('cm.operate')"
+                    width="88"
+                    align="center"
+                  >
+                    <template slot-scope="scope">
+                      <el-button
+                        type="text"
+                        size="small"
+                        class="delete-link"
+                        @click="removePrivateAttr(scope.$index)"
+                        >{{ $t("cm.delete") }}</el-button
+                      >
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
               <el-button
                 size="small"
                 icon="el-icon-plus"
-                class="add-row-btn"
+                class="add-attr-btn"
                 @click="addPrivateAttr"
                 >{{ $t("lang.add_private_attr") }}</el-button
               >
-            </div>
 
-            <div class="private-wrap">
-              <div class="private-title">{{ $t("lang.image_upload_path") }}</div>
-              <div class="image-list">
-                <div
-                  class="image-thumb"
-                  v-for="(img, idx) in imagePreviews"
-                  :key="img.id || idx"
-                >
-                  <img v-if="img.url" :src="img.url" alt="" />
-                  <span v-else>{{ img.name }}</span>
-                  <i class="el-icon-close" @click="removeImage(idx)"></i>
+              <div class="image-panel">
+                <div class="sub-label">{{ $t("lang.image_upload_path") }}</div>
+                <div class="image-list">
+                  <div
+                    class="image-thumb is-empty"
+                    v-if="!imagePreviews.length"
+                  >
+                    <i class="el-icon-picture-outline"></i>
+                    <span>{{ $t("lang.example_image") }} 1</span>
+                  </div>
+                  <div
+                    class="image-thumb"
+                    v-for="(img, idx) in imagePreviews"
+                    :key="img.id || idx"
+                  >
+                    <img v-if="img.url" :src="img.url" alt="" />
+                    <span v-else>{{ img.name }}</span>
+                    <i class="el-icon-close" @click="removeImage(idx)"></i>
+                  </div>
                 </div>
-              </div>
-              <div class="image-actions">
-                <input
-                  ref="imageInput"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  @change="onImageFiles"
-                />
-                <el-input
-                  v-model="form.imagePaths"
-                  size="small"
-                  :placeholder="$t('lang.image_path_placeholder')"
-                ></el-input>
+                <div class="image-actions">
+                  <input
+                    ref="imageInput"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="hidden-file"
+                    @change="onImageFiles"
+                  />
+                  <div class="file-picker" @click="triggerImageInput">
+                    <el-button size="small" icon="el-icon-upload2">{{
+                      $t("lang.select_file")
+                    }}</el-button>
+                    <span class="file-hint">{{ imageFileHint }}</span>
+                  </div>
+                  <el-input
+                    v-model="form.imagePaths"
+                    size="small"
+                    class="path-input"
+                    :placeholder="$t('lang.image_path_placeholder')"
+                  ></el-input>
+                </div>
               </div>
             </div>
           </div>
@@ -999,6 +1016,15 @@ export default {
     handleStatusOptions() {
       return ["无需处理", "返修", "更换", "监控运行"];
     },
+    imageFileHint() {
+      if (!this.imagePreviews.length) {
+        return this.$t("lang.no_file_chosen");
+      }
+      if (this.imagePreviews.length === 1) {
+        return this.imagePreviews[0].name;
+      }
+      return this.imagePreviews.length + this.$t("lang.files_selected");
+    },
     filteredSegments() {
       const keyword = (this.segmentKeyword || "").trim().toLowerCase();
       const type = this.segmentTypeFilter;
@@ -1159,6 +1185,9 @@ export default {
           this.detail = {};
           this.resetLocalState();
         });
+    },
+    triggerImageInput() {
+      this.$refs.imageInput && this.$refs.imageInput.click();
     },
     addPrivateAttr() {
       this.privateAttrs.push({ name: "", value: "" });
@@ -1472,36 +1501,104 @@ export default {
   color: #ef4444;
   margin-left: 2px;
 }
-.private-wrap {
+.private-panel {
   margin-top: 8px;
 }
-.private-title {
+.sub-label {
   font-size: 12px;
-  color: #909399;
+  font-weight: 500;
+  color: #64748b;
   margin-bottom: 8px;
+  line-height: 18px;
 }
-.add-row-btn {
+.private-table-wrap {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  /deep/ .el-table {
+    font-size: 13px;
+  }
+  /deep/ .el-table::before,
+  /deep/ .el-table--group::after,
+  /deep/ .el-table--border::after {
+    display: none;
+  }
+  /deep/ .el-table th {
+    background: #f1f5f9;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 13px;
+    height: 40px;
+    padding: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  /deep/ .el-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  /deep/ .el-table .cell {
+    padding: 0 4px;
+  }
+  /deep/ .el-input__inner {
+    height: 32px;
+    line-height: 32px;
+    border-radius: 4px;
+    border-color: #e2e8f0;
+  }
+  /deep/ .el-table__row:last-child td {
+    border-bottom: none;
+  }
+}
+.delete-link {
+  color: #ef4444 !important;
+  padding: 0 !important;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.add-attr-btn {
   margin-top: 10px;
+  color: #1f2937;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-weight: 500;
+  &:hover,
+  &:focus {
+    color: #1a6fc4;
+    border-color: #1a6fc4;
+    background: #f8fbff;
+  }
+}
+.image-panel {
+  margin-top: 20px;
 }
 .image-list {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .image-thumb {
   position: relative;
   width: 96px;
   height: 96px;
-  border: 1px solid #e6e8eb;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background: #f4f6f9;
+  background: #f1f5f9;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   font-size: 12px;
-  color: #909399;
+  color: #64748b;
+  gap: 4px;
+  i.el-icon-picture-outline {
+    font-size: 22px;
+    color: #94a3b8;
+  }
   img {
     width: 100%;
     height: 100%;
@@ -1512,7 +1609,7 @@ export default {
     top: 4px;
     right: 4px;
     cursor: pointer;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(15, 23, 42, 0.55);
     color: #fff;
     border-radius: 50%;
     font-size: 12px;
@@ -1523,8 +1620,48 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
-  input[type="file"] {
-    flex-shrink: 0;
+}
+.hidden-file {
+  display: none;
+}
+.file-picker {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 8px 0 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  gap: 8px;
+  &:hover {
+    border-color: #1a6fc4;
+  }
+  /deep/ .el-button {
+    border: none;
+    background: transparent;
+    padding: 0 8px;
+    color: #334155;
+    font-weight: 500;
+  }
+}
+.file-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.path-input {
+  flex: 1;
+  min-width: 200px;
+  /deep/ .el-input__inner {
+    height: 36px;
+    line-height: 36px;
+    border-color: #e2e8f0;
+    border-radius: 6px;
   }
 }
 .toolbar-row {
