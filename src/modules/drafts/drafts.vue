@@ -84,6 +84,7 @@
               v-if="detailMode === 'directory'"
               :directory-id="currentDirectoryId"
               @back="closeDetail"
+              @updated="getTreeList({ keepCurrent: true, skipList: true })"
             ></directory-detail>
             <pipe-detail
               v-else
@@ -116,12 +117,6 @@
                 <el-button size="small" @click="exportList">{{
                   $t("cm.export")
                 }}</el-button>
-                <el-button
-                  v-if="listFromChildren"
-                  size="small"
-                  @click="batchDeleteDirectories"
-                  >{{ $t("cm.delete") }}</el-button
-                >
                 <el-button type="primary" size="small" @click="triggerImport">{{
                   $t("lang.batch_import")
                 }}</el-button>

@@ -61,6 +61,11 @@ export default {
             apiTitle: '查询资源目录详情'
         }).then(res => res.data);
     },
+    updateResourceDirectory: function(params) {
+        return axios.post('/api/model-resource-directories/update', params, {
+            apiTitle: '编辑资源目录节点'
+        }).then(res => res.data);
+    },
     deleteResourceDirectories: function(params) {
         return axios.post('/api/model-resource-directories/delete', params, {
             apiTitle: '删除资源目录节点'

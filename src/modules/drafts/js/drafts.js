@@ -117,6 +117,7 @@ export default {
     },
     getTreeList(options) {
       const keepCurrent = options && options.keepCurrent;
+      const skipList = options && options.skipList;
       const prevId = keepCurrent && this.currentNode ? this.currentNode.id : "";
       this.treeLoading = true;
       api
@@ -136,10 +137,12 @@ export default {
                 );
               }
             });
-            if (nextNode) {
-              this.getList();
-            } else {
-              this.clearTable();
+            if (!skipList) {
+              if (nextNode) {
+                this.getList();
+              } else {
+                this.clearTable();
+              }
             }
           } else {
             this.treeData = [];
@@ -371,12 +374,6 @@ export default {
         row.name || row.pipelineName || row.specCode,
         true
       );
-    },
-    batchDeleteDirectories() {
-      const ids = (this.multipleSelection || [])
-        .map(item => item.id)
-        .filter(Boolean);
-      this.deleteDirectories(ids, "", true);
     },
     deleteDirectories(ids, displayName, keepCurrent) {
       if (!ids || !ids.length) {
