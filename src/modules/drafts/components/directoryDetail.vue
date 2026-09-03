@@ -16,9 +16,14 @@
         <el-button size="small" @click="$emit('back')">{{
           $t("cm.cancel")
         }}</el-button>
-        <el-button type="primary" size="small" :loading="saving" @click="saveDetail">{{
-          $t("cm.save")
-        }}</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          :loading="saving"
+          :disabled="saving"
+          @click="onSaveClick"
+          >{{ $t("cm.save") }}</el-button
+        >
       </div>
     </div>
 
@@ -779,6 +784,7 @@
 
 <script>
 import api from "../api";
+import { debounce } from "@/utils/funcUtil";
 
 function emptyForm() {
   return {
@@ -1065,6 +1071,9 @@ export default {
       };
     }
   },
+  created() {
+    this._debouncedSave = debounce(this.saveDetail, 400);
+  },
   watch: {
     directoryId: {
       immediate: true,
@@ -1303,28 +1312,47 @@ export default {
       if (status === "待确认") return "is-warn";
       return "is-success";
     },
+    onSaveClick() {
+      if (this.saving) return;
+      this._debouncedSave && this._debouncedSave();
+    },
+    toNumber(val) {
+      if (val === "" || val === null || val === undefined) return null;
+      const num = Number(val);
+      return Number.isFinite(num) ? num : null;
+    },
+    toText(val) {
+      if (val === null || val === undefined) return "";
+      return val;
+    },
+    buildUpdatePayload() {
+      const form = this.form || {};
+      return {
+        id: this.detail.id || this.directoryId,
+        pipelineNo: this.toText(form.pipelineNo),
+        pipelineName: this.toText(form.pipelineName),
+        startPoint: this.toText(form.startPoint),
+        endPoint: this.toText(form.endPoint),
+        workingMedium: this.toText(form.workingMedium),
+        nominalDiameter: this.toNumber(form.nominalDiameter),
+        outerDiameter: this.toNumber(form.outerDiameter),
+        wallThickness: this.toNumber(form.wallThickness),
+        material: this.toText(form.material),
+        specCode: this.toText(form.specCode),
+        designPressure: this.toNumber(form.designPressure),
+        designTemperature: this.toNumber(form.designTemperature),
+        operatingPressure: this.toNumber(form.operatingPressure),
+        operatingTemperature: this.toNumber(form.operatingTemperature),
+        isoCode: this.toText(form.isoCode)
+      };
+    },
     saveDetail() {
-      if (!this.detail.id) return;
+      if (this.saving) return;
+      const payload = this.buildUpdatePayload();
+      if (!payload.id) return;
       this.saving = true;
       api
-        .updateResourceDirectory({
-          id: this.detail.id,
-          pipelineNo: this.form.pipelineNo,
-          pipelineName: this.form.pipelineName,
-          startPoint: this.form.startPoint,
-          endPoint: this.form.endPoint,
-          workingMedium: this.form.workingMedium,
-          nominalDiameter: this.form.nominalDiameter,
-          outerDiameter: this.form.outerDiameter,
-          wallThickness: this.form.wallThickness,
-          material: this.form.material,
-          specCode: this.form.specCode,
-          designPressure: this.form.designPressure,
-          designTemperature: this.form.designTemperature,
-          operatingPressure: this.form.operatingPressure,
-          operatingTemperature: this.form.operatingTemperature,
-          isoCode: this.form.isoCode
-        })
+        .updateResourceDirectory(payload)
         .then(res => {
           this.saving = false;
           if (this.isSuccessCode(res && res.code)) {
