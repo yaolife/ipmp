@@ -4,7 +4,7 @@ import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
 import pipeDetail from "../components/pipeDetail.vue";
-import pipeFormDialog from "../components/pipeFormDialog.vue";
+import directoryDetail from "../components/directoryDetail.vue";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
@@ -13,7 +13,7 @@ export default {
     breadcrumb,
     queryForm,
     pipeDetail,
-    pipeFormDialog
+    directoryDetail
   },
   data: function () {
     return {
@@ -34,6 +34,8 @@ export default {
       treeBlockHeight: 0,
       tableBlockHeight: 0,
       tableData: [],
+      childrenAll: [],
+      listFromChildren: false,
       queryFields: [
         {
           name: "keyword",
@@ -60,8 +62,9 @@ export default {
       multipleSelection: [],
       loading: false,
       detailVisible: false,
+      detailMode: "pipeline",
       currentPipelineId: "",
-      creating: false
+      currentDirectoryId: ""
     };
   },
   computed: {
@@ -134,11 +137,109 @@ export default {
           this.getList();
         });
     },
+    getNodeLevel(data) {
+      if (!data) return -1;
+      const level = Number(data.levelNo);
+      return Number.isNaN(level) ? -1 : level;
+    },
     onTreeNodeClick(data) {
       this.currentNode = data;
       this.current = 1;
-      this.closeDetail();
+      const level = this.getNodeLevel(data);
+      if (level === 5) {
+        this.openDirectoryDetail(data.id);
+        return;
+      }
+      if (level === 4) {
+        this.loadChildrenToTable(data);
+        return;
+      }
+      this.listFromChildren = false;
+      this.childrenAll = [];
       this.getList();
+    },
+    loadChildrenToTable(node) {
+      if (!node || !node.id) return;
+      this.loading = true;
+      this.listFromChildren = true;
+      api
+        .getResourceDirectoryChildren(node.id)
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            const raw = res.data;
+            const children = Array.isArray(raw)
+              ? raw
+              : raw && Array.isArray(raw.records)
+                ? raw.records
+                : [];
+            this.childrenAll = children;
+            this.$set(node, "children", children);
+            this.applyChildrenList();
+            this.$nextTick(() => {
+              const treeNode =
+                this.$refs.resourceTree &&
+                this.$refs.resourceTree.getNode(node.id);
+              if (treeNode) treeNode.expanded = true;
+            });
+            this.$nextTick(() => {
+              const treeNode =
+                this.$refs.resourceTree &&
+                this.$refs.resourceTree.getNode(node.id);
+              if (treeNode) treeNode.expanded = true;
+            });
+          } else {
+            this.childrenAll = [];
+            this.tableData = [];
+            this.total = 0;
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+          this.$nextTick(() => {
+            this.initMaxHeight();
+          });
+        })
+        .catch(() => {
+          this.loading = false;
+          this.childrenAll = [];
+          this.tableData = [];
+          this.total = 0;
+        });
+    },
+    mapDirectoryRow(item) {
+      return Object.assign({}, item, {
+        pipelineName: item.pipelineName || item.name,
+        pipelineNo: item.pipelineNo || "",
+        specCode: item.specCode || item.name
+      });
+    },
+    applyChildrenList() {
+      const queryForm = this.$refs.queryForm
+        ? this.$refs.queryForm.getQueryForm()
+        : {};
+      const keyword = (queryForm.keyword || "").trim().toLowerCase();
+      const person = (queryForm.responsiblePerson || "").trim().toLowerCase();
+      let list = this.childrenAll.map(item => this.mapDirectoryRow(item));
+      if (keyword) {
+        list = list.filter(item => {
+          const text = [
+            item.pipelineNo,
+            item.pipelineName,
+            item.name,
+            item.specCode
+          ]
+            .join(" ")
+            .toLowerCase();
+          return text.indexOf(keyword) !== -1;
+        });
+      }
+      if (person) {
+        list = list.filter(item =>
+          (item.responsiblePerson || "").toLowerCase().indexOf(person) !== -1
+        );
+      }
+      this.total = list.length;
+      const start = (this.current - 1) * this.size;
+      this.tableData = list.slice(start, start + this.size);
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -176,13 +277,23 @@ export default {
     resetList() {
       this.currentNode = null;
       this.current = 1;
+      this.listFromChildren = false;
+      this.childrenAll = [];
       this.$nextTick(() => {
         if (this.$refs.resourceTree) {
           this.$refs.resourceTree.setCurrentKey(null);
         }
+        this.getList();
       });
     },
     getList() {
+      if (this.listFromChildren) {
+        this.applyChildrenList();
+        this.$nextTick(() => {
+          this.initMaxHeight();
+        });
+        return;
+      }
       this.loading = true;
       api
         .pagePipelines(this.getQueryParams())
@@ -208,12 +319,27 @@ export default {
         });
     },
     viewRow(row) {
+      if (this.listFromChildren || this.getNodeLevel(row) === 5) {
+        this.openDirectoryDetail(row.id);
+        return;
+      }
+      this.detailMode = "pipeline";
       this.currentPipelineId = row.id;
+      this.currentDirectoryId = "";
+      this.detailVisible = true;
+    },
+    openDirectoryDetail(id) {
+      if (!id) return;
+      this.detailMode = "directory";
+      this.currentDirectoryId = id;
+      this.currentPipelineId = "";
       this.detailVisible = true;
     },
     closeDetail() {
       this.detailVisible = false;
+      this.detailMode = "pipeline";
       this.currentPipelineId = "";
+      this.currentDirectoryId = "";
       this.$nextTick(() => {
         if (this.currentNode && this.$refs.resourceTree) {
           this.$refs.resourceTree.setCurrentKey(this.currentNode.id);
@@ -271,39 +397,6 @@ export default {
         })
         .catch(err => {
           this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
-    },
-    openCreate() {
-      if (!this.currentNode || !this.currentNode.id) {
-        this.$message.warning(this.$t("lang.select_resource_node"));
-        return;
-      }
-      this.$refs.pipeFormDialog && this.$refs.pipeFormDialog.open();
-    },
-    saveCreate(form) {
-      if (!this.currentNode || !this.currentNode.id) {
-        this.$message.warning(this.$t("lang.select_resource_node"));
-        return;
-      }
-      this.creating = true;
-      api
-        .createPipeline({
-          id: "",
-          directoryId: this.currentNode.id,
-          ...form
-        })
-        .then(res => {
-          this.creating = false;
-          if (this.isSuccessCode(res && res.code)) {
-            this.$refs.pipeFormDialog && this.$refs.pipeFormDialog.close();
-            this.$message.success(this.$t("cm.success"));
-            this.getList();
-          } else {
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-          }
-        })
-        .catch(() => {
-          this.creating = false;
         });
     },
     downloadTemplate() {

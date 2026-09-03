@@ -80,7 +80,13 @@
             class="pipe-detail-card"
             :style="{ height: computedDetailHeight + 'px' }"
           >
+            <directory-detail
+              v-if="detailMode === 'directory'"
+              :directory-id="currentDirectoryId"
+              @back="closeDetail"
+            ></directory-detail>
             <pipe-detail
+              v-else
               :pipeline-id="currentPipelineId"
               @back="closeDetail"
               @updated="getList"
@@ -104,9 +110,6 @@
           </el-card>
           <el-card>
             <div class="table-button">
-                <el-button size="small" @click="openCreate">{{
-                  $t("lang.create_pipeline")
-                }}</el-button>
                 <el-button size="small" @click="downloadTemplate">{{
                   $t("lang.download_template")
                 }}</el-button>
@@ -245,6 +248,7 @@
                         >{{ $t("lang.detail") }}</el-button
                       >
                       <el-button
+                        v-if="!listFromChildren"
                         type="text"
                         size="small"
                         class="cud-common-operate-edit"
@@ -252,6 +256,7 @@
                         >{{ $t("cm.download") }}</el-button
                       >
                       <el-button
+                        v-if="!listFromChildren"
                         type="text"
                         size="small"
                         class="cud-common-operate-delete"
@@ -286,12 +291,6 @@
         </el-col>
       </el-row>
     </div>
-    <pipe-form-dialog
-      ref="pipeFormDialog"
-      :title="$t('lang.create_pipeline')"
-      :saving="creating"
-      @save="saveCreate"
-    ></pipe-form-dialog>
   </div>
 </template>
 

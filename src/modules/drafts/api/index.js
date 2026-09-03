@@ -51,6 +51,16 @@ export default {
             apiTitle: '资源目录树查询'
         }).then(res => res.data);
     },
+    getResourceDirectoryChildren: function(id) {
+        return axios.get('/api/model-resource-directories/children/' + id, {
+            apiTitle: '查询资源目录子节点'
+        }).then(res => res.data);
+    },
+    getResourceDirectoryDetail: function(id) {
+        return axios.get('/api/model-resource-directories/' + id, {
+            apiTitle: '查询资源目录详情'
+        }).then(res => res.data);
+    },
     pagePipelines: function(params) {
         return axios.post(pipelineBaseUrl + '/page', params, {
             apiTitle: '分页查询管道'
