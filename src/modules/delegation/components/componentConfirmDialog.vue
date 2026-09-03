@@ -4,6 +4,7 @@
     width="480px"
     custom-class="component-confirm-dialog"
     append-to-body
+    :lock-scroll="false"
     :show-close="false"
     :close-on-click-modal="false"
     @close="onClose"

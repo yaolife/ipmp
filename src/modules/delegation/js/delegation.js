@@ -241,6 +241,30 @@ export default {
           dialog && dialog.finishSave();
         });
     },
+    getRelativeFileUrl(row) {
+      const file = ((row && row.files) || [])[0] || {};
+      return String(file.fileUrl || "").trim();
+    },
+    saveBlobAsFile(blob, filename) {
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.style.display = "none";
+      link.href = blobUrl;
+      link.download = filename || "模型文件";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    },
+    fetchFileBlob(url) {
+      if (!url) return Promise.reject(new Error("empty url"));
+      return fetch(url, { credentials: "omit" }).then(res => {
+        if (!res.ok) {
+          throw new Error("download fail");
+        }
+        return res.blob();
+      });
+    },
     downloadByFile(row) {
       const url = this.getAbsoluteFileUrl(row);
       if (!url) {
@@ -248,15 +272,24 @@ export default {
         return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
       }
       const filename = row.originalName || row.componentName || "模型文件";
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.target = "_blank";
-      link.rel = "noopener";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return Promise.resolve();
+      const relativeUrl = this.getRelativeFileUrl(row);
+      return this.fetchFileBlob(url)
+        .catch(() => this.fetchFileBlob(relativeUrl))
+        .then(blob => {
+          this.saveBlobAsFile(blob, filename);
+        })
+        .catch(() => {
+          const iframe = document.createElement("iframe");
+          iframe.style.cssText =
+            "position:absolute;left:-9999px;width:0;height:0;border:0;visibility:hidden;";
+          iframe.src = url;
+          document.body.appendChild(iframe);
+          setTimeout(() => {
+            if (iframe.parentNode) {
+              iframe.parentNode.removeChild(iframe);
+            }
+          }, 30000);
+        });
     },
     previewRow(row) {
       this.fetchComponentDetail(row && row.id)
