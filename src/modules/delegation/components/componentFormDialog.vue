@@ -146,6 +146,19 @@ function formatFileSize(bytes) {
   return gb.toFixed(1).replace(/\.0$/, "") + "GB";
 }
 
+function formatStoredFileSize(kb) {
+  const n = Number(kb);
+  if (kb === null || kb === undefined || kb === "" || isNaN(n) || n < 0) {
+    return "-";
+  }
+  if (n === 0) return "0KB";
+  if (n >= 1024) {
+    const mb = n / 1024;
+    return (mb >= 100 ? mb.toFixed(0) : mb.toFixed(1).replace(/\.0$/, "")) + "MB";
+  }
+  return n + "KB";
+}
+
 export default {
   name: "ComponentFormDialog",
   data() {
@@ -181,7 +194,7 @@ export default {
       if (this.editForm.originalName || this.editForm.fileId) {
         return {
           name: this.editForm.originalName || this.$t("lang.model_file"),
-          sizeText: formatFileSize(this.editForm.fileSize)
+          sizeText: formatStoredFileSize(this.editForm.fileSize)
         };
       }
       return null;
@@ -292,7 +305,7 @@ export default {
             }
           }
           this.editForm.fileId = newFileId;
-          this.editForm.fileSize = file.size;
+          this.editForm.fileSize = Math.max(1, Math.round(file.size / 1024));
           this.editForm.originalName = data.originalName || file.name;
           this.editForm.fileSuffix = data.fileSuffix || getExt(file.name);
         })

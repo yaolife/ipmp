@@ -242,16 +242,20 @@ export default {
         });
     },
     downloadByFile(row) {
-      if (!this.getAbsoluteFileUrl(row)) {
+      const url = this.getAbsoluteFileUrl(row);
+      if (!url) {
         this.$message.warning(this.$t("lang.no_file_to_download"));
         return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
       }
-      const fileId = this.getFileId(row);
       const filename = row.originalName || row.componentName || "模型文件";
-      if (fileId) {
-        return api.downloadSysFile(fileId, filename);
-      }
-      window.open(this.getAbsoluteFileUrl(row), "_blank");
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.target = "_blank";
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       return Promise.resolve();
     },
     previewRow(row) {
@@ -283,18 +287,15 @@ export default {
         this.$message.warning(this.$t("lang.select_download_item"));
         return;
       }
-      const ids = this.multipleSelection.map(item => item.id).filter(Boolean);
-      Promise.all(ids.map(id => this.fetchComponentDetail(id)))
-        .then(details => {
-          const rows = (details || []).filter(item => this.getAbsoluteFileUrl(item));
-          if (!rows.length) {
-            this.$message.warning(this.$t("lang.no_file_to_download"));
-            return;
-          }
-          this.$refs.componentConfirmDialog &&
-            this.$refs.componentConfirmDialog.open("download", rows);
-        })
-        .catch(() => {});
+      const rows = this.multipleSelection
+        .map(row => this.mergeFileMeta(row))
+        .filter(item => this.getAbsoluteFileUrl(item));
+      if (!rows.length) {
+        this.$message.warning(this.$t("lang.no_file_to_download"));
+        return;
+      }
+      this.$refs.componentConfirmDialog &&
+        this.$refs.componentConfirmDialog.open("download", rows);
     },
     deleteRow(row) {
       this.fetchComponentDetail(row && row.id)

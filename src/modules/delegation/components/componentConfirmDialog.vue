@@ -48,7 +48,7 @@
 </template>
 
 <script>
-const LARGE_FILE_SIZE = 50 * 1024 * 1024;
+const LARGE_FILE_SIZE_KB = 50 * 1024;
 
 export default {
   name: "ComponentConfirmDialog",
@@ -99,7 +99,7 @@ export default {
     },
     showLargeFileTip() {
       if (this.isDelete) return false;
-      return this.rows.some(row => Number(row.fileSize) >= LARGE_FILE_SIZE);
+      return this.rows.some(row => Number(row.fileSize) >= LARGE_FILE_SIZE_KB);
     }
   },
   methods: {
