@@ -61,6 +61,16 @@ export default {
             apiTitle: '查询资源目录详情'
         }).then(res => res.data);
     },
+    deleteResourceDirectories: function(params) {
+        return axios.post('/api/model-resource-directories/delete', params, {
+            apiTitle: '删除资源目录节点'
+        }).then(res => res.data);
+    },
+    importResourceDirectories: function(params) {
+        return axios.post('/api/model-resource-directories/import', params, {
+            apiTitle: '导入资源目录树'
+        }).then(res => res.data);
+    },
     pagePipelines: function(params) {
         return axios.post(pipelineBaseUrl + '/page', params, {
             apiTitle: '分页查询管道'

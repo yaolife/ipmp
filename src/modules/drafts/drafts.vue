@@ -116,6 +116,12 @@
                 <el-button size="small" @click="exportList">{{
                   $t("cm.export")
                 }}</el-button>
+                <el-button
+                  v-if="listFromChildren"
+                  size="small"
+                  @click="batchDeleteDirectories"
+                  >{{ $t("cm.delete") }}</el-button
+                >
                 <el-button type="primary" size="small" @click="triggerImport">{{
                   $t("lang.batch_import")
                 }}</el-button>
@@ -256,7 +262,6 @@
                         >{{ $t("cm.download") }}</el-button
                       >
                       <el-button
-                        v-if="!listFromChildren"
                         type="text"
                         size="small"
                         class="cud-common-operate-delete"

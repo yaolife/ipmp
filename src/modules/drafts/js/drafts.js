@@ -105,7 +105,19 @@ export default {
     isSuccessCode(code) {
       return code === 0 || code === "0";
     },
-    getTreeList() {
+    findTreeNode(list, id) {
+      if (!id || !Array.isArray(list)) return null;
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        if (item && item.id === id) return item;
+        const found = this.findTreeNode(item && item.children, id);
+        if (found) return found;
+      }
+      return null;
+    },
+    getTreeList(options) {
+      const keepCurrent = options && options.keepCurrent;
+      const prevId = keepCurrent && this.currentNode ? this.currentNode.id : "";
       this.treeLoading = true;
       api
         .getResourceDirectoryTree({ type: PIPE_DIRECTORY_TYPE })
@@ -113,18 +125,27 @@ export default {
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {
             this.treeData = Array.isArray(res.data) ? res.data : [];
-            this.currentNode = null;
+            const nextNode = prevId
+              ? this.findTreeNode(this.treeData, prevId)
+              : null;
+            this.currentNode = nextNode;
             this.$nextTick(() => {
               if (this.$refs.resourceTree) {
-                this.$refs.resourceTree.setCurrentKey(null);
+                this.$refs.resourceTree.setCurrentKey(
+                  nextNode ? nextNode.id : null
+                );
               }
             });
-            this.getList();
+            if (nextNode) {
+              this.getList();
+            } else {
+              this.clearTable();
+            }
           } else {
             this.treeData = [];
             this.currentNode = null;
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
-            this.getList();
+            this.clearTable();
           }
           this.$nextTick(() => {
             this.initMaxHeight();
@@ -134,7 +155,7 @@ export default {
           this.treeLoading = false;
           this.treeData = [];
           this.currentNode = null;
-          this.getList();
+          this.clearTable();
         });
     },
     getNodeLevel(data) {
@@ -145,18 +166,11 @@ export default {
     onTreeNodeClick(data) {
       this.currentNode = data;
       this.current = 1;
-      const level = this.getNodeLevel(data);
-      if (level === 5) {
+      if (this.getNodeLevel(data) === 5) {
         this.openDirectoryDetail(data.id);
         return;
       }
-      if (level === 4) {
-        this.loadChildrenToTable(data);
-        return;
-      }
-      this.listFromChildren = false;
-      this.childrenAll = [];
-      this.getList();
+      this.loadChildrenToTable(data);
     },
     loadChildrenToTable(node) {
       if (!node || !node.id) return;
@@ -238,6 +252,10 @@ export default {
         );
       }
       this.total = list.length;
+      const maxPage = Math.max(1, Math.ceil(this.total / this.size) || 1);
+      if (this.current > maxPage) {
+        this.current = maxPage;
+      }
       const start = (this.current - 1) * this.size;
       this.tableData = list.slice(start, start + this.size);
     },
@@ -286,6 +304,15 @@ export default {
         this.getList();
       });
     },
+    clearTable() {
+      this.listFromChildren = false;
+      this.childrenAll = [];
+      this.tableData = [];
+      this.total = 0;
+      this.$nextTick(() => {
+        this.initMaxHeight();
+      });
+    },
     getList() {
       if (this.listFromChildren) {
         this.applyChildrenList();
@@ -294,39 +321,18 @@ export default {
         });
         return;
       }
-      this.loading = true;
-      api
-        .pagePipelines(this.getQueryParams())
-        .then(res => {
-          this.loading = false;
-          if (this.isSuccessCode(res && res.code)) {
-            const data = res.data || {};
-            this.tableData = data.records || [];
-            this.total = data.total || 0;
-          } else {
-            this.tableData = [];
-            this.total = 0;
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-          }
-          this.$nextTick(() => {
-            this.initMaxHeight();
-          });
-        })
-        .catch(() => {
-          this.loading = false;
-          this.tableData = [];
-          this.total = 0;
-        });
-    },
-    viewRow(row) {
-      if (this.listFromChildren || this.getNodeLevel(row) === 5) {
-        this.openDirectoryDetail(row.id);
+      if (
+        this.currentNode &&
+        this.currentNode.id &&
+        this.getNodeLevel(this.currentNode) !== 5
+      ) {
+        this.loadChildrenToTable(this.currentNode);
         return;
       }
-      this.detailMode = "pipeline";
-      this.currentPipelineId = row.id;
-      this.currentDirectoryId = "";
-      this.detailVisible = true;
+      this.clearTable();
+    },
+    viewRow(row) {
+      this.openDirectoryDetail(row.id);
     },
     openDirectoryDetail(id) {
       if (!id) return;
@@ -360,25 +366,40 @@ export default {
         });
     },
     deleteRow(row) {
-      this.$confirm(
-        this.$t("cm.delete") + " " + (row.pipelineNo || row.pipelineName) + " ?",
-        this.$t("cm.tips"),
-        {
-          confirmButtonText: this.$t("cm.confirm"),
-          cancelButtonText: this.$t("cm.cancel"),
-          type: "warning"
-        }
-      )
+      this.deleteDirectories(
+        [row.id],
+        row.name || row.pipelineName || row.specCode,
+        true
+      );
+    },
+    batchDeleteDirectories() {
+      const ids = (this.multipleSelection || [])
+        .map(item => item.id)
+        .filter(Boolean);
+      this.deleteDirectories(ids, "", true);
+    },
+    deleteDirectories(ids, displayName, keepCurrent) {
+      if (!ids || !ids.length) {
+        this.$message.warning(this.$t("lang.select_delete_item"));
+        return;
+      }
+      const message =
+        ids.length > 1
+          ? this.$t("lang.delete_resource_batch_confirm")
+          : this.$t("lang.delete_resource_confirm") +
+            (displayName ? "（" + displayName + "）" : "");
+      this.$confirm(message, this.$t("cm.tips"), {
+        confirmButtonText: this.$t("cm.confirm"),
+        cancelButtonText: this.$t("cm.cancel"),
+        type: "warning"
+      })
         .then(() => {
-          return api.deletePipelines({ ids: [row.id] });
+          return api.deleteResourceDirectories({ ids });
         })
         .then(res => {
           if (this.isSuccessCode(res && res.code)) {
-            if ((this.current - 1) * this.size >= this.total - 1 && this.current > 1) {
-              this.current -= 1;
-            }
-            this.getList();
-            this.$message.success(this.$t("cm.success"));
+            this.$message.success(this.$t("cm.deletesuccess"));
+            this.getTreeList(keepCurrent ? { keepCurrent: true } : undefined);
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
