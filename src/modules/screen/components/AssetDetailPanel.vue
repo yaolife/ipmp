@@ -243,12 +243,12 @@ export default {
   height: 100%;
   max-height: 100%;
   box-sizing: border-box;
+  overflow: hidden;
   background: rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.3);
   -webkit-backdrop-filter: blur(5.5px);
   backdrop-filter: blur(5.5px);
   color: #e8f4ff;
-  overflow: hidden;
 }
 .panel-tabs {
   position: relative;
@@ -257,7 +257,12 @@ export default {
   height: 38px;
   min-height: 38px;
   padding: 0 40px 0 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: none;
+  border-left: none;
+  border-right: none;
 }
 .panel-tab {
   display: flex;
@@ -266,7 +271,7 @@ export default {
   margin-right: 8px;
   height: 38px;
   padding: 0 16px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
   color: rgba(255, 255, 255, 0.55);
   cursor: pointer;

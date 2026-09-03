@@ -121,7 +121,7 @@ export default {
   position: relative;
   height: calc(100vh - 130px);
   min-height: 620px;
-  overflow: hidden;
+  overflow: visible;
   background: #7fbbf1;
 }
 .screen-scene {
