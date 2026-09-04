@@ -24,7 +24,7 @@ export default {
       treeData: [],
       treeProps: {
         children: "children",
-        label: "name"
+        label: "nodeName"
       },
       currentNode: null,
       treeLoading: false,
@@ -101,7 +101,7 @@ export default {
     filterTreeNode(value, data) {
       if (!value) return true;
       const keyword = value.toLowerCase();
-      return (data.name || "").toLowerCase().indexOf(keyword) !== -1;
+      return (data.nodeName || "").toLowerCase().indexOf(keyword) !== -1;
     },
     isSuccessCode(code) {
       return code === 0 || code === "0";
@@ -192,20 +192,7 @@ export default {
                 ? raw.records
                 : [];
             this.childrenAll = children;
-            this.$set(node, "children", children);
             this.applyChildrenList();
-            this.$nextTick(() => {
-              const treeNode =
-                this.$refs.resourceTree &&
-                this.$refs.resourceTree.getNode(node.id);
-              if (treeNode) treeNode.expanded = true;
-            });
-            this.$nextTick(() => {
-              const treeNode =
-                this.$refs.resourceTree &&
-                this.$refs.resourceTree.getNode(node.id);
-              if (treeNode) treeNode.expanded = true;
-            });
           } else {
             this.childrenAll = [];
             this.tableData = [];
@@ -226,9 +213,10 @@ export default {
     mapDirectoryRow(item) {
       return Object.assign({}, item, {
         nodeName: item.nodeName || "",
-        pipelineName: item.pipelineName || item.name,
+        name: item.name || "",
+        pipelineName: item.pipelineName || "",
         pipelineNo: item.pipelineNo || "",
-        specCode: item.specCode || item.name,
+        specCode: item.specCode || "",
         componentType: item.componentType
       });
     },
@@ -246,9 +234,9 @@ export default {
         list = list.filter(item => {
           const text = [
             item.nodeName,
+            item.name,
             item.pipelineNo,
             item.pipelineName,
-            item.name,
             item.specCode,
             getComponentTypeLabel(item.componentType, this.$t.bind(this))
           ]

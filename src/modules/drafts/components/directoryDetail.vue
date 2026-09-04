@@ -20,7 +20,7 @@
           type="primary"
           size="small"
           :loading="saving"
-          :disabled="saving"
+          :disabled="saving || uploadingImages > 0"
           @click="onSaveClick"
           >{{ $t("cm.save") }}</el-button
         >
@@ -58,7 +58,7 @@
                   >
                     <el-option
                       v-for="opt in getFieldOptions(item)"
-                      :key="opt.value"
+                      :key="opt.key || String(opt.value)"
                       :label="opt.label"
                       :value="opt.value"
                     ></el-option>
@@ -776,11 +776,17 @@
 <script>
 import api from "../api";
 import { debounce } from "@/utils/funcUtil";
+import {
+  getComponentTypeItem,
+  getComponentTypeOptions
+} from "@/constant/componentType";
 
 function emptyForm() {
   return {
+    nodeName: "",
     specCode: "",
     pipelineName: "",
+    componentType: "",
     name: "",
     kksCode: "",
     unitName: "",
@@ -869,6 +875,7 @@ export default {
     return {
       loading: false,
       saving: false,
+      uploadingImages: 0,
       activeTab: "basic",
       detail: {},
       form: emptyForm(),
@@ -893,8 +900,9 @@ export default {
       },
       maintenanceForm: emptyMaintenance(),
       basicIdentityFields: [
-        { key: "specCode", label: "lang.component_no", required: true },
+        { key: "nodeName", label: "lang.component_no", required: true },
         { key: "pipelineName", label: "lang.component_name", required: true },
+        { key: "componentType", label: "lang.component_type", type: "select" },
         { key: "kksCode", label: "lang.kks_code" },
         { key: "unitName", label: "lang.belong_unit", required: true },
         { key: "systemNo", label: "lang.system_no" },
@@ -905,6 +913,8 @@ export default {
       ],
       locationFields: [
         { key: "pipelineNo", label: "lang.pipeline_on_line" },
+        { key: "startPoint", label: "lang.pipeline_start" },
+        { key: "endPoint", label: "lang.pipeline_end" },
         { key: "flowCoord", label: "lang.flow_coord" },
         { key: "flowDrawingNo", label: "lang.flow_drawing_no" },
         { key: "isoCode", label: "lang.iso_drawing_no" },
@@ -960,6 +970,9 @@ export default {
         { label: this.$t("lang.conventional_island"), value: "常规岛" },
         { label: this.$t("lang.nuclear_island"), value: "核岛" }
       ];
+    },
+    componentTypeOptions() {
+      return getComponentTypeOptions(this.$t.bind(this));
     },
     dataStatusOptions() {
       return [
@@ -1079,6 +1092,7 @@ export default {
     },
     getFieldOptions(item) {
       if (item.key === "islandType") return this.islandOptions;
+      if (item.key === "componentType") return this.componentTypeOptions;
       return [];
     },
     normalizeText(val) {
@@ -1093,9 +1107,12 @@ export default {
           form[key] = this.normalizeText(detail[key]);
         }
       });
-      if (!form.pipelineName) form.pipelineName = detail.name || "";
-      if (!form.specCode) form.specCode = detail.specCode || detail.name || "";
+      if (!form.pipelineName) form.pipelineName = detail.pipelineName || "";
+      if (!form.nodeName) form.nodeName = detail.nodeName || "";
+      if (!form.specCode) form.specCode = detail.specCode || "";
       if (!form.systemCode) form.systemCode = detail.systemNo || "";
+      const typeItem = getComponentTypeItem(detail.componentType);
+      form.componentType = typeItem ? typeItem.code : "";
       this.form = form;
     },
     normalizeAttrs(list) {
@@ -1106,6 +1123,21 @@ export default {
         }));
       }
       return [{ name: "", value: "" }];
+    },
+    resolveAttachmentUrl(item) {
+      if (!item) return "";
+      return item.absoluteFileUrl || item.fileUrl || item.filePath || "";
+    },
+    normalizeAttachments(list) {
+      if (!Array.isArray(list)) return [];
+      return list
+        .filter(item => item && (item.id || this.resolveAttachmentUrl(item)))
+        .map(item => ({
+          id: item.id || "",
+          name: item.originalName || item.name || "",
+          url: this.resolveAttachmentUrl(item),
+          uploading: false
+        }));
     },
     normalizeSegments(list) {
       if (!Array.isArray(list)) return [];
@@ -1144,6 +1176,7 @@ export default {
       this.form = emptyForm();
       this.privateAttrs = [{ name: "", value: "" }];
       this.imagePreviews = [];
+      this.uploadingImages = 0;
       this.relatedSegments = [];
       this.selectedSegments = [];
       this.segmentKeyword = "";
@@ -1164,7 +1197,12 @@ export default {
           if (this.isSuccessCode(res && res.code)) {
             this.detail = res.data || {};
             this.fillForm(this.detail);
-            this.privateAttrs = this.normalizeAttrs(this.detail.privateAttrs);
+            this.privateAttrs = this.normalizeAttrs(
+              this.detail.privateAttributes || this.detail.privateAttrs
+            );
+            this.imagePreviews = this.normalizeAttachments(
+              this.detail.attachments
+            );
             this.relatedSegments = this.normalizeSegments(
               this.detail.relatedSegments
             );
@@ -1200,17 +1238,60 @@ export default {
     },
     onImageFiles(event) {
       const files = event.target.files || [];
+      const list = [];
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const url = window.URL.createObjectURL(file);
-        this.imagePreviews.push({
-          id: nextId(),
-          name: file.name,
-          url,
-          file
-        });
+        list.push(files[i]);
       }
       event.target.value = "";
+      list.forEach(file => this.uploadImageFile(file));
+    },
+    uploadImageFile(file) {
+      const tempId = nextId();
+      const localUrl = window.URL.createObjectURL(file);
+      this.imagePreviews.push({
+        id: tempId,
+        name: file.name,
+        url: localUrl,
+        uploading: true
+      });
+      this.uploadingImages += 1;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("directory", "common");
+      api
+        .uploadSysFile(formData)
+        .then(res => {
+          this.uploadingImages = Math.max(0, this.uploadingImages - 1);
+          const idx = this.imagePreviews.findIndex(item => item.id === tempId);
+          if (idx < 0) {
+            if (localUrl) window.URL.revokeObjectURL(localUrl);
+            return;
+          }
+          if (!this.isSuccessCode(res && res.code) || !res.data) {
+            this.imagePreviews.splice(idx, 1);
+            if (localUrl) window.URL.revokeObjectURL(localUrl);
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+            return;
+          }
+          const data = res.data || {};
+          const remoteUrl = this.resolveAttachmentUrl(data);
+          this.$set(this.imagePreviews, idx, {
+            id: data.id || "",
+            name: data.originalName || file.name,
+            url: remoteUrl || localUrl,
+            uploading: false
+          });
+          if (remoteUrl && localUrl) {
+            window.URL.revokeObjectURL(localUrl);
+          }
+        })
+        .catch(err => {
+          this.uploadingImages = Math.max(0, this.uploadingImages - 1);
+          const idx = this.imagePreviews.findIndex(item => item.id === tempId);
+          if (idx >= 0) this.imagePreviews.splice(idx, 1);
+          if (localUrl) window.URL.revokeObjectURL(localUrl);
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
     removeImage(index) {
       const item = this.imagePreviews[index];
@@ -1312,9 +1393,34 @@ export default {
       const num = Number(val);
       return Number.isFinite(num) ? num : null;
     },
+    toInteger(val) {
+      if (val === "" || val === null || val === undefined) return null;
+      const num = Number(val);
+      if (!Number.isFinite(num)) return null;
+      return Math.trunc(num);
+    },
     toText(val) {
       if (val === null || val === undefined) return "";
       return val;
+    },
+    buildPrivateAttributes() {
+      return (this.privateAttrs || [])
+        .map(item => ({
+          name: String(this.toText(item && item.name) || "").trim(),
+          value: String(this.toText(item && item.value)),
+        }))
+        .filter(item => item.name || item.value);
+    },
+    buildAttachmentIds() {
+      return (this.imagePreviews || [])
+        .filter(
+          item =>
+            item &&
+            item.id &&
+            !item.uploading &&
+            String(item.id).indexOf("row-") !== 0
+        )
+        .map(item => String(item.id));
     },
     buildUpdatePayload() {
       const form = this.form || {};
@@ -1334,11 +1440,18 @@ export default {
         designTemperature: this.toNumber(form.designTemperature),
         operatingPressure: this.toNumber(form.operatingPressure),
         operatingTemperature: this.toNumber(form.operatingTemperature),
-        isoCode: this.toText(form.isoCode)
+        isoCode: this.toText(form.isoCode),
+        componentType: this.toInteger(form.componentType),
+        privateAttributes: this.buildPrivateAttributes(),
+        attachmentIds: this.buildAttachmentIds()
       };
     },
     saveDetail() {
       if (this.saving) return;
+      if (this.uploadingImages > 0) {
+        this.$message.warning(this.$t("lang.file_uploading"));
+        return;
+      }
       const payload = this.buildUpdatePayload();
       if (!payload.id) return;
       this.saving = true;

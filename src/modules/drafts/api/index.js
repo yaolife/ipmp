@@ -66,6 +66,11 @@ export default {
             apiTitle: '编辑资源目录节点'
         }).then(res => res.data);
     },
+    uploadSysFile: function(formData) {
+        return axios.post('/api/sys-files/upload', formData, {
+            apiTitle: '上传公共文件'
+        }).then(res => res.data);
+    },
     deleteResourceDirectories: function(params) {
         return axios.post('/api/model-resource-directories/delete', params, {
             apiTitle: '删除资源目录节点'
