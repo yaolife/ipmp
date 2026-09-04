@@ -32,15 +32,6 @@
         <h2>{{ $t("lang.pipe_detail") }}</h2>
         <p>{{ $t("lang.pipe_detail_tip") }}</p>
       </div>
-      <div class="type-select">
-        <label>{{ $t("lang.component_type") }}</label>
-        <el-select :value="'pipe'" disabled size="small">
-          <el-option
-            :label="$t('lang.component_type_pipe')"
-            value="pipe"
-          ></el-option>
-        </el-select>
-      </div>
     </div>
 
     <div class="detail-body-card">
@@ -1443,20 +1434,6 @@ export default {
     margin: 6px 0 0;
     font-size: 13px;
     color: #909399;
-  }
-}
-.type-select {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 280px;
-  label {
-    font-size: 13px;
-    color: #1f2329;
-    white-space: nowrap;
-  }
-  /deep/ .el-select {
-    flex: 1;
   }
 }
 .detail-body-card {
