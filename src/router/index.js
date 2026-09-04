@@ -11,7 +11,7 @@ import drafts from "@/modules/drafts/drafts";
 import digitalTwinScreen from "@/modules/screen/index";
 // 支吊架数据库
 import concern from "@/modules/concern/concern";
-// 管道元件数据库
+// 管道模型数据库
 import delegation from "@/modules/delegation/delegation";
 // 日志管理
 import logManage from "@/modules/logManage/logManage.vue";
@@ -83,7 +83,7 @@ const _router = new Router({
         },
         {
           path: "/pipeComponentDatabase",
-          name: "管道元件数据库",
+          name: "管道模型数据库",
           component: delegation,
           meta: "pipeComponentDatabase",
           alias: "/delegation"

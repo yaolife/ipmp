@@ -230,7 +230,7 @@ export default {
       const tabRenameMap = {
         "/drafts": { path: "/pipeDatabase", label: "管道数据库" },
         "/concern": { path: "/hangerDatabase", label: "支吊架数据库" },
-        "/delegation": { path: "/pipeComponentDatabase", label: "管道元件数据库" }
+        "/delegation": { path: "/pipeComponentDatabase", label: "管道模型数据库" }
       };
       const mapped = tabRenameMap[item.path] || tabRenameMap[item.name];
       if (!mapped) return item;
