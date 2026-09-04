@@ -54,7 +54,8 @@
                     v-if="item.type === 'select'"
                     v-model="form[item.key]"
                     size="small"
-                    clearable
+                    :clearable="!item.disabled"
+                    :disabled="!!item.disabled"
                   >
                     <el-option
                       v-for="opt in getFieldOptions(item)"
@@ -68,6 +69,7 @@
                     v-model="form[item.key]"
                     size="small"
                     :placeholder="item.placeholder || ''"
+                    :disabled="!!item.disabled"
                   ></el-input>
                 </div>
               </el-col>
@@ -900,9 +902,14 @@ export default {
       },
       maintenanceForm: emptyMaintenance(),
       basicIdentityFields: [
-        { key: "nodeName", label: "lang.component_no", required: true },
+        { key: "nodeName", label: "lang.component_no", disabled: true },
         { key: "pipelineName", label: "lang.component_name", required: true },
-        { key: "componentType", label: "lang.component_type", type: "select" },
+        {
+          key: "componentType",
+          label: "lang.component_type",
+          type: "select",
+          disabled: true
+        },
         { key: "kksCode", label: "lang.kks_code" },
         { key: "unitName", label: "lang.belong_unit", required: true },
         { key: "systemNo", label: "lang.system_no" },
