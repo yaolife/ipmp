@@ -5,6 +5,7 @@ import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
 import pipeDetail from "../components/pipeDetail.vue";
 import directoryDetail from "../components/directoryDetail.vue";
+import { getComponentTypeLabel } from "@/constant/componentType";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
@@ -224,10 +225,15 @@ export default {
     },
     mapDirectoryRow(item) {
       return Object.assign({}, item, {
+        nodeName: item.nodeName || "",
         pipelineName: item.pipelineName || item.name,
         pipelineNo: item.pipelineNo || "",
-        specCode: item.specCode || item.name
+        specCode: item.specCode || item.name,
+        componentType: item.componentType
       });
+    },
+    formatComponentType(row, column, cellValue) {
+      return getComponentTypeLabel(cellValue, this.$t.bind(this));
     },
     applyChildrenList() {
       const queryForm = this.$refs.queryForm
@@ -239,10 +245,12 @@ export default {
       if (keyword) {
         list = list.filter(item => {
           const text = [
+            item.nodeName,
             item.pipelineNo,
             item.pipelineName,
             item.name,
-            item.specCode
+            item.specCode,
+            getComponentTypeLabel(item.componentType, this.$t.bind(this))
           ]
             .join(" ")
             .toLowerCase();

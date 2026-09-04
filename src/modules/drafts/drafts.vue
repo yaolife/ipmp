@@ -159,7 +159,7 @@
                   ></el-table-column>
                   <el-table-column
                     align="center"
-                    prop="specCode"
+                    prop="nodeName"
                     :label="$t('lang.pipe_code')"
                     min-width="140"
                     show-overflow-tooltip
@@ -173,6 +173,14 @@
                   ></el-table-column>
                   <el-table-column
                     align="center"
+                    prop="componentType"
+                    :label="$t('lang.component_type')"
+                    min-width="140"
+                    show-overflow-tooltip
+                    :formatter="formatComponentType"
+                  ></el-table-column>
+                  <el-table-column
+                    align="center"
                     prop="pipelineNo"
                     :label="$t('lang.pipeline_no')"
                     min-width="140"
@@ -183,13 +191,6 @@
                     prop="workingMedium"
                     :label="$t('lang.working_medium')"
                     min-width="120"
-                    show-overflow-tooltip
-                  ></el-table-column>
-                  <el-table-column
-                    align="center"
-                    prop="responsiblePerson"
-                    :label="$t('lang.pipe_owner')"
-                    min-width="100"
                     show-overflow-tooltip
                   ></el-table-column>
                   <el-table-column
