@@ -475,7 +475,10 @@ export default {
                 "/" +
                 (data.total || 0)
             );
-            this.getTreeList({ keepCurrent: true });
+            this.current = 1;
+            this.listFromChildren = false;
+            this.childrenAll = [];
+            this.getList();
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
