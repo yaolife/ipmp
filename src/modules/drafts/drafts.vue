@@ -123,7 +123,7 @@
                 <input
                   ref="importInput"
                   type="file"
-                  accept=".xls,.xlsx,.csv"
+                  accept=".xls,.xlsx"
                   style="display: none"
                   @change="onImportFile"
                 />

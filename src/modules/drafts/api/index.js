@@ -81,6 +81,23 @@ export default {
             apiTitle: '导入资源目录树'
         }).then(res => res.data);
     },
+    importResourceDirectoryData: function(formData) {
+        return axios.post('/api/model-resource-directories/import-data', formData, {
+            apiTitle: '导入资源目录业务数据'
+        }).then(res => res.data);
+    },
+    exportResourceDirectoryData: function(params, filename) {
+        return axios.post('/api/model-resource-directories/export', params, {
+            responseType: 'blob',
+            apiTitle: '导出资源目录业务数据'
+        }).then(res => saveBlob(res, filename || '管道数据.xlsx'));
+    },
+    downloadResourceDirectoryTemplate: function() {
+        return axios.get('/api/model-resource-directories/export-template', {
+            responseType: 'blob',
+            apiTitle: '下载资源目录业务数据导入模板'
+        }).then(res => saveBlob(res, '资源目录业务数据导入模板.xlsx'));
+    },
     pagePipelines: function(params) {
         return axios.post(pipelineBaseUrl + '/page', params, {
             apiTitle: '分页查询管道'

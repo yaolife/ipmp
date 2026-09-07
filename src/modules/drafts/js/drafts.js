@@ -355,8 +355,18 @@ export default {
       });
     },
     downloadRow(row) {
+      const nodeName = row && row.nodeName;
+      if (!nodeName) {
+        this.$message.warning(this.$t("lang.select_delete_item"));
+        return;
+      }
       api
-        .exportPipelines({ ids: [row.id] }, (row.pipelineNo || "管道") + ".xlsx")
+        .exportResourceDirectoryData(
+          {
+            nodeNames: [nodeName]
+          },
+          nodeName + ".xlsx"
+        )
         .then(() => {
           this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
         })
@@ -400,12 +410,21 @@ export default {
         .catch(() => {});
     },
     exportList() {
-      const params = this.getQueryParams();
+      const params = {
+        nodeNames: []
+      };
       if (this.multipleSelection.length) {
-        params.ids = this.multipleSelection.map(item => item.id);
+        const nodeNames = this.multipleSelection
+          .map(item => item.nodeName)
+          .filter(name => !!name);
+        if (!nodeNames.length) {
+          this.$message.warning(this.$t("lang.select_delete_item"));
+          return;
+        }
+        params.nodeNames = nodeNames;
       }
       api
-        .exportPipelines(params, "管道数据.xlsx")
+        .exportResourceDirectoryData(params, "管道数据.xlsx")
         .then(() => {
           this.$message.success(this.$t("cm.export") + this.$t("cm.success"));
         })
@@ -415,7 +434,7 @@ export default {
     },
     downloadTemplate() {
       api
-        .downloadPipelineTemplate()
+        .downloadResourceDirectoryTemplate()
         .then(() => {
           this.$message.success(this.$t("cm.download") + this.$t("cm.success"));
         })
@@ -434,7 +453,7 @@ export default {
       formData.append("file", file);
       this.loading = true;
       api
-        .importPipelines(formData)
+        .importResourceDirectoryData(formData)
         .then(res => {
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {
@@ -446,13 +465,14 @@ export default {
                 "/" +
                 (data.total || 0)
             );
-            this.getList();
+            this.getTreeList({ keepCurrent: true });
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
         })
-        .catch(() => {
+        .catch(err => {
           this.loading = false;
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
         });
     }
   },
