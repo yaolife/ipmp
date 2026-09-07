@@ -443,14 +443,24 @@ export default {
         });
     },
     triggerImport() {
+      if (!this.currentNode || !this.currentNode.nodeName) {
+        this.$message.warning(this.$t("lang.select_resource_node"));
+        return;
+      }
       this.$refs.importInput && this.$refs.importInput.click();
     },
     onImportFile(e) {
       const file = e.target.files && e.target.files[0];
       e.target.value = "";
       if (!file) return;
+      const nodeName = this.currentNode && this.currentNode.nodeName;
+      if (!nodeName) {
+        this.$message.warning(this.$t("lang.select_resource_node"));
+        return;
+      }
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("name", nodeName);
       this.loading = true;
       api
         .importResourceDirectoryData(formData)
