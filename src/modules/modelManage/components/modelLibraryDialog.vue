@@ -281,7 +281,6 @@ export default {
       this.$nextTick(() => {
         this.clearSelection();
         this.applyTree(this.model.resourceDirectoryTree);
-        this.loadTree();
       });
     },
     close() {
