@@ -119,6 +119,11 @@ export default {
             apiTitle: "资源目录树查询"
         }).then(res => res.data);
     },
+    getResourceDirectoryChildren: function(id) {
+        return axios.get("/api/model-resource-directories/children/" + id, {
+            apiTitle: "查询资源目录子节点"
+        }).then(res => res.data);
+    },
     uploadSysFile: function(formData) {
         return axios.post(sysFileBaseUrl + "/upload", formData, {
             apiTitle: "上传公共文件"

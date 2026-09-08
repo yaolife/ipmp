@@ -1,19 +1,14 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
-    width="92%"
-    top="1vh"
+    width="84%"
+    top="8px"
     custom-class="model-library-dialog"
     append-to-body
     :close-on-click-modal="false"
     @close="onClose"
   >
-    <div slot="title" class="library-title">
-      <span>{{ dialogTitle }}</span>
-      <el-button type="text" size="small" @click="openEditModel">{{
-        $t("lang.edit_model_info")
-      }}</el-button>
-    </div>
+    <div slot="title" class="library-title">{{ dialogTitle }}</div>
     <div class="library-body" v-loading="pageLoading">
       <div class="library-tree">
         <div class="tree-search-box">
@@ -36,7 +31,7 @@
           default-expand-all
           :expand-on-click-node="false"
           :filter-node-method="filterTreeNode"
-          class="cud_tree library-tree-list"
+          class="library-tree-list"
           v-loading="treeLoading"
           @node-click="onTreeNodeClick"
         >
@@ -89,10 +84,9 @@
             ref="itemTable"
             v-loading="loading"
             :empty-text="$t('cm.nodata')"
-            border
             stripe
             height="100%"
-            row-key="rowKey"
+            row-key="id"
             header-row-class-name="cud-office-table-header"
             class="cud-office-table"
             @selection-change="handleSelectionChange"
@@ -101,12 +95,11 @@
               type="selection"
               width="50"
               align="center"
-              reserve-selection
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="modelName"
-              :label="$t('lang.model_name')"
+              prop="modelNo"
+              :label="$t('lang.model_no')"
               min-width="220"
               show-overflow-tooltip
             ></el-table-column>
@@ -198,11 +191,11 @@ export default {
         children: "children",
         label: "nodeName"
       },
-      nodeMap: {},
       currentNode: null,
       keyword: "",
       descKeyword: "",
-      allFileRows: [],
+      listFromChildren: false,
+      childrenAll: [],
       tableData: [],
       multipleSelection: [],
       current: 1,
@@ -229,13 +222,6 @@ export default {
     isSuccessCode(code) {
       return code === 0 || code === "0";
     },
-    flattenTree(list, map) {
-      (list || []).forEach(item => {
-        if (item && item.id) map[item.id] = item;
-        if (item && item.children) this.flattenTree(item.children, map);
-      });
-      return map;
-    },
     filterTreeNode(value, data) {
       if (!value) return true;
       const keyword = value.toLowerCase();
@@ -245,100 +231,28 @@ export default {
         (data.pipelineName || "").toLowerCase().indexOf(keyword) !== -1
       );
     },
-    getModelFileById(fileId) {
-      if (!fileId) return null;
-      return ((this.model && this.model.files) || []).find(
-        item => item && String(item.id) === String(fileId)
-      );
-    },
-    getNodeFiles(node) {
-      if (!node) return [];
-      if (Array.isArray(node.attachments) && node.attachments.length) {
-        return node.attachments.filter(Boolean);
-      }
-      const fromModel = this.getModelFileById(node.fileId);
-      if (fromModel) return [fromModel];
-      if (node.absoluteFileUrl || node.fileUrl || node.filePath) {
-        return [node];
-      }
-      if (!(node.children && node.children.length)) {
-        return [node];
-      }
-      return [];
-    },
     getFirstFile(row) {
+      const attachments = (row && row.attachments) || [];
+      if (attachments[0]) return attachments[0];
       const files = (row && row.files) || [];
-      return files[0] || null;
+      return files[0] || {};
     },
-    mapItemRow(item) {
-      const node = this.nodeMap[item.resourceDirectoryId] || {};
-      const file =
-        this.getFirstFile(item) ||
-        (node.attachments && node.attachments[0]) ||
-        this.getModelFileById(splitFileIds(item.fileIds)[0]) ||
-        {};
-      return {
-        rowKey: item.id || file.id || node.id,
-        id: item.id,
-        nodeId: node.id || item.resourceDirectoryId,
-        resourceDirectoryId: item.resourceDirectoryId || node.id,
-        modelNo: node.nodeName || item.id || "",
+    mapDirectoryRow(item) {
+      const file = this.getFirstFile(item);
+      return Object.assign({}, item, {
+        modelNo: item.nodeName || file.originalName || "",
         modelName:
           file.originalName ||
-          node.nodeName ||
-          node.pipelineName ||
-          item.remark ||
-          item.id ||
+          item.nodeName ||
+          item.pipelineName ||
+          item.pipelineNo ||
           "",
+        originalName: file.originalName || item.nodeName || "",
         remark: item.remark || file.remark || "",
-        originalName: file.originalName || "",
-        fileSuffix: file.fileSuffix || "",
-        fileSize: file.fileSize,
-        fileId: file.id || splitFileIds(item.fileIds)[0] || "",
-        fileIds: splitFileIds(item.fileIds),
-        absoluteFileUrl: file.absoluteFileUrl || file.filePath || "",
-        fileUrl: file.fileUrl || file.filePath || "",
-        versionNo: item.versionNo || this.model.versionNo || ""
-      };
-    },
-    mapFileRow(node, file) {
-      const source = file || {};
-      const fileId = source.id || node.fileId || "";
-      return {
-        rowKey: [node.id, fileId || source.originalName || source.absoluteFileUrl]
-          .filter(Boolean)
-          .join("_"),
-        id: fileId || node.id,
-        nodeId: node.id,
-        resourceDirectoryId: node.id,
-        modelNo: node.nodeName || source.originalName || "",
-        modelName:
-          source.originalName ||
-          node.nodeName ||
-          node.pipelineName ||
-          node.pipelineNo ||
-          "",
-        remark: source.remark || node.remark || "",
-        originalName: source.originalName || node.nodeName || "",
-        fileSuffix: source.fileSuffix || "",
-        fileSize: source.fileSize,
-        fileId,
-        fileIds: fileId ? [fileId] : splitFileIds(node.fileIds),
-        absoluteFileUrl: source.absoluteFileUrl || source.filePath || "",
-        fileUrl: source.fileUrl || source.filePath || "",
-        versionNo: this.model.versionNo || ""
-      };
-    },
-    collectFileRows(nodes, acc) {
-      (nodes || []).forEach(node => {
-        this.getNodeFiles(node).forEach(file => {
-          acc.push(this.mapFileRow(node, file));
-        });
-        if (node && node.children && node.children.length) {
-          this.collectFileRows(node.children, acc);
-        }
+        fileId: file.id || item.fileId || splitFileIds(item.fileIds)[0] || "",
+        absoluteFileUrl: file.absoluteFileUrl || item.absoluteFileUrl || "",
+        fileUrl: file.fileUrl || file.filePath || item.fileUrl || ""
       });
-      return acc;
     },
     open(detail) {
       this.model = detail || {};
@@ -347,6 +261,10 @@ export default {
       this.descKeyword = "";
       this.current = 1;
       this.currentNode = null;
+      this.listFromChildren = false;
+      this.childrenAll = [];
+      this.tableData = [];
+      this.total = 0;
       this.multipleSelection = [];
       this.dialogVisible = true;
       this.$nextTick(() => {
@@ -362,17 +280,20 @@ export default {
       this.model = {};
       this.treeData = [];
       this.tableData = [];
-      this.allFileRows = [];
+      this.childrenAll = [];
       this.currentNode = null;
+      this.listFromChildren = false;
       this.multipleSelection = [];
     },
     applyTree(tree) {
       this.treeData = Array.isArray(tree) ? tree : [];
-      this.nodeMap = this.flattenTree(this.treeData, {});
-      if (this.currentNode && this.currentNode.id) {
-        this.currentNode = this.nodeMap[this.currentNode.id] || this.currentNode;
-      }
-      this.getList();
+      this.$nextTick(() => {
+        if (this.$refs.resourceTree) {
+          this.$refs.resourceTree.setCurrentKey(
+            this.currentNode && this.currentNode.id ? this.currentNode.id : null
+          );
+        }
+      });
     },
     loadTree() {
       if (!this.model.id) {
@@ -403,7 +324,72 @@ export default {
       this.currentNode = data;
       this.current = 1;
       this.clearSelection();
-      this.getList();
+      this.loadChildrenToTable(data);
+    },
+    loadChildrenToTable(node) {
+      if (!node || !node.id) {
+        this.clearTable();
+        return;
+      }
+      this.loading = true;
+      this.listFromChildren = true;
+      api
+        .getResourceDirectoryChildren(node.id)
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code)) {
+            const raw = res.data;
+            const children = Array.isArray(raw)
+              ? raw
+              : raw && Array.isArray(raw.records)
+                ? raw.records
+                : [];
+            this.childrenAll = children.map(item => this.mapDirectoryRow(item));
+            this.applyChildrenList();
+          } else {
+            this.clearTable();
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+          this.clearTable();
+        });
+    },
+    matchKeyword(row) {
+      const nameKey = (this.keyword || "").trim().toLowerCase();
+      const descKey = (this.descKeyword || "").trim().toLowerCase();
+      if (nameKey) {
+        const text = [
+          row.modelNo,
+          row.modelName,
+          row.nodeName,
+          row.pipelineNo,
+          row.pipelineName,
+          row.originalName
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (text.indexOf(nameKey) === -1) return false;
+      }
+      if (descKey && (row.remark || "").toLowerCase().indexOf(descKey) === -1) {
+        return false;
+      }
+      return true;
+    },
+    applyChildrenList() {
+      const list = (this.childrenAll || []).filter(item => this.matchKeyword(item));
+      this.total = list.length;
+      const maxPage = Math.max(1, Math.ceil(this.total / this.size) || 1);
+      if (this.current > maxPage) this.current = maxPage;
+      const start = (this.current - 1) * this.size;
+      this.tableData = list.slice(start, start + this.size);
+    },
+    clearTable() {
+      this.listFromChildren = false;
+      this.childrenAll = [];
+      this.tableData = [];
+      this.total = 0;
     },
     search() {
       this.current = 1;
@@ -425,88 +411,16 @@ export default {
       this.$refs.itemTable && this.$refs.itemTable.clearSelection();
       this.multipleSelection = [];
     },
-    matchKeyword(row) {
-      const nameKey = (this.keyword || "").trim().toLowerCase();
-      const descKey = (this.descKeyword || "").trim().toLowerCase();
-      if (nameKey) {
-        const text = [
-          row.modelName,
-          row.modelNo,
-          row.originalName,
-          row.fileId
-        ]
-          .join(" ")
-          .toLowerCase();
-        if (text.indexOf(nameKey) === -1) return false;
-      }
-      if (descKey && (row.remark || "").toLowerCase().indexOf(descKey) === -1) {
-        return false;
-      }
-      return true;
-    },
-    applyPagedRows(rows) {
-      const list = (rows || []).filter(item => this.matchKeyword(item));
-      this.allFileRows = list;
-      this.total = list.length;
-      const maxPage = Math.max(1, Math.ceil(this.total / this.size) || 1);
-      if (this.current > maxPage) this.current = maxPage;
-      const start = (this.current - 1) * this.size;
-      this.tableData = list.slice(start, start + this.size);
-    },
-    collectFilteredTreeRows() {
-      const roots = this.currentNode ? [this.currentNode] : this.treeData;
-      return this.collectFileRows(roots, []);
-    },
-    mergeFileRows(treeRows, itemRows) {
-      const merged = [];
-      const seen = {};
-      (treeRows || []).concat(itemRows || []).forEach(row => {
-        const key =
-          row.rowKey ||
-          row.fileId ||
-          row.absoluteFileUrl ||
-          row.id ||
-          row.modelName;
-        if (!key || seen[key]) return;
-        seen[key] = true;
-        merged.push(row);
-      });
-      return merged;
-    },
     getList() {
-      const treeRows = this.collectFilteredTreeRows();
-      if (!this.model.id) {
-        this.applyPagedRows(treeRows);
+      if (this.listFromChildren) {
+        this.applyChildrenList();
         return;
       }
-      this.loading = true;
-      const params = {
-        current: 1,
-        size: 500,
-        modelResourceId: this.model.id,
-        keyword: (this.keyword || "").trim()
-      };
       if (this.currentNode && this.currentNode.id) {
-        params.resourceDirectoryId = this.currentNode.id;
+        this.loadChildrenToTable(this.currentNode);
+        return;
       }
-      api
-        .pageModelResourceItems(params)
-        .then(res => {
-          this.loading = false;
-          const records =
-            this.isSuccessCode(res && res.code) && res.data
-              ? res.data.records || []
-              : [];
-          const itemRows = records.map(item => this.mapItemRow(item));
-          this.applyPagedRows(this.mergeFileRows(treeRows, itemRows));
-        })
-        .catch(() => {
-          this.loading = false;
-          this.applyPagedRows(treeRows);
-        });
-    },
-    openEditModel() {
-      this.$emit("edit-model", this.model);
+      this.clearTable();
     },
     updateModel(detail) {
       if (detail) this.model = Object.assign({}, this.model, detail);
@@ -538,7 +452,7 @@ export default {
     },
     downloadByRow(row) {
       const url = this.getFileUrl(row);
-      const filename = (row && (row.originalName || row.modelName)) || "模型文件";
+      const filename = (row && (row.originalName || row.modelNo)) || "模型文件";
       return this.downloadByUrl(url, filename);
     },
     downloadRow(row) {
@@ -606,7 +520,7 @@ export default {
             return;
           }
           this.$message.success(this.$t("cm.success"));
-          this.loadTree();
+          this.loadChildrenToTable(this.currentNode);
         })
         .catch(err => {
           this.loading = false;
@@ -645,7 +559,7 @@ export default {
           if (this.isSuccessCode(res && res.code)) {
             dialog && dialog.close();
             this.$message.success(this.$t("cm.edit_succ"));
-            this.loadTree();
+            this.loadChildrenToTable(this.currentNode);
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
@@ -660,35 +574,43 @@ export default {
 
 <style lang="less">
 .model-library-dialog {
-  margin-top: 1vh !important;
-  height: 98vh;
+  margin-top: 8px !important;
+  height: calc(100vh - 16px);
   display: flex;
   flex-direction: column;
   border-radius: 8px;
   overflow: hidden;
   .el-dialog__header {
     flex-shrink: 0;
-    padding: 12px 20px;
+    padding: 14px 20px 10px;
+    border-bottom: none;
   }
   .el-dialog__headerbtn {
-    top: 14px;
+    top: 16px;
   }
   .el-dialog__body {
     flex: 1;
     min-height: 0;
-    padding: 0 16px 12px;
+    padding: 0 20px 16px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+  }
+  .library-tree-list {
+    background: transparent;
+    border: none;
+  }
+  .library-tree-list.el-tree {
+    max-height: none;
   }
 }
 </style>
 <style lang="less" scoped>
 .library-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 24px;
+  padding-right: 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
 }
 .library-body {
   display: flex;
@@ -697,13 +619,12 @@ export default {
   height: 100%;
 }
 .library-tree {
-  width: 280px;
+  width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 4px 12px 0 0;
-  border-right: 1px solid #ebeef5;
+  padding: 4px 16px 0 0;
 }
 .tree-search-box {
   flex-shrink: 0;
@@ -719,6 +640,8 @@ export default {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  border: none;
+  background: transparent;
 }
 .library-main {
   flex: 1;
@@ -726,7 +649,7 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding-left: 16px;
+  padding-left: 8px;
 }
 .library-toolbar {
   display: flex;
