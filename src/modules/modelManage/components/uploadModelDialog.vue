@@ -89,7 +89,11 @@
         </el-col>
         <el-col :span="12">
           <el-form-item :label="$t('lang.version_no')" prop="versionNo">
-            <el-input v-model="editForm.versionNo" disabled></el-input>
+            <el-input
+              v-model="editForm.versionNo"
+              :placeholder="$t('lang.version_no_example')"
+              maxlength="32"
+            ></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -275,7 +279,11 @@ export default {
   border-radius: 12px;
   overflow: hidden;
   .el-dialog__header {
+    height: auto;
+    line-height: normal;
+    overflow: visible;
     padding: 20px 24px 0;
+    border-bottom: none;
   }
   .el-dialog__headerbtn {
     top: 18px;
