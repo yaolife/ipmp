@@ -11,6 +11,7 @@
     <div slot="title" class="library-title">{{ dialogTitle }}</div>
     <div class="library-body" v-loading="pageLoading">
       <div class="library-tree">
+        <div class="tree-title">{{ $t("lang.resource_catalog") }}</div>
         <div class="tree-search-box">
           <el-input
             v-model="filterText"
@@ -21,7 +22,6 @@
             clearable
           ></el-input>
         </div>
-        <div class="tree-title">{{ $t("lang.resource_catalog") }}</div>
         <el-tree
           ref="resourceTree"
           node-key="id"
@@ -36,7 +36,11 @@
           @node-click="onTreeNodeClick"
         >
           <span class="custom-tree-node" slot-scope="{ node }">
-            <span>{{ node.label }}</span>
+            <i
+              class="tree-node-icon"
+              :class="node.isLeaf ? 'el-icon-document' : 'el-icon-folder'"
+            ></i>
+            <span class="tree-node-label" :title="node.label">{{ node.label }}</span>
           </span>
         </el-tree>
       </div>
@@ -106,7 +110,7 @@
             <el-table-column
               align="center"
               :label="$t('cm.operate')"
-              width="160"
+              width="200"
               fixed="right"
             >
               <template slot-scope="scope">
@@ -116,6 +120,13 @@
                   class="cud-common-operate-edit"
                   @click="previewRow(scope.row)"
                   >{{ $t("cm.preview") }}</el-button
+                >
+                <el-button
+                  type="text"
+                  size="small"
+                  class="cud-common-operate-edit"
+                  @click="editItem(scope.row)"
+                  >{{ $t("cm.edit") }}</el-button
                 >
                 <el-button
                   type="text"
@@ -436,6 +447,10 @@ export default {
       }
       window.open(url, "_blank");
     },
+    editItem(row) {
+      if (!row) return;
+      this.$refs.replaceDialog && this.$refs.replaceDialog.open(row);
+    },
     downloadByUrl(url, filename) {
       if (!url) {
         return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
@@ -541,32 +556,10 @@ export default {
       });
       return Promise.all(tasks);
     },
-    saveItem(payload) {
+    saveItem() {
       const dialog = this.$refs.replaceDialog;
-      api
-        .updateModelResourceItem({
-          id: payload.id,
-          modelResourceId: this.model.id,
-          resourceDirectoryId:
-            payload.resourceDirectoryId ||
-            (this.currentNode && this.currentNode.id) ||
-            "",
-          fileIds: payload.fileIds || [],
-          remark: payload.remark || ""
-        })
-        .then(res => {
-          dialog && dialog.finishSave();
-          if (this.isSuccessCode(res && res.code)) {
-            dialog && dialog.close();
-            this.$message.success(this.$t("cm.edit_succ"));
-            this.loadChildrenToTable(this.currentNode);
-          } else {
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-          }
-        })
-        .catch(() => {
-          dialog && dialog.finishSave();
-        });
+      dialog && dialog.finishSave();
+      dialog && dialog.close();
     }
   }
 };
@@ -580,9 +573,10 @@ export default {
   flex-direction: column;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   .el-dialog__header {
     flex-shrink: 0;
-    padding: 14px 20px 10px;
+    padding: 16px 20px 12px;
     border-bottom: none;
   }
   .el-dialog__headerbtn {
@@ -596,12 +590,32 @@ export default {
     display: flex;
     flex-direction: column;
   }
-  .library-tree-list {
-    background: transparent;
-    border: none;
-  }
   .library-tree-list.el-tree {
     max-height: none;
+    background: transparent;
+  }
+  .library-tree-list .el-tree-node__content {
+    height: 32px;
+    border-radius: 4px;
+  }
+  .library-tree-list.el-tree--highlight-current
+    .el-tree-node.is-current
+    > .el-tree-node__content {
+    background: #ecf5ff;
+    color: #409eff;
+    position: relative;
+  }
+  .library-tree-list.el-tree--highlight-current
+    .el-tree-node.is-current
+    > .el-tree-node__content::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: #409eff;
+    border-radius: 2px;
   }
 }
 </style>
@@ -619,22 +633,28 @@ export default {
   height: 100%;
 }
 .library-tree {
-  width: 260px;
+  width: 268px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 4px 16px 0 0;
-}
-.tree-search-box {
-  flex-shrink: 0;
+  margin-right: 16px;
+  padding: 16px 12px;
+  background: #fff;
+  border: 1px solid #e6e8eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 .tree-title {
   flex-shrink: 0;
-  margin: 12px 0 8px;
+  margin-bottom: 12px;
   font-size: 14px;
   font-weight: 600;
   color: #303133;
+}
+.tree-search-box {
+  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 .library-tree-list {
   flex: 1;
@@ -649,7 +669,6 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding-left: 8px;
 }
 .library-toolbar {
   display: flex;
@@ -674,6 +693,22 @@ export default {
   padding-top: 8px;
 }
 .custom-tree-node {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
   font-size: 14px;
+}
+.tree-node-icon {
+  margin-right: 6px;
+  color: #909399;
+  font-size: 14px;
+}
+.tree-node-icon.el-icon-folder {
+  color: #f2c037;
+}
+.tree-node-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
