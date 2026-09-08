@@ -2,7 +2,7 @@
   <el-dialog
     :visible.sync="dialogVisible"
     width="92%"
-    top="4vh"
+    top="1vh"
     custom-class="model-library-dialog"
     append-to-body
     :close-on-click-modal="false"
@@ -49,7 +49,15 @@
         <div class="library-toolbar">
           <el-input
             v-model="keyword"
-            :placeholder="$t('lang.model_keyword_placeholder')"
+            :placeholder="$t('lang.resource_search_placeholder')"
+            size="small"
+            clearable
+            class="library-keyword"
+            @keyup.enter.native="search"
+          ></el-input>
+          <el-input
+            v-model="descKeyword"
+            :placeholder="$t('lang.resource_desc_placeholder')"
             size="small"
             clearable
             class="library-keyword"
@@ -59,19 +67,12 @@
             $t("cm.query")
           }}</el-button>
           <div class="library-actions">
-            <el-button type="primary" size="small" @click="triggerAdd">{{
-              $t("cm.add")
+            <el-button size="small" @click="batchDownload">{{
+              $t("lang.batch_download")
             }}</el-button>
             <el-button type="primary" size="small" @click="triggerImport">{{
               $t("lang.batch_import")
             }}</el-button>
-            <input
-              ref="addInput"
-              type="file"
-              :accept="acceptAttr"
-              style="display: none"
-              @change="onAddFile"
-            />
             <input
               ref="importInput"
               type="file"
@@ -82,62 +83,58 @@
             />
           </div>
         </div>
-        <el-table
-          :data="tableData"
-          ref="itemTable"
-          v-loading="loading"
-          :empty-text="$t('cm.nodata')"
-          border
-          stripe
-          height="460"
-          header-row-class-name="cud-office-table-header"
-          class="cud-office-table"
-        >
-          <el-table-column
-            align="center"
-            prop="modelNo"
-            :label="$t('lang.model_no')"
-            min-width="220"
-            show-overflow-tooltip
-          ></el-table-column>
-          <el-table-column
-            align="center"
-            :label="$t('cm.operate')"
-            width="220"
-            fixed="right"
+        <div class="library-table-wrap">
+          <el-table
+            :data="tableData"
+            ref="itemTable"
+            v-loading="loading"
+            :empty-text="$t('cm.nodata')"
+            border
+            stripe
+            height="100%"
+            row-key="rowKey"
+            header-row-class-name="cud-office-table-header"
+            class="cud-office-table"
+            @selection-change="handleSelectionChange"
           >
-            <template slot-scope="scope">
-              <el-button
-                type="text"
-                size="small"
-                class="cud-common-operate-edit"
-                @click="previewRow(scope.row)"
-                >{{ $t("cm.preview") }}</el-button
-              >
-              <el-button
-                type="text"
-                size="small"
-                class="cud-common-operate-edit"
-                @click="editItem(scope.row)"
-                >{{ $t("cm.edit") }}</el-button
-              >
-              <el-button
-                type="text"
-                size="small"
-                class="cud-common-operate-edit"
-                @click="downloadRow(scope.row)"
-                >{{ $t("cm.download") }}</el-button
-              >
-              <el-button
-                type="text"
-                size="small"
-                class="cud-common-operate-delete"
-                @click="deleteRow(scope.row)"
-                >{{ $t("cm.delete") }}</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
+            <el-table-column
+              type="selection"
+              width="50"
+              align="center"
+              reserve-selection
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              prop="modelName"
+              :label="$t('lang.model_name')"
+              min-width="220"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column
+              align="center"
+              :label="$t('cm.operate')"
+              width="160"
+              fixed="right"
+            >
+              <template slot-scope="scope">
+                <el-button
+                  type="text"
+                  size="small"
+                  class="cud-common-operate-edit"
+                  @click="previewRow(scope.row)"
+                  >{{ $t("cm.preview") }}</el-button
+                >
+                <el-button
+                  type="text"
+                  size="small"
+                  class="cud-common-operate-edit"
+                  @click="downloadRow(scope.row)"
+                  >{{ $t("cm.download") }}</el-button
+                >
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
         <div class="cud-special-pagination">
           <el-pagination
             @size-change="handleSizeChange"
@@ -164,7 +161,6 @@
 import api from "../api";
 import replaceModelFileDialog from "./replaceModelFileDialog.vue";
 
-const PIPE_DIRECTORY_TYPE = 0;
 const ACCEPT_EXTS = ["glb", "gltf", "obj", "fbx", "rvt", "ifc"];
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
 const FILE_DIRECTORY = "modelFile";
@@ -195,7 +191,6 @@ export default {
       pageLoading: false,
       treeLoading: false,
       loading: false,
-      importing: false,
       model: {},
       filterText: "",
       treeData: [],
@@ -206,7 +201,10 @@ export default {
       nodeMap: {},
       currentNode: null,
       keyword: "",
+      descKeyword: "",
+      allFileRows: [],
       tableData: [],
+      multipleSelection: [],
       current: 1,
       size: 10,
       total: 0
@@ -240,39 +238,121 @@ export default {
     },
     filterTreeNode(value, data) {
       if (!value) return true;
-      return (data.nodeName || "").toLowerCase().indexOf(value.toLowerCase()) !== -1;
+      const keyword = value.toLowerCase();
+      return (
+        (data.nodeName || "").toLowerCase().indexOf(keyword) !== -1 ||
+        (data.pipelineNo || "").toLowerCase().indexOf(keyword) !== -1 ||
+        (data.pipelineName || "").toLowerCase().indexOf(keyword) !== -1
+      );
+    },
+    getModelFileById(fileId) {
+      if (!fileId) return null;
+      return ((this.model && this.model.files) || []).find(
+        item => item && String(item.id) === String(fileId)
+      );
+    },
+    getNodeFiles(node) {
+      if (!node) return [];
+      if (Array.isArray(node.attachments) && node.attachments.length) {
+        return node.attachments.filter(Boolean);
+      }
+      const fromModel = this.getModelFileById(node.fileId);
+      if (fromModel) return [fromModel];
+      if (node.absoluteFileUrl || node.fileUrl || node.filePath) {
+        return [node];
+      }
+      if (!(node.children && node.children.length)) {
+        return [node];
+      }
+      return [];
     },
     getFirstFile(row) {
       const files = (row && row.files) || [];
-      return files[0] || {};
+      return files[0] || null;
     },
     mapItemRow(item) {
       const node = this.nodeMap[item.resourceDirectoryId] || {};
-      const file = this.getFirstFile(item);
-      return Object.assign({}, item, {
+      const file =
+        this.getFirstFile(item) ||
+        (node.attachments && node.attachments[0]) ||
+        this.getModelFileById(splitFileIds(item.fileIds)[0]) ||
+        {};
+      return {
+        rowKey: item.id || file.id || node.id,
+        id: item.id,
+        nodeId: node.id || item.resourceDirectoryId,
+        resourceDirectoryId: item.resourceDirectoryId || node.id,
         modelNo: node.nodeName || item.id || "",
-        displayName:
-          node.name || file.originalName || item.remark || item.id || "",
+        modelName:
+          file.originalName ||
+          node.nodeName ||
+          node.pipelineName ||
+          item.remark ||
+          item.id ||
+          "",
+        remark: item.remark || file.remark || "",
         originalName: file.originalName || "",
         fileSuffix: file.fileSuffix || "",
         fileSize: file.fileSize,
         fileId: file.id || splitFileIds(item.fileIds)[0] || "",
-        fileIds: this.getFileIds(item),
-        absoluteFileUrl: file.absoluteFileUrl || "",
-        fileUrl: file.fileUrl || "",
+        fileIds: splitFileIds(item.fileIds),
+        absoluteFileUrl: file.absoluteFileUrl || file.filePath || "",
+        fileUrl: file.fileUrl || file.filePath || "",
         versionNo: item.versionNo || this.model.versionNo || ""
+      };
+    },
+    mapFileRow(node, file) {
+      const source = file || {};
+      const fileId = source.id || node.fileId || "";
+      return {
+        rowKey: [node.id, fileId || source.originalName || source.absoluteFileUrl]
+          .filter(Boolean)
+          .join("_"),
+        id: fileId || node.id,
+        nodeId: node.id,
+        resourceDirectoryId: node.id,
+        modelNo: node.nodeName || source.originalName || "",
+        modelName:
+          source.originalName ||
+          node.nodeName ||
+          node.pipelineName ||
+          node.pipelineNo ||
+          "",
+        remark: source.remark || node.remark || "",
+        originalName: source.originalName || node.nodeName || "",
+        fileSuffix: source.fileSuffix || "",
+        fileSize: source.fileSize,
+        fileId,
+        fileIds: fileId ? [fileId] : splitFileIds(node.fileIds),
+        absoluteFileUrl: source.absoluteFileUrl || source.filePath || "",
+        fileUrl: source.fileUrl || source.filePath || "",
+        versionNo: this.model.versionNo || ""
+      };
+    },
+    collectFileRows(nodes, acc) {
+      (nodes || []).forEach(node => {
+        this.getNodeFiles(node).forEach(file => {
+          acc.push(this.mapFileRow(node, file));
+        });
+        if (node && node.children && node.children.length) {
+          this.collectFileRows(node.children, acc);
+        }
       });
+      return acc;
     },
     open(detail) {
       this.model = detail || {};
       this.filterText = "";
       this.keyword = "";
+      this.descKeyword = "";
       this.current = 1;
       this.currentNode = null;
+      this.multipleSelection = [];
       this.dialogVisible = true;
       this.$nextTick(() => {
+        this.clearSelection();
+        this.applyTree(this.model.resourceDirectoryTree);
         this.loadTree();
-        this.getList();
       });
     },
     close() {
@@ -282,33 +362,47 @@ export default {
       this.model = {};
       this.treeData = [];
       this.tableData = [];
+      this.allFileRows = [];
       this.currentNode = null;
+      this.multipleSelection = [];
+    },
+    applyTree(tree) {
+      this.treeData = Array.isArray(tree) ? tree : [];
+      this.nodeMap = this.flattenTree(this.treeData, {});
+      if (this.currentNode && this.currentNode.id) {
+        this.currentNode = this.nodeMap[this.currentNode.id] || this.currentNode;
+      }
+      this.getList();
     },
     loadTree() {
+      if (!this.model.id) {
+        this.applyTree(this.model.resourceDirectoryTree);
+        return;
+      }
       this.treeLoading = true;
       api
-        .getResourceDirectoryTree({ type: PIPE_DIRECTORY_TYPE })
+        .getModelResourceDetail(this.model.id)
         .then(res => {
           this.treeLoading = false;
-          if (this.isSuccessCode(res && res.code)) {
-            this.treeData = Array.isArray(res.data) ? res.data : [];
-            this.nodeMap = this.flattenTree(this.treeData, {});
-            this.tableData = this.tableData.map(item => this.mapItemRow(item));
+          if (this.isSuccessCode(res && res.code) && res.data) {
+            this.model = Object.assign({}, this.model, res.data);
+            this.applyTree(res.data.resourceDirectoryTree);
           } else {
-            this.treeData = [];
-            this.nodeMap = {};
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+            this.applyTree(this.model.resourceDirectoryTree);
+            if (res && !this.isSuccessCode(res.code)) {
+              this.$message.error((res && res.msg) || this.$t("cm.fail"));
+            }
           }
         })
         .catch(() => {
           this.treeLoading = false;
-          this.treeData = [];
-          this.nodeMap = {};
+          this.applyTree(this.model.resourceDirectoryTree);
         });
     },
     onTreeNodeClick(data) {
       this.currentNode = data;
       this.current = 1;
+      this.clearSelection();
       this.getList();
     },
     search() {
@@ -324,12 +418,71 @@ export default {
       this.current = current;
       this.getList();
     },
+    handleSelectionChange(val) {
+      this.multipleSelection = val || [];
+    },
+    clearSelection() {
+      this.$refs.itemTable && this.$refs.itemTable.clearSelection();
+      this.multipleSelection = [];
+    },
+    matchKeyword(row) {
+      const nameKey = (this.keyword || "").trim().toLowerCase();
+      const descKey = (this.descKeyword || "").trim().toLowerCase();
+      if (nameKey) {
+        const text = [
+          row.modelName,
+          row.modelNo,
+          row.originalName,
+          row.fileId
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (text.indexOf(nameKey) === -1) return false;
+      }
+      if (descKey && (row.remark || "").toLowerCase().indexOf(descKey) === -1) {
+        return false;
+      }
+      return true;
+    },
+    applyPagedRows(rows) {
+      const list = (rows || []).filter(item => this.matchKeyword(item));
+      this.allFileRows = list;
+      this.total = list.length;
+      const maxPage = Math.max(1, Math.ceil(this.total / this.size) || 1);
+      if (this.current > maxPage) this.current = maxPage;
+      const start = (this.current - 1) * this.size;
+      this.tableData = list.slice(start, start + this.size);
+    },
+    collectFilteredTreeRows() {
+      const roots = this.currentNode ? [this.currentNode] : this.treeData;
+      return this.collectFileRows(roots, []);
+    },
+    mergeFileRows(treeRows, itemRows) {
+      const merged = [];
+      const seen = {};
+      (treeRows || []).concat(itemRows || []).forEach(row => {
+        const key =
+          row.rowKey ||
+          row.fileId ||
+          row.absoluteFileUrl ||
+          row.id ||
+          row.modelName;
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        merged.push(row);
+      });
+      return merged;
+    },
     getList() {
-      if (!this.model.id) return;
+      const treeRows = this.collectFilteredTreeRows();
+      if (!this.model.id) {
+        this.applyPagedRows(treeRows);
+        return;
+      }
       this.loading = true;
       const params = {
-        current: this.current,
-        size: this.size,
+        current: 1,
+        size: 500,
         modelResourceId: this.model.id,
         keyword: (this.keyword || "").trim()
       };
@@ -340,20 +493,16 @@ export default {
         .pageModelResourceItems(params)
         .then(res => {
           this.loading = false;
-          if (this.isSuccessCode(res && res.code)) {
-            const data = res.data || {};
-            this.total = data.total || 0;
-            this.tableData = (data.records || []).map(item => this.mapItemRow(item));
-          } else {
-            this.tableData = [];
-            this.total = 0;
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-          }
+          const records =
+            this.isSuccessCode(res && res.code) && res.data
+              ? res.data.records || []
+              : [];
+          const itemRows = records.map(item => this.mapItemRow(item));
+          this.applyPagedRows(this.mergeFileRows(treeRows, itemRows));
         })
         .catch(() => {
           this.loading = false;
-          this.tableData = [];
-          this.total = 0;
+          this.applyPagedRows(treeRows);
         });
     },
     openEditModel() {
@@ -362,68 +511,54 @@ export default {
     updateModel(detail) {
       if (detail) this.model = Object.assign({}, this.model, detail);
     },
-    getFileIds(row) {
-      const fromFiles = ((row && row.files) || [])
-        .map(item => item && item.id)
-        .filter(Boolean);
-      if (fromFiles.length) return fromFiles;
-      return splitFileIds(row && row.fileIds);
+    getFileUrl(row) {
+      return (row && (row.absoluteFileUrl || row.fileUrl)) || "";
     },
     previewRow(row) {
-      if (!row || !row.id) return;
-      api
-        .getModelResourceItemDetail(row.id)
-        .then(res => {
-          if (!this.isSuccessCode(res && res.code) || !res.data) {
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-            return;
-          }
-          const detail = this.mapItemRow(res.data);
-          const url = detail.absoluteFileUrl || detail.fileUrl;
-          if (!url) {
-            this.$message.warning(this.$t("lang.no_file_to_preview"));
-            return;
-          }
-          window.open(url, "_blank");
-        })
-        .catch(err => {
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
-    },
-    downloadByRow(row) {
-      const fileId = this.getFileIds(row)[0];
-      const filename = row.originalName || row.displayName || "模型文件";
-      if (fileId) {
-        return api.downloadSysFile(fileId, filename);
+      const url = this.getFileUrl(row);
+      if (!url) {
+        this.$message.warning(this.$t("lang.no_file_to_preview"));
+        return;
       }
-      const url = row.absoluteFileUrl || row.fileUrl;
+      window.open(url, "_blank");
+    },
+    downloadByUrl(url, filename) {
       if (!url) {
         return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
       }
       const link = document.createElement("a");
       link.href = url;
-      link.download = filename;
+      link.download = filename || "模型文件";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       return Promise.resolve();
+    },
+    downloadByRow(row) {
+      const url = this.getFileUrl(row);
+      const filename = (row && (row.originalName || row.modelName)) || "模型文件";
+      return this.downloadByUrl(url, filename);
     },
     downloadRow(row) {
       this.downloadByRow(row).catch(err => {
         this.$message.error((err && err.msg) || this.$t("cm.fail"));
       });
     },
-    triggerAdd() {
-      if (!this.currentNode || !this.currentNode.id) {
-        this.$message.warning(this.$t("lang.select_resource_node"));
+    batchDownload() {
+      if (!this.multipleSelection.length) {
+        this.$message.warning(this.$t("lang.select_download_model"));
         return;
       }
-      this.$refs.addInput && this.$refs.addInput.click();
-    },
-    onAddFile(e) {
-      const file = e.target.files && e.target.files[0];
-      e.target.value = "";
-      if (file) this.onImportFiles({ target: { files: [file], value: "" } });
+      const tasks = this.multipleSelection.map(row => this.downloadByRow(row));
+      Promise.all(tasks)
+        .then(() => {
+          this.$message.success(this.$t("cm.download") + this.$t("cm.success"));
+        })
+        .catch(err => {
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     },
     triggerImport() {
       if (!this.currentNode || !this.currentNode.id) {
@@ -471,7 +606,7 @@ export default {
             return;
           }
           this.$message.success(this.$t("cm.success"));
-          this.getList();
+          this.loadTree();
         })
         .catch(err => {
           this.loading = false;
@@ -492,22 +627,6 @@ export default {
       });
       return Promise.all(tasks);
     },
-    editItem(row) {
-      if (!row || !row.id) return;
-      api
-        .getModelResourceItemDetail(row.id)
-        .then(res => {
-          if (!this.isSuccessCode(res && res.code) || !res.data) {
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-            return;
-          }
-          const detail = this.mapItemRow(res.data);
-          this.$refs.replaceDialog && this.$refs.replaceDialog.open(detail);
-        })
-        .catch(err => {
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
-    },
     saveItem(payload) {
       const dialog = this.$refs.replaceDialog;
       api
@@ -526,7 +645,7 @@ export default {
           if (this.isSuccessCode(res && res.code)) {
             dialog && dialog.close();
             this.$message.success(this.$t("cm.edit_succ"));
-            this.getList();
+            this.loadTree();
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
@@ -534,27 +653,6 @@ export default {
         .catch(() => {
           dialog && dialog.finishSave();
         });
-    },
-    deleteRow(row) {
-      this.$confirm(
-        this.$t("lang.delete_model_item_confirm"),
-        this.$t("cm.tips"),
-        {
-          confirmButtonText: this.$t("lang.confirm_delete"),
-          cancelButtonText: this.$t("cm.cancel"),
-          type: "warning"
-        }
-      )
-        .then(() => api.deleteModelResourceItems({ ids: [row.id] }))
-        .then(res => {
-          if (this.isSuccessCode(res && res.code)) {
-            this.$message.success(this.$t("cm.deletesuccess"));
-            this.getList();
-          } else {
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-          }
-        })
-        .catch(() => {});
     }
   }
 };
@@ -562,9 +660,26 @@ export default {
 
 <style lang="less">
 .model-library-dialog {
+  margin-top: 1vh !important;
+  height: 98vh;
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
+  overflow: hidden;
+  .el-dialog__header {
+    flex-shrink: 0;
+    padding: 12px 20px;
+  }
+  .el-dialog__headerbtn {
+    top: 14px;
+  }
   .el-dialog__body {
-    padding: 8px 16px 16px;
+    flex: 1;
+    min-height: 0;
+    padding: 0 16px 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>
@@ -577,40 +692,63 @@ export default {
 }
 .library-body {
   display: flex;
-  min-height: 560px;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 .library-tree {
-  width: 260px;
+  width: 280px;
   flex-shrink: 0;
-  padding-right: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 4px 12px 0 0;
   border-right: 1px solid #ebeef5;
 }
+.tree-search-box {
+  flex-shrink: 0;
+}
 .tree-title {
-  margin: 10px 0;
+  flex-shrink: 0;
+  margin: 12px 0 8px;
   font-size: 14px;
   font-weight: 600;
   color: #303133;
 }
 .library-tree-list {
-  height: 480px;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 .library-main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   padding-left: 16px;
 }
 .library-toolbar {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   margin-bottom: 12px;
 }
 .library-keyword {
-  width: 240px;
+  width: 220px;
   margin-right: 8px;
 }
 .library-actions {
   margin-left: auto;
+}
+.library-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.cud-special-pagination {
+  flex-shrink: 0;
+  padding-top: 8px;
 }
 .custom-tree-node {
   font-size: 14px;
