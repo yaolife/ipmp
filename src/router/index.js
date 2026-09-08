@@ -13,6 +13,8 @@ import digitalTwinScreen from "@/modules/screen/index";
 import concern from "@/modules/concern/concern";
 // 管道模型数据库
 import delegation from "@/modules/delegation/delegation";
+// 模型管理
+import modelManage from "@/modules/modelManage/modelManage";
 // 日志管理
 import logManage from "@/modules/logManage/logManage.vue";
 
@@ -87,6 +89,12 @@ const _router = new Router({
           component: delegation,
           meta: "pipeComponentDatabase",
           alias: "/delegation"
+        },
+        {
+          path: "/modelManage",
+          name: "模型管理",
+          component: modelManage,
+          meta: "modelManage"
         },
         {
           path: "/screen",

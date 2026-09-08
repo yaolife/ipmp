@@ -21,6 +21,11 @@
         "resource": "pipeComponentDatabase"
       },
       {
+        "name": "lang.model_manage",
+        "url": "/modelManage",
+        "resource": "modelManage"
+      },
+      {
         "name": "lang.digital_twin",
         "url": "/screen",
         "resource": "digitalTwin"
