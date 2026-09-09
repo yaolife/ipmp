@@ -109,7 +109,6 @@ function emptyForm() {
     originalName: "",
     fileSuffix: "",
     fileSize: null,
-    versionNo: "",
     absoluteFileUrl: "",
     fileUrl: ""
   };
@@ -142,9 +141,6 @@ export default {
     },
     fileMetaText() {
       const suffix = this.displaySuffix;
-      const version = this.form.versionNo
-        ? this.$t("lang.current_version") + " " + this.form.versionNo
-        : "";
       let sizeText = this.$t("lang.file_size_unknown");
       if (this.pendingFile) {
         const kb = Math.max(1, Math.round(this.pendingFile.size / 1024));
@@ -152,7 +148,7 @@ export default {
       } else if (formatStoredFileSize(this.form.fileSize)) {
         sizeText = this.$t("lang.model_size") + " " + formatStoredFileSize(this.form.fileSize);
       }
-      return [suffix, version, sizeText].filter(Boolean).join(" · ");
+      return [suffix, sizeText].filter(Boolean).join(" · ");
     }
   },
   methods: {
@@ -169,7 +165,6 @@ export default {
         originalName: current.originalName || "",
         fileSuffix: current.fileSuffix || getExt(current.originalName),
         fileSize: current.fileSize,
-        versionNo: source.versionNo || "",
         absoluteFileUrl: current.absoluteFileUrl || "",
         fileUrl: current.fileUrl || ""
       });
