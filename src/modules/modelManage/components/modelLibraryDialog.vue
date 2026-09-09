@@ -242,15 +242,19 @@ export default {
         (data.pipelineName || "").toLowerCase().indexOf(keyword) !== -1
       );
     },
+    getNodeFileList(item) {
+      if (Array.isArray(item && item.file)) return item.file.filter(Boolean);
+      if (Array.isArray(item && item.files)) return item.files.filter(Boolean);
+      return [];
+    },
     getFirstFile(row) {
-      const attachments = (row && row.attachments) || [];
-      if (attachments[0]) return attachments[0];
-      const files = (row && row.files) || [];
-      return files[0] || {};
+      return this.getNodeFileList(row)[0] || {};
     },
     mapDirectoryRow(item) {
-      const file = this.getFirstFile(item);
+      const fileList = this.getNodeFileList(item);
+      const file = fileList[0] || {};
       return Object.assign({}, item, {
+        file: fileList,
         modelNo: item.nodeName || file.originalName || "",
         modelName:
           file.originalName ||
@@ -258,11 +262,14 @@ export default {
           item.pipelineName ||
           item.pipelineNo ||
           "",
-        originalName: file.originalName || item.nodeName || "",
+        originalName: file.originalName || "",
+        fileSuffix: file.fileSuffix || "",
+        fileSize: file.fileSize,
         remark: item.remark || file.remark || "",
         fileId: file.id || item.fileId || splitFileIds(item.fileIds)[0] || "",
-        absoluteFileUrl: file.absoluteFileUrl || item.absoluteFileUrl || "",
-        fileUrl: file.fileUrl || file.filePath || item.fileUrl || ""
+        absoluteFileUrl: file.absoluteFileUrl || "",
+        fileUrl: file.fileUrl || file.filePath || "",
+        versionNo: this.model.versionNo || ""
       });
     },
     open(detail) {
@@ -448,7 +455,12 @@ export default {
     },
     editItem(row) {
       if (!row) return;
-      this.$refs.replaceDialog && this.$refs.replaceDialog.open(row);
+      this.$refs.replaceDialog &&
+        this.$refs.replaceDialog.open(
+          Object.assign({}, row, {
+            versionNo: row.versionNo || this.model.versionNo || ""
+          })
+        );
     },
     downloadByUrl(url, filename) {
       if (!url) {
@@ -555,10 +567,31 @@ export default {
       });
       return Promise.all(tasks);
     },
-    saveItem() {
+    saveItem(payload) {
       const dialog = this.$refs.replaceDialog;
-      dialog && dialog.finishSave();
-      dialog && dialog.close();
+      if (!payload || !payload.nodeId || !payload.file) {
+        dialog && dialog.finishSave();
+        return;
+      }
+      const formData = new FormData();
+      formData.append("nodeId", payload.nodeId);
+      formData.append("file", payload.file);
+      api
+        .updateModelNodeFile(formData)
+        .then(res => {
+          dialog && dialog.finishSave();
+          if (this.isSuccessCode(res && res.code)) {
+            dialog && dialog.close();
+            this.$message.success(this.$t("cm.success"));
+            this.loadChildrenToTable(this.currentNode);
+          } else {
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(err => {
+          dialog && dialog.finishSave();
+          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+        });
     }
   }
 };

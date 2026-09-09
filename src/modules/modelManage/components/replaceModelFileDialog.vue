@@ -1,47 +1,51 @@
 <template>
   <el-dialog
-    :title="$t('lang.replace_model_file_title')"
     :visible.sync="dialogVisible"
-    width="560px"
+    width="800px"
     custom-class="replace-model-file-dialog"
     append-to-body
     :close-on-click-modal="false"
     @close="onClose"
   >
-    <div class="dialog-subtitle">{{ $t("lang.replace_model_file_tip") }}</div>
-    <el-form label-width="90px" size="small">
-      <el-form-item :label="$t('lang.model_no')">
+    <div slot="title" class="replace-dialog-header">
+      <div class="replace-dialog-title">{{ $t("lang.replace_model_file_title") }}</div>
+      <div class="replace-dialog-subtitle">{{ $t("lang.replace_model_file_tip") }}</div>
+    </div>
+    <el-form label-position="top" size="small" class="replace-form">
+      <el-form-item :label="$t('lang.model_code')">
         <el-input :value="form.modelNo" disabled></el-input>
       </el-form-item>
     </el-form>
-    <div class="file-section-title">{{ $t("lang.current_model_file") }}</div>
-    <div class="file-card">
-      <div class="file-card-main">
-        <i class="el-icon-document file-icon"></i>
-        <div class="file-card-info">
-          <div class="file-card-name" :title="form.originalName">
-            {{ form.originalName || $t("lang.model_file") }}
+    <template v-if="hasCurrentFile">
+      <div class="file-section-title">{{ $t("lang.current_model_file") }}</div>
+      <div class="file-card">
+        <div class="file-card-main">
+          <div class="file-type-badge">{{ displaySuffix }}</div>
+          <div class="file-card-info">
+            <div class="file-card-name" :title="displayName">
+              {{ displayName }}
+            </div>
+            <div class="file-card-meta">{{ fileMetaText }}</div>
           </div>
-          <div class="file-card-meta">
-            {{ fileMetaText }}
-          </div>
+          <el-tag size="mini" type="success" effect="plain">{{
+            $t("lang.current_in_use")
+          }}</el-tag>
         </div>
-        <el-tag size="mini" type="success" effect="plain">{{
-          $t("lang.current_model_tag")
-        }}</el-tag>
+        <div class="file-card-actions">
+          <el-button
+            size="small"
+            :disabled="saving"
+            @click="triggerFileSelect"
+            >{{ $t("lang.replace_file") }}</el-button
+          >
+        </div>
       </div>
-      <div class="file-card-actions">
-        <el-button
-          size="small"
-          type="success"
-          plain
-          :disabled="!previewUrl"
-          @click="preview"
-          >{{ $t("lang.enable_preview") }}</el-button
-        >
-        <el-button size="small" :disabled="uploading || saving" @click="triggerFileSelect">{{
-          $t("lang.replace_file")
-        }}</el-button>
+    </template>
+    <div v-else class="file-upload-empty" @click="triggerFileSelect">
+      <i class="el-icon-upload"></i>
+      <div>{{ $t("lang.select_replace_file") }}</div>
+      <div v-if="pendingFile" class="pending-file-name" :title="pendingFile.name">
+        {{ pendingFile.name }}
       </div>
     </div>
     <input
@@ -51,9 +55,7 @@
       style="display: none"
       @change="onFileChange"
     />
-    <div class="replace-tip">
-      ※{{ $t("lang.replace_file_tip") }}
-    </div>
+    <div class="replace-tip">{{ $t("lang.replace_file_tip") }}</div>
     <span slot="footer">
       <el-button size="small" :disabled="saving" @click="dialogVisible = false">{{
         $t("cm.cancel")
@@ -62,7 +64,7 @@
         type="primary"
         size="small"
         :loading="saving"
-        :disabled="!replaced || uploading || saving"
+        :disabled="!pendingFile || saving"
         @click="submit"
         >{{ $t("lang.next_step") }}</el-button
       >
@@ -71,11 +73,8 @@
 </template>
 
 <script>
-import api from "../api";
-
-const ACCEPT_EXTS = ["glb", "gltf", "obj", "fbx", "rvt", "ifc"];
+const ACCEPT_EXTS = ["glb", "gltf", "obj", "fbx", "rvt", "ifc", "udsmesh"];
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
-const FILE_DIRECTORY = "modelFile";
 
 function getExt(name) {
   const matched = String(name || "")
@@ -87,7 +86,7 @@ function getExt(name) {
 function formatStoredFileSize(kb) {
   const n = Number(kb);
   if (kb === null || kb === undefined || kb === "" || isNaN(n) || n < 0) {
-    return "-";
+    return "";
   }
   if (n === 0) return "0KB";
   if (n >= 1024) {
@@ -95,6 +94,12 @@ function formatStoredFileSize(kb) {
     return (mb >= 100 ? mb.toFixed(0) : mb.toFixed(1).replace(/\.0$/, "")) + "MB";
   }
   return n + "KB";
+}
+
+function getFileList(source) {
+  if (Array.isArray(source && source.file)) return source.file.filter(Boolean);
+  if (Array.isArray(source && source.files)) return source.files.filter(Boolean);
+  return [];
 }
 
 function emptyForm() {
@@ -105,9 +110,6 @@ function emptyForm() {
     fileSuffix: "",
     fileSize: null,
     versionNo: "",
-    fileIds: [],
-    resourceDirectoryId: "",
-    remark: "",
     absoluteFileUrl: "",
     fileUrl: ""
   };
@@ -119,8 +121,8 @@ export default {
     return {
       dialogVisible: false,
       saving: false,
-      uploading: false,
-      replaced: false,
+      hasCurrentFile: false,
+      pendingFile: null,
       form: emptyForm()
     };
   },
@@ -128,45 +130,48 @@ export default {
     acceptAttr() {
       return ACCEPT_EXTS.map(item => "." + item).join(",");
     },
-    previewUrl() {
-      return this.form.absoluteFileUrl || this.form.fileUrl || "";
+    displayName() {
+      if (this.pendingFile) return this.pendingFile.name;
+      return this.form.originalName || this.form.modelNo || this.$t("lang.model_file");
+    },
+    displaySuffix() {
+      const ext = this.pendingFile
+        ? getExt(this.pendingFile.name)
+        : String(this.form.fileSuffix || "").replace(/^\./, "");
+      return (ext || "-").toUpperCase();
     },
     fileMetaText() {
-      const suffix = this.form.fileSuffix
-        ? "." + String(this.form.fileSuffix).replace(/^\./, "")
-        : "-";
+      const suffix = this.displaySuffix;
       const version = this.form.versionNo
         ? this.$t("lang.current_version") + " " + this.form.versionNo
         : "";
-      const size = formatStoredFileSize(this.form.fileSize);
-      return [suffix, version, this.$t("lang.model_size") + " " + size]
-        .filter(Boolean)
-        .join(" | ");
+      let sizeText = this.$t("lang.file_size_unknown");
+      if (this.pendingFile) {
+        const kb = Math.max(1, Math.round(this.pendingFile.size / 1024));
+        sizeText = this.$t("lang.model_size") + " " + formatStoredFileSize(kb);
+      } else if (formatStoredFileSize(this.form.fileSize)) {
+        sizeText = this.$t("lang.model_size") + " " + formatStoredFileSize(this.form.fileSize);
+      }
+      return [suffix, version, sizeText].filter(Boolean).join(" · ");
     }
   },
   methods: {
-    isSuccessCode(code) {
-      return code === 0 || code === "0";
-    },
     open(detail) {
       const source = detail || {};
+      const fileList = getFileList(source);
+      const current = fileList[0] || {};
       this.saving = false;
-      this.uploading = false;
-      this.replaced = false;
+      this.pendingFile = null;
+      this.hasCurrentFile = fileList.length > 0;
       this.form = Object.assign(emptyForm(), {
         id: source.id || "",
-        modelNo: source.modelNo || source.modelCode || source.id || "",
-        originalName: source.originalName || "",
-        fileSuffix: source.fileSuffix || getExt(source.originalName),
-        fileSize: source.fileSize,
+        modelNo: source.modelNo || source.nodeName || source.modelCode || "",
+        originalName: current.originalName || "",
+        fileSuffix: current.fileSuffix || getExt(current.originalName),
+        fileSize: current.fileSize,
         versionNo: source.versionNo || "",
-        fileIds: Array.isArray(source.fileIds)
-          ? source.fileIds.slice()
-          : [],
-        resourceDirectoryId: source.resourceDirectoryId || "",
-        remark: source.remark || "",
-        absoluteFileUrl: source.absoluteFileUrl || "",
-        fileUrl: source.fileUrl || ""
+        absoluteFileUrl: current.absoluteFileUrl || "",
+        fileUrl: current.fileUrl || ""
       });
       this.dialogVisible = true;
     },
@@ -178,19 +183,13 @@ export default {
     },
     onClose() {
       this.saving = false;
-      this.uploading = false;
-      this.replaced = false;
+      this.pendingFile = null;
+      this.hasCurrentFile = false;
       this.form = emptyForm();
       if (this.$refs.fileInput) this.$refs.fileInput.value = "";
     },
-    preview() {
-      if (!this.previewUrl) {
-        this.$message.warning(this.$t("lang.no_file_to_preview"));
-        return;
-      }
-      window.open(this.previewUrl, "_blank");
-    },
     triggerFileSelect() {
+      if (this.saving) return;
       this.$refs.fileInput && this.$refs.fileInput.click();
     },
     onFileChange(e) {
@@ -206,47 +205,21 @@ export default {
         this.$message.warning(this.$t("lang.file_size_invalid"));
         return;
       }
-      this.uploading = true;
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("directory", FILE_DIRECTORY);
-      api
-        .uploadSysFile(formData)
-        .then(res => {
-          this.uploading = false;
-          if (!this.isSuccessCode(res && res.code) || !res.data) {
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
-            return;
-          }
-          const data = res.data || {};
-          this.form.fileIds = [data.id];
-          this.form.originalName = data.originalName || file.name;
-          this.form.fileSuffix = data.fileSuffix || ext;
-          this.form.fileSize = Math.max(1, Math.round(file.size / 1024));
-          this.form.absoluteFileUrl = data.absoluteFileUrl || "";
-          this.form.fileUrl = data.fileUrl || "";
-          this.replaced = true;
-        })
-        .catch(err => {
-          this.uploading = false;
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
+      this.pendingFile = file;
     },
     submit() {
-      if (!this.replaced) {
+      if (!this.pendingFile) {
         this.$message.warning(this.$t("lang.please_upload_model"));
         return;
       }
-      if (this.uploading) {
-        this.$message.warning(this.$t("lang.file_uploading"));
+      if (!this.form.id) {
+        this.$message.warning(this.$t("lang.select_resource_node"));
         return;
       }
       this.saving = true;
       this.$emit("save", {
-        id: this.form.id,
-        fileIds: this.form.fileIds.slice(),
-        resourceDirectoryId: this.form.resourceDirectoryId,
-        remark: this.form.remark || ""
+        nodeId: this.form.id,
+        file: this.pendingFile
       });
     }
   }
@@ -255,39 +228,96 @@ export default {
 
 <style lang="less">
 .replace-model-file-dialog {
-  border-radius: 8px;
+  border-radius: 12px;
+  .el-dialog__header {
+    padding: 20px 24px 0;
+    border-bottom: none;
+  }
+  .el-dialog__headerbtn {
+    top: 20px;
+    right: 20px;
+  }
   .el-dialog__body {
-    padding: 8px 24px 12px;
+    padding: 12px 24px 8px;
+  }
+  .el-dialog__footer {
+    padding: 8px 24px 20px;
   }
 }
 </style>
 <style lang="less" scoped>
-.dialog-subtitle {
-  margin-bottom: 16px;
+.replace-dialog-header {
+  padding-right: 28px;
+}
+.replace-dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2329;
+  line-height: 26px;
+}
+.replace-dialog-subtitle {
+  margin-top: 4px;
   font-size: 13px;
   color: #909399;
   line-height: 20px;
 }
+.replace-form {
+  /deep/ .el-form-item {
+    margin-bottom: 16px;
+  }
+  /deep/ .el-form-item__label {
+    padding-bottom: 6px;
+    line-height: 20px;
+    color: #606266;
+  }
+  /deep/ .el-input.is-disabled .el-input__inner {
+    background: #f7f8fa;
+    color: #303133;
+  }
+}
 .file-section-title {
+  display: flex;
+  align-items: center;
   margin: 4px 0 10px;
   font-size: 14px;
   font-weight: 600;
   color: #303133;
 }
+.file-section-title::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  margin-right: 8px;
+  background: #409eff;
+  border-radius: 2px;
+}
 .file-card {
-  padding: 14px 16px;
-  background: #f7f8fa;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5ebf3;
+  border-radius: 12px;
 }
 .file-card-main {
   display: flex;
   align-items: center;
 }
-.file-icon {
-  margin-right: 10px;
-  font-size: 28px;
+.file-type-badge {
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #ecf5ff;
+  border-radius: 8px;
   color: #409eff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  word-break: break-all;
+  padding: 0 4px;
 }
 .file-card-info {
   flex: 1;
@@ -311,11 +341,29 @@ export default {
   justify-content: flex-end;
   margin-top: 12px;
 }
+.file-upload-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: #909399;
+  background: #f5f9ff;
+  border: 1px dashed #8eb8ff;
+  border-radius: 12px;
+  cursor: pointer;
+  i {
+    font-size: 36px;
+    color: #409eff;
+  }
+}
+.pending-file-name {
+  margin-top: 8px;
+  color: #303133;
+  font-size: 13px;
+}
 .replace-tip {
   margin-top: 12px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   background: #ecf5ff;
-  border-radius: 4px;
+  border-radius: 8px;
   color: #409eff;
   font-size: 12px;
   line-height: 18px;
