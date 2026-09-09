@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :visible.sync="dialogVisible"
-    width="84%"
+    width="calc(100% - 226px)"
     top="8px"
     custom-class="model-library-dialog"
     append-to-body
@@ -10,7 +10,7 @@
   >
     <div slot="title" class="library-title">{{ dialogTitle }}</div>
     <div class="library-body" v-loading="pageLoading">
-      <div class="library-tree">
+      <div class="library-tree library-panel">
         <div class="tree-title">{{ $t("lang.resource_catalog") }}</div>
         <div class="tree-search-box">
           <el-input
@@ -44,7 +44,7 @@
           </span>
         </el-tree>
       </div>
-      <div class="library-main">
+      <div class="library-main library-panel">
         <div class="library-toolbar">
           <el-input
             v-model="keyword"
@@ -567,24 +567,25 @@ export default {
 <style lang="less">
 .model-library-dialog {
   margin-top: 8px !important;
+  margin-left: 210px !important;
+  width: calc(100vw - 226px) !important;
   height: calc(100vh - 16px);
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   .el-dialog__header {
     flex-shrink: 0;
-    padding: 16px 20px 12px;
+    padding: 12px 20px 8px;
     border-bottom: none;
   }
   .el-dialog__headerbtn {
-    top: 16px;
+    top: 14px;
   }
   .el-dialog__body {
     flex: 1;
     min-height: 0;
-    padding: 0 20px 16px;
+    padding: 0 16px 8px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -631,18 +632,20 @@ export default {
   min-height: 0;
   height: 100%;
 }
+.library-panel {
+  min-height: 0;
+  border-radius: 12px;
+  border: 1px solid #e5ebf3;
+  background: #fff;
+  box-shadow: 0 4px 14px 0 rgba(18, 41, 71, 0.08);
+}
 .library-tree {
-  width: 268px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   margin-right: 16px;
   padding: 16px 12px;
-  background: #fff;
-  border: 1px solid #e6e8eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 .tree-title {
   flex-shrink: 0;
@@ -665,9 +668,9 @@ export default {
 .library-main {
   flex: 1;
   min-width: 0;
-  min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: 16px;
 }
 .library-toolbar {
   display: flex;
