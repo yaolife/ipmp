@@ -50,7 +50,7 @@
             <el-table-column
               align="center"
               prop="modelName"
-              :label="$t('lang.file_name')"
+              :label="$t('lang.model_name')"
               min-width="180"
               show-overflow-tooltip
             ></el-table-column>

@@ -599,11 +599,11 @@ export default {
 
 <style lang="less">
 .model-library-dialog {
-  margin-top: 8px !important;
-  margin-left: 210px !important;
+  margin: 8px 16px 8px 210px !important;
   width: calc(100vw - 226px) !important;
-  height: calc(100vh - 16px);
-  display: flex;
+  height: calc(100vh - 16px) !important;
+  max-height: calc(100vh - 16px) !important;
+  display: flex !important;
   flex-direction: column;
   border-radius: 12px;
   overflow: hidden;
@@ -616,9 +616,10 @@ export default {
     top: 14px;
   }
   .el-dialog__body {
-    flex: 1;
+    flex: 1 1 auto;
+    height: calc(100% - 48px) !important;
     min-height: 0;
-    padding: 0 16px 8px;
+    padding: 0 16px 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -661,12 +662,15 @@ export default {
 }
 .library-body {
   display: flex;
+  align-items: stretch;
   flex: 1;
   min-height: 0;
   height: 100%;
 }
 .library-panel {
+  box-sizing: border-box;
   min-height: 0;
+  height: 100%;
   border-radius: 12px;
   border: 1px solid #e5ebf3;
   background: #fff;
