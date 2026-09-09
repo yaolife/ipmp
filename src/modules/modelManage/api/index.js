@@ -124,6 +124,11 @@ export default {
             apiTitle: "查询资源目录子节点"
         }).then(res => res.data);
     },
+    getResourceDirectoryDetail: function(id) {
+        return axios.get("/api/model-resource-directories/" + id, {
+            apiTitle: "查询资源目录详情"
+        }).then(res => res.data);
+    },
     updateModelNodeFile: function(formData) {
         return axios.post(modelResourceUrl + "/update-node-file", formData, {
             apiTitle: "替换模型节点文件"

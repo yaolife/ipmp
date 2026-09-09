@@ -246,7 +246,7 @@ export default {
       const file = fileList[0] || {};
       return Object.assign({}, item, {
         file: fileList,
-        modelNo: item.nodeName || file.originalName || "",
+        modelNo: item.nodeName || item.name || item.modelNo || file.originalName || "",
         modelName:
           file.originalName ||
           item.nodeName ||
@@ -327,11 +327,44 @@ export default {
           this.applyTree(this.model.resourceDirectoryTree);
         });
     },
+    getNodeLevel(data) {
+      if (!data) return -1;
+      const level = Number(data.levelNo);
+      return Number.isNaN(level) ? -1 : level;
+    },
     onTreeNodeClick(data) {
       this.currentNode = data;
       this.current = 1;
       this.clearSelection();
+      if (this.getNodeLevel(data) === 5) {
+        this.loadDetailToTable(data);
+        return;
+      }
       this.loadChildrenToTable(data);
+    },
+    loadDetailToTable(node) {
+      if (!node || !node.id) {
+        this.clearTable();
+        return;
+      }
+      this.loading = true;
+      this.listFromChildren = true;
+      api
+        .getResourceDirectoryDetail(node.id)
+        .then(res => {
+          this.loading = false;
+          if (this.isSuccessCode(res && res.code) && res.data) {
+            this.childrenAll = [this.mapDirectoryRow(res.data)];
+            this.applyChildrenList();
+          } else {
+            this.clearTable();
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+          this.clearTable();
+        });
     },
     loadChildrenToTable(node) {
       if (!node || !node.id) {
@@ -372,7 +405,10 @@ export default {
       return text.indexOf(nameKey) !== -1;
     },
     applyChildrenList() {
-      const list = (this.childrenAll || []).filter(item => this.matchKeyword(item));
+      let list = (this.childrenAll || []).filter(item => this.matchKeyword(item));
+      if (this.getNodeLevel(this.currentNode) === 5) {
+        list = list.slice(0, 1);
+      }
       this.total = list.length;
       const maxPage = Math.max(1, Math.ceil(this.total / this.size) || 1);
       if (this.current > maxPage) this.current = maxPage;
@@ -411,10 +447,21 @@ export default {
         return;
       }
       if (this.currentNode && this.currentNode.id) {
-        this.loadChildrenToTable(this.currentNode);
+        this.reloadCurrentTable();
         return;
       }
       this.clearTable();
+    },
+    reloadCurrentTable() {
+      if (!this.currentNode || !this.currentNode.id) {
+        this.clearTable();
+        return;
+      }
+      if (this.getNodeLevel(this.currentNode) === 5) {
+        this.loadDetailToTable(this.currentNode);
+        return;
+      }
+      this.loadChildrenToTable(this.currentNode);
     },
     updateModel(detail) {
       if (detail) this.model = Object.assign({}, this.model, detail);
@@ -523,7 +570,7 @@ export default {
             return;
           }
           this.$message.success(this.$t("cm.success"));
-          this.loadChildrenToTable(this.currentNode);
+          this.reloadCurrentTable();
         })
         .catch(err => {
           this.loading = false;
@@ -560,7 +607,7 @@ export default {
           if (this.isSuccessCode(res && res.code)) {
             dialog && dialog.close();
             this.$message.success(this.$t("cm.success"));
-            this.loadChildrenToTable(this.currentNode);
+            this.reloadCurrentTable();
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
