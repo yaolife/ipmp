@@ -84,13 +84,6 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="modifyDate"
-              :label="$t('lang.last_update_time')"
-              min-width="170"
-              show-overflow-tooltip
-            ></el-table-column>
-            <el-table-column
-              align="center"
               :label="$t('lang.enable_status')"
               width="90"
             >

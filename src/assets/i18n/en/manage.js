@@ -95,6 +95,7 @@ export const lang = {
   resource_catalog: 'Resource Directory',
   resource_search_placeholder: 'Search name/code',
   resource_desc_placeholder: 'Search description',
+  search_model_no_placeholder: 'Search model number',
   model_preview: 'Model Preview',
   model_preview_3d: '3D Model',
   model_preview_2d: '2D Drawing',

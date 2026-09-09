@@ -104,6 +104,7 @@ export const lang = {
     resource_catalog: "资源目录",
     resource_search_placeholder: "搜索资源名称/编码",
     resource_desc_placeholder: "搜索资源描述",
+    search_model_no_placeholder: "搜索模型编号",
     model_preview: "模型预览",
     model_preview_3d: "三维模型",
     model_preview_2d: "二维图纸",

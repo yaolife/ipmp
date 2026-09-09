@@ -48,15 +48,7 @@
         <div class="library-toolbar">
           <el-input
             v-model="keyword"
-            :placeholder="$t('lang.resource_search_placeholder')"
-            size="small"
-            clearable
-            class="library-keyword"
-            @keyup.enter.native="search"
-          ></el-input>
-          <el-input
-            v-model="descKeyword"
-            :placeholder="$t('lang.resource_desc_placeholder')"
+            :placeholder="$t('lang.search_model_no_placeholder')"
             size="small"
             clearable
             class="library-keyword"
@@ -204,7 +196,6 @@ export default {
       },
       currentNode: null,
       keyword: "",
-      descKeyword: "",
       listFromChildren: false,
       childrenAll: [],
       tableData: [],
@@ -276,7 +267,6 @@ export default {
       this.model = detail || {};
       this.filterText = "";
       this.keyword = "";
-      this.descKeyword = "";
       this.current = 1;
       this.currentNode = null;
       this.listFromChildren = false;
@@ -375,24 +365,11 @@ export default {
     },
     matchKeyword(row) {
       const nameKey = (this.keyword || "").trim().toLowerCase();
-      const descKey = (this.descKeyword || "").trim().toLowerCase();
-      if (nameKey) {
-        const text = [
-          row.modelNo,
-          row.modelName,
-          row.nodeName,
-          row.pipelineNo,
-          row.pipelineName,
-          row.originalName
-        ]
-          .join(" ")
-          .toLowerCase();
-        if (text.indexOf(nameKey) === -1) return false;
-      }
-      if (descKey && (row.remark || "").toLowerCase().indexOf(descKey) === -1) {
-        return false;
-      }
-      return true;
+      if (!nameKey) return true;
+      const text = [row.modelNo, row.nodeName, row.pipelineNo]
+        .join(" ")
+        .toLowerCase();
+      return text.indexOf(nameKey) !== -1;
     },
     applyChildrenList() {
       const list = (this.childrenAll || []).filter(item => this.matchKeyword(item));
