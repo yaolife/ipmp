@@ -37,6 +37,22 @@ import api from "@/modules/drafts/api";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
+function getNodeLabel(item) {
+  return (item && (item.nodeName || item.name)) || "";
+}
+
+function normalizeTree(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map(item => {
+    const node = Object.assign({}, item, {
+      nodeName: getNodeLabel(item),
+      name: getNodeLabel(item)
+    });
+    node.children = normalizeTree(item && item.children);
+    return node;
+  });
+}
+
 export default {
   name: "ModelTreePanel",
   data() {
@@ -46,7 +62,7 @@ export default {
       treeData: [],
       treeProps: {
         children: "children",
-        label: "name"
+        label: "nodeName"
       }
     };
   },
@@ -66,7 +82,7 @@ export default {
     filterTreeNode(value, data) {
       if (!value) return true;
       const keyword = value.toLowerCase();
-      return (data.name || "").toLowerCase().indexOf(keyword) !== -1;
+      return getNodeLabel(data).toLowerCase().indexOf(keyword) !== -1;
     },
     loadTree() {
       this.loading = true;
@@ -75,7 +91,7 @@ export default {
         .then(res => {
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {
-            this.treeData = Array.isArray(res.data) ? res.data : [];
+            this.treeData = normalizeTree(res.data);
           } else {
             this.treeData = [];
             this.$message.error((res && res.msg) || this.$t("cm.fail"));

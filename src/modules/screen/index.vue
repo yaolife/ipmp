@@ -62,9 +62,14 @@ export default {
     pickPipeline(records, node) {
       const list = Array.isArray(records) ? records : [];
       if (!list.length) return null;
-      if (node && node.name) {
+      const nodeLabel = (node && (node.nodeName || node.name)) || "";
+      const pipelineNo = (node && node.pipelineNo) || "";
+      if (nodeLabel || pipelineNo) {
         const matched = list.find(
-          item => item.pipelineName === node.name || item.pipelineNo === node.name
+          item =>
+            item.pipelineName === nodeLabel ||
+            item.pipelineNo === nodeLabel ||
+            (pipelineNo && item.pipelineNo === pipelineNo)
         );
         if (matched) return matched;
       }

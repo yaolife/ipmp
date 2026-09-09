@@ -206,10 +206,12 @@ export default {
       return text + " " + unit;
     },
     pickFromPath(keyword) {
-      const found = (this.directoryPath || []).find(
-        item => (item.name || "").indexOf(keyword) !== -1
-      );
-      return found && found.name ? found.name : "--";
+      const found = (this.directoryPath || []).find(item => {
+        const label = (item && (item.nodeName || item.name)) || "";
+        return label.indexOf(keyword) !== -1;
+      });
+      const label = found && (found.nodeName || found.name);
+      return label || "--";
     },
     loadDetail() {
       if (!this.pipelineId) return;
