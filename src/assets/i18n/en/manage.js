@@ -447,6 +447,7 @@ export const lang = {
   current_model_tag: 'Current Model',
   current_in_use: 'In Use',
   enable_preview: 'Preview',
+  replace: 'Replace',
   replace_file: 'Replace File',
   select_replace_file: 'Click to select a model file to replace',
   file_size_unknown: 'File size not provided',

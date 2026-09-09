@@ -58,9 +58,6 @@
             $t("cm.query")
           }}</el-button>
           <div class="library-actions">
-            <el-button size="small" @click="batchDownload">{{
-              $t("lang.batch_download")
-            }}</el-button>
             <el-button type="primary" size="small" @click="triggerImport">{{
               $t("lang.batch_import")
             }}</el-button>
@@ -102,7 +99,7 @@
             <el-table-column
               align="center"
               :label="$t('cm.operate')"
-              width="200"
+              width="100"
               fixed="right"
             >
               <template slot-scope="scope">
@@ -110,22 +107,8 @@
                   type="text"
                   size="small"
                   class="cud-common-operate-edit"
-                  @click="previewRow(scope.row)"
-                  >{{ $t("cm.preview") }}</el-button
-                >
-                <el-button
-                  type="text"
-                  size="small"
-                  class="cud-common-operate-edit"
                   @click="editItem(scope.row)"
-                  >{{ $t("cm.edit") }}</el-button
-                >
-                <el-button
-                  type="text"
-                  size="small"
-                  class="cud-common-operate-edit"
-                  @click="downloadRow(scope.row)"
-                  >{{ $t("cm.download") }}</el-button
+                  >{{ $t("lang.replace") }}</el-button
                 >
               </template>
             </el-table-column>
@@ -466,17 +449,6 @@ export default {
     updateModel(detail) {
       if (detail) this.model = Object.assign({}, this.model, detail);
     },
-    getFileUrl(row) {
-      return (row && (row.absoluteFileUrl || row.fileUrl)) || "";
-    },
-    previewRow(row) {
-      const url = this.getFileUrl(row);
-      if (!url) {
-        this.$message.warning(this.$t("lang.no_file_to_preview"));
-        return;
-      }
-      window.open(url, "_blank");
-    },
     editItem(row) {
       if (!row) return;
       this.$refs.replaceDialog &&
@@ -485,44 +457,6 @@ export default {
             versionNo: row.versionNo || this.model.versionNo || ""
           })
         );
-    },
-    downloadByUrl(url, filename) {
-      if (!url) {
-        return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
-      }
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename || "模型文件";
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return Promise.resolve();
-    },
-    downloadByRow(row) {
-      const url = this.getFileUrl(row);
-      const filename = (row && (row.originalName || row.modelNo)) || "模型文件";
-      return this.downloadByUrl(url, filename);
-    },
-    downloadRow(row) {
-      this.downloadByRow(row).catch(err => {
-        this.$message.error((err && err.msg) || this.$t("cm.fail"));
-      });
-    },
-    batchDownload() {
-      if (!this.multipleSelection.length) {
-        this.$message.warning(this.$t("lang.select_download_model"));
-        return;
-      }
-      const tasks = this.multipleSelection.map(row => this.downloadByRow(row));
-      Promise.all(tasks)
-        .then(() => {
-          this.$message.success(this.$t("cm.download") + this.$t("cm.success"));
-        })
-        .catch(err => {
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
     },
     triggerImport() {
       if (!this.currentNode || !this.currentNode.id) {

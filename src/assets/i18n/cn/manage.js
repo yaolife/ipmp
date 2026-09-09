@@ -434,6 +434,7 @@ export const lang = {
     current_model_tag: "当前模型",
     current_in_use: "当前使用",
     enable_preview: "启用预览",
+    replace: "替换",
     replace_file: "替换文件",
     select_replace_file: "点击选择要替换的模型文件",
     file_size_unknown: "文件大小未提供",

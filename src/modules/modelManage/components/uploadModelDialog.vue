@@ -70,33 +70,13 @@
           maxlength="100"
         ></el-input>
       </el-form-item>
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item :label="$t('lang.coordinate_system')" prop="coordinateSystem">
-            <el-select
-              v-model="editForm.coordinateSystem"
-              :placeholder="$t('cm.pleaseSelect')"
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in coordinateOptions"
-                :key="item"
-                :label="item"
-                :value="item"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item :label="$t('lang.version_no')" prop="versionNo">
-            <el-input
-              v-model="editForm.versionNo"
-              :placeholder="$t('lang.version_no_example')"
-              maxlength="32"
-            ></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <el-form-item :label="$t('lang.version_no')" prop="versionNo">
+        <el-input
+          v-model="editForm.versionNo"
+          :placeholder="$t('lang.version_no_example')"
+          maxlength="32"
+        ></el-input>
+      </el-form-item>
     </el-form>
     <div class="upload-advice">
       <span class="upload-advice-dot"></span>
@@ -124,12 +104,10 @@
 <script>
 const ACCEPT_EXTS = ["zip", "tar", "tgz", "gz", "7z"];
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
-const COORDINATE_OPTIONS = ["厂区局部坐标系", "大地坐标系", "站区坐标系"];
 
 function emptyForm() {
   return {
     modelName: "",
-    coordinateSystem: "厂区局部坐标系",
     versionNo: "V0.1"
   };
 }
@@ -167,8 +145,7 @@ export default {
       dialogVisible: false,
       saving: false,
       pendingFile: null,
-      editForm: emptyForm(),
-      coordinateOptions: COORDINATE_OPTIONS
+      editForm: emptyForm()
     };
   },
   computed: {
@@ -183,13 +160,6 @@ export default {
             whitespace: true,
             message: this.$t("cm.pleaseEnter") + this.$t("lang.model_name"),
             trigger: "blur"
-          }
-        ],
-        coordinateSystem: [
-          {
-            required: true,
-            message: this.$t("cm.pleaseSelect") + this.$t("lang.coordinate_system"),
-            trigger: "change"
           }
         ]
       };
@@ -264,7 +234,6 @@ export default {
         const formData = new FormData();
         formData.append("file", this.pendingFile);
         formData.append("modelName", (this.editForm.modelName || "").trim());
-        formData.append("coordinateSystem", this.editForm.coordinateSystem || "");
         formData.append("versionNo", this.editForm.versionNo || "V0.1");
         formData.append("status", "1");
         this.$emit("save", { formData });
