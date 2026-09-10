@@ -30,6 +30,7 @@ Vue.use(Avue, { size: "medium", menuType: "text" });
 import plugin from "./plugin";
 import { getUserInfo, getMenuPermission } from "@/api/api";
 import VueGridLayout from "vue-grid-layout";
+import './peer-stream.js'
 
 Vue.use(plugin);
 Vue.use(VueI18n);
