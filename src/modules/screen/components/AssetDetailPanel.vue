@@ -175,6 +175,10 @@ export default {
     }
   },
   methods: {
+    setActiveTab(name) {
+      const exists = this.tabs.some(tab => tab.name === name);
+      if (exists) this.activeTab = name;
+    },
     isSuccessCode(code) {
       return code === 0 || code === "0";
     },

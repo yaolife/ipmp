@@ -10,6 +10,7 @@
 module.exports = {
   // 生产环境
   NODE_ENV: '"production"',
+  LIGHT_AUTH: '"true"',
   // api地址
   API_ROOT: '"/server-api"',
   // 系统编码
@@ -24,4 +25,6 @@ module.exports = {
   AUTH_TYPE: '"AEP"',
   // PSC地址前缀，用于前端请求PSC相关服务
   PSC_ROOT: '"/api"',
+  // 像素流路径，最终拼接为 ws(s)://{host}/pixelStream
+  PIXEL_STREAM_PATH: '"/pixelStream"',
 }

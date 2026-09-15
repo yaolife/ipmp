@@ -125,10 +125,11 @@ class PeerStream extends HTMLVideoElement {
     )
 
     this.addEventListener('loadeddata', (e) => {
-      // this.style['aspect-ratio'] = this.videoWidth / this.videoHeight
-      //追加
-      this.style.objectFit = 'none'
-      //追加
+      // 先铺满容器；UE 按 clientResolution 对齐后仍保持 fill，避免缩在左上角
+      this.style.objectFit = 'fill'
+      this.style.width = '100%'
+      this.style.height = '100%'
+      this.style.display = 'block'
     })
 
     //追加
@@ -206,9 +207,19 @@ class PeerStream extends HTMLVideoElement {
     // await new Promise((res) => setTimeout(res, 1000));
     this.ws.onclose = null
     this.ws.close(1000)
-    this.ws = new WebSocket(this.id || location.href.replace(/^http/, 'ws'), 'peer-stream')
+    try {
+      this.ws = new WebSocket(
+        this.id || location.href.replace(/^http/, 'ws'),
+        'peer-stream'
+      )
+    } catch (err) {
+      console.error('[peer-stream] WebSocket construct failed', this.id, err)
+      return
+    }
 
-    this.ws.onerror
+    this.ws.onerror = (e) => {
+      console.error('[peer-stream] websocket error', this.id, e)
+    }
 
     this.ws.onopen = () => {
       console.info('✅', this.ws)
@@ -244,14 +255,13 @@ class PeerStream extends HTMLVideoElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (!this.isConnected) return
-    // fired before connectedCallback when startup
-    this.ws.close(1000)
+    if (oldValue === newValue) return
   }
 
   async onWebSocketMessage(msg) {
     try {
       msg = JSON.parse(msg)
-    } catch {
+    } catch (e) {
       console.debug('↓↓', msg)
       return
     }
@@ -263,15 +273,13 @@ class PeerStream extends HTMLVideoElement {
 
       await this.pc.setRemoteDescription(offer)
 
-      // Setup a transceiver for getting UE video
-      this.pc.addTransceiver('video', { direction: 'recvonly' })
-
       const answer = await this.pc.createAnswer()
       await this.pc.setLocalDescription(answer)
 
       console.log('↑↑ answer', answer)
       this.ws.send(JSON.stringify(answer))
 
+      this.bindVideoReceivers()
       for (let receiver of this.pc.getReceivers()) {
         receiver.playoutDelayHint = 0
       }
@@ -378,6 +386,31 @@ class PeerStream extends HTMLVideoElement {
       case RECEIVE.Response: {
         // user custom message
         const detail = utf16.decode(data.slice(1))
+        const trimmed = String(detail == null ? '' : detail).trim()
+        let parsed = null
+        if (trimmed) {
+          try {
+            parsed = JSON.parse(trimmed)
+          } catch (err) {
+            parsed = null
+          }
+        }
+        // UE 未收到 userInfo 时会 PrintString 出 true/false，并可能发 input:true
+        if (parsed && (parsed.event === 'UserInfo' || parsed.event === 'userInfo')) {
+          this.emitMessage({
+            event: 'userInfo',
+            data: this.getClientUserInfo()
+          })
+        }
+        if (
+          trimmed === 'true' ||
+          trimmed === 'false' ||
+          parsed === true ||
+          parsed === false ||
+          (parsed && parsed.event === 'input' && typeof parsed.data === 'boolean')
+        ) {
+          break
+        }
         this.dispatchEvent(new CustomEvent('message', { detail }))
         console.info(detail)
         break
@@ -390,8 +423,8 @@ class PeerStream extends HTMLVideoElement {
           if (command.showOnScreenKeyboard) {
             if (this.enableChinese) {
               let input = document.createElement('input')
-              input.style.position = 'fixed'
-              input.style.zIndex = -1
+              input.style.cssText =
+                'position:fixed;left:-9999px;top:-9999px;opacity:0;width:1px;height:1px;z-index:-1;pointer-events:none;'
               input.autofocus = true
               document.body.append(input)
               input.focus()
@@ -486,6 +519,44 @@ class PeerStream extends HTMLVideoElement {
 
     this.style['pointer-events'] = 'none'
     this.style['object-fit'] = 'fill'
+    this.style.display = 'block'
+    this.style.position = 'absolute'
+    this.style.top = '0'
+    this.style.left = '0'
+    this.style.width = '100%'
+    this.style.height = '100%'
+    this.style.background = '#000'
+  }
+  getClientUserInfo() {
+    const name =
+      (typeof sessionStorage !== 'undefined' &&
+        (sessionStorage.getItem('user') || sessionStorage.getItem('userName'))) ||
+      'admin'
+    return {
+      id: name,
+      name: name,
+      fullName: name
+    }
+  }
+  getClientSize() {
+    let width = 0
+    let height = 0
+    const rect = this.getBoundingClientRect()
+    width = rect.width
+    height = rect.height
+    if (!(width > 32 && height > 32) && this.parentElement) {
+      const parentRect = this.parentElement.getBoundingClientRect()
+      width = parentRect.width
+      height = parentRect.height
+    }
+    if (!(width > 32 && height > 32)) {
+      width = window.innerWidth
+      height = window.innerHeight
+    }
+    return {
+      w: Number(width.toFixed(2)),
+      h: Number(height.toFixed(2))
+    }
   }
   //追加
   onWindowResize() {
@@ -494,13 +565,10 @@ class PeerStream extends HTMLVideoElement {
     }
   }
   sendClientResolution() {
-    const { width, height } = this.getBoundingClientRect()
+    if (!this.dc || typeof this.dc.send !== 'function') return
     this.emitMessage({
       event: 'clientResolution',
-      data: {
-        w: Number(width.toFixed(2)),
-        h: Number(height.toFixed(2))
-      }
+      data: this.getClientSize()
     })
   }
   sendClientTerminal() {
@@ -525,7 +593,13 @@ class PeerStream extends HTMLVideoElement {
   }
   onDcOpenCb() {
     this.sendClientTerminal()
-    this.sendClientResolution()
+    const sendRes = () => this.sendClientResolution()
+    sendRes()
+    requestAnimationFrame(() => {
+      sendRes()
+      setTimeout(sendRes, 200)
+      setTimeout(sendRes, 1000)
+    })
     this.dispatchEvent(new CustomEvent('onDcOpen'))
   }
   //追加
@@ -541,12 +615,9 @@ class PeerStream extends HTMLVideoElement {
     this.dc.onopen = (e) => {
       console.log('✅', this.dc)
       this.style.pointerEvents = 'auto'
-
-      // setTimeout(() => {
-      // 	this.dc.send(new Uint8Array([SEND.RequestInitialSettings]));
-      // 	this.dc.send(new Uint8Array([SEND.RequestQualityControl]));
-      // }, 500);
-
+      this.dc.send(new Uint8Array([SEND.RequestInitialSettings]))
+      this.dc.send(new Uint8Array([SEND.RequestQualityControl]))
+      this.dc.send(new Uint8Array([SEND.IFrameRequest]))
       this.onDcOpenCb()
     }
 
@@ -574,6 +645,7 @@ class PeerStream extends HTMLVideoElement {
       this.style.pointerEvents = 'auto'
       this.dc.send(new Uint8Array([SEND.RequestInitialSettings]))
       this.dc.send(new Uint8Array([SEND.RequestQualityControl]))
+      this.dc.send(new Uint8Array([SEND.IFrameRequest]))
       this.onDcOpenCb()
     }
 
@@ -587,6 +659,33 @@ class PeerStream extends HTMLVideoElement {
     }
   }
 
+  attachMediaTrack(track, stream) {
+    if (!track) return
+    const mediaStream = stream || new MediaStream([track])
+    if (track.kind === 'video') {
+      this.srcObject = mediaStream
+      const playPromise = this.play()
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {})
+      }
+    } else if (track.kind === 'audio') {
+      if (!this.audio) {
+        this.audio = document.createElement('audio')
+        this.audio.autoplay = true
+      }
+      this.audio.srcObject = mediaStream
+    }
+  }
+
+  bindVideoReceivers() {
+    if (!this.pc || typeof this.pc.getReceivers !== 'function') return
+    for (const receiver of this.pc.getReceivers()) {
+      if (receiver.track && receiver.track.kind === 'video' && !this.srcObject) {
+        this.attachMediaTrack(receiver.track)
+      }
+    }
+  }
+
   setupPeerConnection() {
     this.pc.close()
     this.pc = new RTCPeerConnection({
@@ -597,17 +696,11 @@ class PeerStream extends HTMLVideoElement {
 
     this.pc.ontrack = (e) => {
       console.log(`↓↓ ${e.track.kind} track:`, e)
-      if (e.track.kind === 'video') {
-        this.srcObject = e.streams[0]
-      } else if (e.track.kind === 'audio') {
-        this.audio = document.createElement('audio')
-        this.audio.autoplay = true
-        this.audio.srcObject = e.streams[0]
-      }
+      this.attachMediaTrack(e.track, e.streams && e.streams[0])
     }
     this.pc.onicecandidate = (e) => {
       // firefox
-      if (e.candidate?.candidate) {
+      if (e.candidate && e.candidate.candidate) {
         console.log('↑↑ candidate:', e.candidate)
         this.ws.send(JSON.stringify({ type: 'iceCandidate', candidate: e.candidate }))
       } else {
@@ -630,17 +723,11 @@ class PeerStream extends HTMLVideoElement {
 
     this.pc.ontrack = (e) => {
       console.log(`↓↓ ${e.track.kind} track:`, e)
-      if (e.track.kind === 'video') {
-        this.srcObject = e.streams[0]
-      } else if (e.track.kind === 'audio') {
-        this.audio = document.createElement('audio')
-        this.audio.autoplay = true
-        this.audio.srcObject = e.streams[0]
-      }
+      this.attachMediaTrack(e.track, e.streams && e.streams[0])
     }
     this.pc.onicecandidate = (e) => {
       // firefox
-      if (e.candidate?.candidate) {
+      if (e.candidate && e.candidate.candidate) {
         console.log('↑↑ candidate:', e.candidate)
         this.ws.send(JSON.stringify({ type: 'iceCandidate', candidate: e.candidate }))
       } else {

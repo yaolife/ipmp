@@ -71,7 +71,8 @@ const webpackConfig = merge(webpackBaseConfig, {
         compress: {
           warnings: false,
           drop_debugger: true,
-          drop_console: true
+          drop_console: true,
+          collapse_vars: false
         }
       },
       exclude: [resolve("node_modules/psc-module")],

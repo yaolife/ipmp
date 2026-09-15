@@ -119,11 +119,10 @@ instance.interceptors.response.use(
         window.location.href = href;
       }
     } else if (error.response && (error.response.status == 404 || error.response.status == 405 || error.response.status == 500)) {
-      if (process.env.NODE_ENV !== "development") {
-        vm.$alert(`接口错误！${'状态码: ' + error.response.status} , 请联系管理员进行处理`, "提示");
-      }
+      // 后端未部署时不打断页面，仅输出日志
+      console.warn("接口错误，状态码: " + error.response.status, error.config && error.config.url);
     } else if (process.env.NODE_ENV !== "development") {
-      vm.$alert('接口错误！', "提示");
+      console.warn("接口错误", error);
     }
     return Promise.reject(error); // 返回接口返回的错误信息
   });

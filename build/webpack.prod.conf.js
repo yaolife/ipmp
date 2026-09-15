@@ -21,7 +21,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       usePostCSS: true
     })
   },
-  // devtool: config.build.productionSourceMap ? config.build.devtool : false,
+  devtool: config.build.productionSourceMap ? config.build.devtool : false,
   output: {
     // path: config.build.assetsRoot,
     path: path.resolve(__dirname, "../dist/prod"),
@@ -38,7 +38,8 @@ const webpackConfig = merge(baseWebpackConfig, {
         compress: {
           warnings: false,
           drop_debugger: true,
-          drop_console: true
+          drop_console: true,
+          collapse_vars: false
         }
       },
       sourceMap: config.build.productionSourceMap,

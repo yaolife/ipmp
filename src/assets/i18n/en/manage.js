@@ -387,6 +387,7 @@ export const lang = {
   digital_twin: 'Digital Twin Visualization',
   screen_tree_title: 'Pipeline Model Structure',
   screen_tree_search: 'Enter pipeline number or system name',
+  screen_admin_entry: 'Admin',
   screen_tab_basic: 'Basic Info',
   screen_tab_maintenance: 'Maintenance',
   screen_tab_related: 'Related Data',

@@ -57,19 +57,6 @@
           <el-button type="primary" size="small" @click="search">{{
             $t("cm.query")
           }}</el-button>
-          <div class="library-actions">
-            <el-button type="primary" size="small" @click="triggerImport">{{
-              $t("lang.batch_import")
-            }}</el-button>
-            <input
-              ref="importInput"
-              type="file"
-              multiple
-              :accept="acceptAttr"
-              style="display: none"
-              @change="onImportFiles"
-            />
-          </div>
         </div>
         <div class="library-table-wrap">
           <el-table
@@ -140,17 +127,6 @@
 import api from "../api";
 import replaceModelFileDialog from "./replaceModelFileDialog.vue";
 
-const ACCEPT_EXTS = ["glb", "gltf", "obj", "fbx", "rvt", "ifc"];
-const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
-const FILE_DIRECTORY = "modelFile";
-
-function getExt(name) {
-  const matched = String(name || "")
-    .trim()
-    .match(/\.([^.]+)$/);
-  return matched ? matched[1].toLowerCase() : "";
-}
-
 function splitFileIds(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
   return String(value || "")
@@ -193,9 +169,6 @@ export default {
       const name = this.model.modelName || this.$t("lang.model_manage");
       const version = this.model.versionNo ? " - " + this.model.versionNo : "";
       return name + version + " " + this.$t("lang.model_library");
-    },
-    acceptAttr() {
-      return ACCEPT_EXTS.map(item => "." + item).join(",");
     }
   },
   watch: {
@@ -458,73 +431,6 @@ export default {
           })
         );
     },
-    triggerImport() {
-      if (!this.currentNode || !this.currentNode.id) {
-        this.$message.warning(this.$t("lang.select_resource_node"));
-        return;
-      }
-      this.$refs.importInput && this.$refs.importInput.click();
-    },
-    onImportFiles(e) {
-      const files = e.target.files ? Array.prototype.slice.call(e.target.files) : [];
-      e.target.value = "";
-      if (!files.length) return;
-      if (!this.currentNode || !this.currentNode.id) {
-        this.$message.warning(this.$t("lang.select_resource_node"));
-        return;
-      }
-      const invalid = files.find(file => {
-        const ext = getExt(file.name);
-        return ACCEPT_EXTS.indexOf(ext) === -1 || file.size > MAX_FILE_SIZE;
-      });
-      if (invalid) {
-        this.$message.warning(this.$t("lang.item_file_type_invalid"));
-        return;
-      }
-      this.loading = true;
-      this.uploadFiles(files)
-        .then(fileIds => {
-          const tasks = fileIds.map(fileId =>
-            api.createModelResourceItem({
-              modelResourceId: this.model.id,
-              resourceDirectoryId: this.currentNode.id,
-              fileIds: [fileId],
-              remark: ""
-            })
-          );
-          return Promise.all(tasks);
-        })
-        .then(results => {
-          this.loading = false;
-          const failed = (results || []).find(
-            res => !this.isSuccessCode(res && res.code)
-          );
-          if (failed) {
-            this.$message.error((failed && failed.msg) || this.$t("cm.fail"));
-            return;
-          }
-          this.$message.success(this.$t("cm.success"));
-          this.reloadCurrentTable();
-        })
-        .catch(err => {
-          this.loading = false;
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
-        });
-    },
-    uploadFiles(files) {
-      const tasks = files.map(file => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("directory", FILE_DIRECTORY);
-        return api.uploadSysFile(formData).then(res => {
-          if (!this.isSuccessCode(res && res.code) || !res.data || !res.data.id) {
-            return Promise.reject(res || { msg: this.$t("cm.fail") });
-          }
-          return res.data.id;
-        });
-      });
-      return Promise.all(tasks);
-    },
     saveItem(payload) {
       const dialog = this.$refs.replaceDialog;
       if (!payload || !payload.nodeId || !payload.file) {
@@ -676,9 +582,6 @@ export default {
 .library-keyword {
   width: 220px;
   margin-right: 8px;
-}
-.library-actions {
-  margin-left: auto;
 }
 .library-table-wrap {
   flex: 1;

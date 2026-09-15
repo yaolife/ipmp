@@ -72,7 +72,7 @@ export default {
               //   localStorage.removeItem('cud_auth_remember');
               // }
               if (res.data.firstLoginFlag == true) {
-                _this.$router.push('/');
+                _this.$router.push('/pipeDatabase');
                 this.$alert('首次登录请修改密码', '提示', {
                   confirmButtonText: '确定',
                   type: 'warning',
@@ -82,7 +82,7 @@ export default {
                 });
               } else {
                 _this.$message({ type: 'success', message: '登录成功！' });
-                _this.$router.push('/');
+                _this.$router.push('/pipeDatabase');
               }
               //刷新验证码
               _this.getCode();

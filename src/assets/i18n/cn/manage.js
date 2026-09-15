@@ -376,6 +376,7 @@ export const lang = {
     digital_twin: "数字孪生可视化",
     screen_tree_title: "管道模型结构列表",
     screen_tree_search: "请输入管道编号或系统名称搜索",
+    screen_admin_entry: "管理后台",
     screen_tab_basic: "基本信息",
     screen_tab_maintenance: "检修信息",
     screen_tab_related: "关联数据",

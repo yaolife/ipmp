@@ -65,7 +65,7 @@
             :style="
               'height: calc(100% - ' +
               ($store.state.app.collapse ? 40 : 80) +
-              'px)'
+              'px); min-height: 400px;'
             "
           >
             <!-- 菜单 -->
@@ -86,8 +86,8 @@
                   :class="menu.children.length === 0 ? 'single-level-menu' : ''"
                   :index="String(index)"
                   v-if="
-                    showMenu(menu.resource) &&
                     showMenuAuth(menu.authType) &&
+                    menu.children &&
                     menu.children.length > 0
                   "
                 >
@@ -114,10 +114,7 @@
                   >
                     <!-- 二级 有子菜单 -->
                     <div
-                      v-if="
-                        subitem.children.length > 0 &&
-                        showMenu(subitem.resource)
-                      "
+                      v-if="subitem.children && subitem.children.length > 0"
                     >
                       <!-- 三级菜单 原有 菜单折叠时使用 -->
                       <el-submenu
@@ -203,10 +200,7 @@
                     </div>
                     <!-- 二级 无子菜单 -->
                     <div v-else>
-                      <el-menu-item
-                        :index="subitem.url"
-                        v-if="showMenu(subitem.resource)"
-                      >
+                      <el-menu-item :index="subitem.url">
                         <div class="menus3" :title="$t(subitem.name)">
                           <i
                             v-if="subitem.iconNor"
@@ -230,7 +224,7 @@
                 </el-submenu>
                 <!-- 只有一级 -->
                 <div
-                  v-if="showMenu(menu.resource) && menu.children.length === 0"
+                  v-if="!menu.children || menu.children.length === 0"
                 >
                   <el-menu-item :index="menu.url">
                     <i v-if="menu.icon" class="iconfont" id="icon">{{
@@ -274,7 +268,6 @@ import {
   getUserInfo,
   changeUser,
   userLogout,
-  getMenuPermission,
   getPermission,
   getProSetByFullName,
   getUserRoles,
@@ -285,9 +278,22 @@ import {
 } from "@/api/api.js";
 import { iconfont } from "@/utils/funcUtil";
 import store from "@/store";
-import { hasMenuPermission } from "@/permission/menu";
 import { hasPermission } from "@/permission/btn";
 import menuData from "@/assets/json/menu.json";
+
+function normalizeLocalMenus(raw) {
+  const source = Array.isArray(raw)
+    ? raw
+    : (raw && (raw.default || raw.menus)) || [];
+  return source.map((item) => {
+    const children = (item.children || []).map((child) => {
+      return Object.assign({}, child, {
+        children: child.children || []
+      });
+    });
+    return Object.assign({}, item, { children: children });
+  });
+}
 import LangSwitch from "./i18n/lang_switch";
 import osUtil from "@/utils/osUtil";
 import multipleTabs from "@/components/common/multipleTabs";
@@ -306,7 +312,7 @@ export default {
       nowUser: "",
       userDept: "",
       activeIndex: "",
-      menus: [],
+      menus: normalizeLocalMenus(menuData),
       treeMenuList: [],
       //是否显示切换用户
       showTriggerUser: false,
@@ -319,8 +325,8 @@ export default {
       isLastShow: true,
       //关联菜单默认选中
       defaultActive: "",
-      //打开的菜单
-      defaultOpeneds: [],
+      //打开的菜单，默认展开资产管理以便高亮管道数据库
+      defaultOpeneds: ["0"],
       //搜索
       searchInput: "",
       searchResult: [],
@@ -340,6 +346,7 @@ export default {
     },
   },
   created() {
+    this.getMenuManagerGetFormMenuTree();
     this.$nextTick(async () => {
       await this.getNowUser(); //获取当前用户信息，右上角展示
       //能否切换用户
@@ -525,14 +532,7 @@ export default {
       return iconfont(icon);
     },
     async getMenuManagerGetFormMenuTree() {
-      const menus = JSON.parse(JSON.stringify(menuData)).map((item) => {
-        const children = (item.children || []).map((child) => {
-          return Object.assign({}, child, {
-            children: child.children || []
-          });
-        });
-        return Object.assign({}, item, { children: children });
-      });
+      const menus = normalizeLocalMenus(menuData);
       this.menus = Object.freeze(menus);
       sessionStorage.setItem("totalMenu", JSON.stringify(this.menus));
     },
@@ -544,10 +544,12 @@ export default {
       //先判断是否有权限，然后在进行刷新  关注vuex存储数据的存活范围
       if (sessionStorage.getItem("btns")) {
         store.commit("setPerms", JSON.parse(sessionStorage.getItem("btns")));
-      } else {
+        return;
+      }
+      try {
         // 获取当前登陆人uau权限
         const userRole = await getUserRoles({});
-        let userArr = userRole.data.data.map((item) => {
+        let userArr = ((userRole && userRole.data && userRole.data.data) || []).map((item) => {
           return item.roleName;
         });
         _this.role = userArr;
@@ -555,55 +557,39 @@ export default {
           let roleStr = userArr.join(",");
           sessionStorage.setItem("role", roleStr);
         }
-        getPermission(userId).then((result) => {
-          if (result.status == "200" && result.data.code == "0") {
-            //保存按钮权限到store
-            store.commit("setPerms", result.data.data);
-            //sessionStorage保存按钮权限, 为了刷新功能
-            sessionStorage.setItem("btns", JSON.stringify(result.data.data));
-            let page3 = sessionStorage.getItem("page3");
-            if (page3 != null) {
-              if (window.location.href.indexOf(page3) == -1) {
-                sessionStorage.setItem("pageSkipCount", 1);
-                // this.$router.push("/" + sessionStorage.getItem("page3"));
-              } else {
-                sessionStorage.removeItem("page3");
+        getPermission(userId)
+          .then((result) => {
+            if (result.status == "200" && result.data.code == "0") {
+              //保存按钮权限到store
+              store.commit("setPerms", result.data.data);
+              //sessionStorage保存按钮权限, 为了刷新功能
+              sessionStorage.setItem("btns", JSON.stringify(result.data.data));
+              let page3 = sessionStorage.getItem("page3");
+              if (page3 != null) {
+                if (window.location.href.indexOf(page3) == -1) {
+                  sessionStorage.setItem("pageSkipCount", 1);
+                } else {
+                  sessionStorage.removeItem("page3");
+                }
               }
             }
-          }
-        });
-        // }
+          })
+          .catch(() => {});
+      } catch (e) {
+        console.error("获取按钮权限失败", e);
       }
     },
     // 获取菜单权限
     getMenuPerm(user) {
-      let _this = this;
-      let userId = user.substr(1, user.indexOf("]") - 1);
-      //获取按钮权限
-      _this.getBtnPermission(userId);
-      if (sessionStorage.getItem("menus")) {
-        store.commit("setNavTree", JSON.parse(sessionStorage.getItem("menus")));
-      } else {
-        getMenuPermission(userId).then(async (result) => {
-          if (!result.data.data || result.data.data.length < 1) {
-            _this.$router.push("/401");
-            return;
-          }
-          //保存在store
-          store.commit("setNavTree", result.data.data);
-          //保存一份在sessionStorage 刷新问题
-          sessionStorage.setItem("menus", JSON.stringify(result.data.data));
-          await _this.getMenuManagerGetFormMenuTree();
-        });
+      this.getMenuManagerGetFormMenuTree();
+      if (!user || typeof user !== "string" || user.indexOf("]") < 2) {
+        return;
       }
+      this.getBtnPermission(user.substr(1, user.indexOf("]") - 1));
     },
     //是否显示菜单
-    showMenu(menu) {
-      if (menu) {
-        return hasMenuPermission(menu);
-      } else {
-        return false;
-      }
+    showMenu() {
+      return true;
     },
     //是否显示菜单（内网/解耦）
     showMenuAuth(authType) {
@@ -873,6 +859,9 @@ export default {
       font-size: 16px;
     }
   }
+}
+/deep/ .left-menu > .el-scrollbar {
+  min-height: calc(100vh - 130px);
 }
 /* 菜单搜索 */
 /deep/.cud-menu-search {

@@ -7,10 +7,11 @@
  * @Description: 
 -->
 <template>
-  <div id="app">
+  <div id="app" :class="{ 'pixel-stream-app': isPixelStreamPage }">
     <el-scrollbar ref="myScrollbar" style="width:100%;height: 100%;">
       <router-view />
     </el-scrollbar>
+    <pipeline-model-tree-overlay></pipeline-model-tree-overlay>
   </div>
 </template>
 
@@ -19,17 +20,35 @@ import { hasMenuPermission } from "@/permission/menu";
 import { mapMutations } from "vuex";
 import { getUserInfo } from "@/api/api.js";
 import osUtil from "@/utils/osUtil";
+import PipelineModelTreeOverlay from "@/modules/screen/components/PipelineModelTreeOverlay.vue";
 export default {
   name: "App",
-  methods: mapMutations(["diffVersion"]),
+  components: {
+    PipelineModelTreeOverlay
+  },
+  computed: {
+    isPixelStreamPage() {
+      const path = this.$route.path || "";
+      return path === "/YJ3DVP" || path.indexOf("/YJ3DVP/") === 0;
+    }
+  },
+  methods: {
+    ...mapMutations(["diffVersion"]),
+    resolveMenuCode(meta) {
+      if (meta == null || meta === "") return "";
+      if (typeof meta === "string") return meta;
+      return meta.menuCode || "";
+    }
+  },
   async created() {
-    if (JSON.stringify(this.$route.meta) === "{}") {
+    const menuCode = this.resolveMenuCode(this.$route.meta);
+    if (!menuCode) {
       // 路由重定向
       setTimeout(() => {
         sessionStorage.setItem("menuCode", "pipeDatabase");
       }, 1000);
     } else {
-      sessionStorage.setItem("menuCode", this.$route.meta);
+      sessionStorage.setItem("menuCode", menuCode);
     }
     //解耦版本
     // if (process.env.AUTH_TYPE === "AEP") {
@@ -94,7 +113,7 @@ export default {
   watch: {
     $route: {
       handler(to, from) {
-        sessionStorage.setItem("menuCode", to.meta);
+        sessionStorage.setItem("menuCode", this.resolveMenuCode(to.meta));
       },
       immediate: true
     }
@@ -102,4 +121,33 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+#app.pixel-stream-app {
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+#app.pixel-stream-app .el-scrollbar,
+#app.pixel-stream-app .el-scrollbar__wrap,
+#app.pixel-stream-app .el-scrollbar__view {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+#app.pixel-stream-app .videoWrapper,
+#app.pixel-stream-app .screen-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#app.pixel-stream-app video.pixelStream,
+#app.pixel-stream-app video[is="peer-stream"] {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: fill !important;
+  background: #000;
+}
+</style>

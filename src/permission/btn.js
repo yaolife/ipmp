@@ -17,12 +17,19 @@ export function hasPermission(perms) {
         let permissions = store.state.user.perms;
         //刷新问题
         if (permissions.length == 0) {
-          permissions = JSON.parse(sessionStorage.getItem("btns")); 
+          try {
+            permissions = JSON.parse(sessionStorage.getItem("btns")) || [];
+          } catch (e) {
+            permissions = [];
+          }
         }
         //增加了资源编码配置文件，资源编码放在code里，业务系统修改用
         if (btnsData[perms]) {
           if (btnsData[perms]["enable"] === false) return true;
           else perms = btnsData[perms]["code"];
+        }
+        if (!permissions || permissions.length == 0) {
+          return true;
         }
         if (permissions) {
           for (let i = 0; i < permissions.length; i++) {
@@ -34,7 +41,7 @@ export function hasPermission(perms) {
         } 
         return hasPermission;
       } else {
-        return false;
+        return true;
       }
     } else {
       return false;

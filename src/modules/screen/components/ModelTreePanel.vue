@@ -1,6 +1,8 @@
 <template>
   <div class="model-tree-panel">
-    <div class="panel-header">{{ $t("lang.screen_tree_title") }}</div>
+    <div class="panel-header">
+      <span class="panel-header-title">{{ $t("lang.screen_tree_title") }}</span>
+    </div>
     <div class="panel-search">
       <el-input
         v-model="filterText"
@@ -34,6 +36,7 @@
 
 <script>
 import api from "@/modules/drafts/api";
+import { getNodeMeshId, normalizeMeshId } from "@/utils/pixelStream";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
@@ -63,7 +66,9 @@ export default {
       treeProps: {
         children: "children",
         label: "nodeName"
-      }
+      },
+      currentNodeId: null,
+      currentMeshId: ""
     };
   },
   watch: {
@@ -94,7 +99,6 @@ export default {
             this.treeData = normalizeTree(res.data);
           } else {
             this.treeData = [];
-            this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
           this.$emit("loaded", this.treeData);
         })
@@ -105,7 +109,46 @@ export default {
         });
     },
     onNodeClick(data) {
-      this.$emit("select", data);
+      const meshId = getNodeMeshId(data);
+      const sameNode =
+        this.currentNodeId != null && String(this.currentNodeId) === String(data && data.id);
+      if (sameNode) {
+        this.clearCurrent();
+        this.$emit("unselect", data, meshId);
+        return;
+      }
+      this.currentNodeId = data && data.id;
+      this.currentMeshId = meshId;
+      this.setCurrentKey(this.currentNodeId);
+      this.$emit("select", data, meshId);
+    },
+    clearCurrent() {
+      this.currentNodeId = null;
+      this.currentMeshId = "";
+      this.setCurrentKey(null);
+    },
+    findNodeByMeshId(meshId, list) {
+      const id = normalizeMeshId(meshId);
+      if (!id) return null;
+      const nodes = Array.isArray(list) ? list : this.treeData;
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        if (!node) continue;
+        const nodeMeshId = getNodeMeshId(node);
+        if (nodeMeshId && nodeMeshId === id) return node;
+        if (node.id != null && String(node.id) === id) return node;
+        const found = this.findNodeByMeshId(id, node.children || []);
+        if (found) return found;
+      }
+      return null;
+    },
+    selectByMeshId(meshId) {
+      const node = this.findNodeByMeshId(meshId);
+      if (!node) return null;
+      this.currentNodeId = node.id;
+      this.currentMeshId = getNodeMeshId(node) || normalizeMeshId(meshId);
+      this.setCurrentKey(node.id);
+      return node;
     },
     setCurrentKey(id) {
       this.$nextTick(() => {
@@ -136,6 +179,8 @@ export default {
 }
 .panel-header {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
   height: 36px;
   line-height: 36px;
   padding: 0 4px 8px;
@@ -143,6 +188,12 @@ export default {
   font-weight: 600;
   letter-spacing: 1px;
   color: #ffffff;
+}
+.panel-header-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .panel-search {
   flex-shrink: 0;

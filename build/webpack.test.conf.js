@@ -23,7 +23,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     })
   },
   // devtool: 'eval-source-map',
-  // devtool: config.build.productionSourceMap ? config.build.devtool : false,
+  devtool: config.build.productionSourceMap ? config.build.devtool : false,
   output: {
     path: path.resolve(__dirname, "../dist/test"),
     // path: config.build.assetsRoot,
@@ -40,11 +40,12 @@ const webpackConfig = merge(baseWebpackConfig, {
         compress: {
           warnings: false,
           drop_debugger: true,
-          drop_console: true
+          drop_console: true,
+          collapse_vars: false
         }
       },
       sourceMap: config.build.productionSourceMap,
-      cache: true,
+      cache: false,
       parallel: true
     }),
     // extract css into its own file

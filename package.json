@@ -5,14 +5,14 @@
   "author": "CGN",
   "private": true,
   "scripts": {
-    "serve": "webpack-dev-server --profile --inline  --config build/webpack.dev.conf.js",
+    "serve": "NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --profile --inline --config build/webpack.dev.conf.js",
     "start": "npm run dev",
-    "dev": "node --max_old_space_size=8192 node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --progress --config build/webpack.dev.conf.js",
-    "prod": "node --max_old_space_size=8192 build/build.js",
-    "test": "node --max_old_space_size=8192 build/build-test.js",
-    "pre": "node --max_old_space_size=8192 build/build-pre.js",
-    "entry": "node --max_old_space_size=8192 build/build-entry.js",
-    "smartForm": "node --max_old_space_size=8192 build/build-smartForm.js"
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --progress --config build/webpack.dev.conf.js",
+    "prod": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 build/build.js",
+    "test": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 build/build-test.js",
+    "pre": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 build/build-pre.js",
+    "entry": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 build/build-entry.js",
+    "smartForm": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8192 build/build-smartForm.js"
   },
   "dependencies": {
     "highlight.js": "11.11.1",

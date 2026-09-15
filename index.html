@@ -20,6 +20,8 @@
   <link href="./static/cud4.0_iconfont/iconfont.css" rel="stylesheet" type="text/css" />
   <link href="./static/lib/psc-module-icons/iconfont.css" rel="stylesheet" type="text/css" />
   <link href="./static/css/el-icon.css" rel="stylesheet" type="text/css" />
+  <!-- 像素流组件需原生 class，不能经 webpack/babel 转译 -->
+  <script src="./static/peer-stream.js?v=20260914"></script>
 
 
   <style>
@@ -47,6 +49,49 @@
     .body-fullscreen-dialog svg g rect{
       width: 120px !important;
     } */
+    /* 像素流：动态插入的 video 需强制铺满，避免默认 300x150 缩在左上角 */
+    .screen-page .videoWrapper,
+    .screen-page .screen-scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .screen-page video.pixelStream,
+    .screen-page video[is="peer-stream"] {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      object-fit: fill !important;
+      background: #000;
+    }
+    .screen-page .screen-left {
+      top: 90px !important;
+    }
+    .screen-page .admin-entry {
+      position: fixed !important;
+      top: 70px !important;
+      right: 17px !important;
+      z-index: 4000 !important;
+      box-sizing: border-box;
+      width: 110px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      border: 0.5px solid #D0D0D0;
+      background: rgba(13, 36, 53, 0.60);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .screen-page .admin-entry-icon {
+      background-color: #84DEFF !important;
+    }
   </style>
 </head>
 

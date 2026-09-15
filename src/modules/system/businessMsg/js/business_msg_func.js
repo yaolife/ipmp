@@ -5,7 +5,7 @@ const getAllMsg = () => {
     if (res.code === '0') {
       localStorage.setItem('business_msg', JSON.stringify(res.data));
     }
-  })
+  }).catch(() => {})
 }
 const install = (Vue, opt) => {
   let storage = localStorage.getItem('business_msg');

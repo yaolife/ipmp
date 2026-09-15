@@ -7,6 +7,7 @@
  * @Description:
  */
 import Vue from "vue";
+Vue.config.ignoredElements = ["peer-stream"];
 import VueI18n from "vue-i18n";
 import router from "./router";
 import App from "./App";
@@ -23,14 +24,12 @@ import dragMove from "./utils/dragMove"; // 支持弹窗移动
 Vue.use(dragMove);
 import EventBusPlugin from "./utils/eventBus"; // 编辑画布通信
 Vue.use(EventBusPlugin);
-import { hasMenuPermission } from "@/permission/menu";
 import Avue from "@smallwei/avue";
 import "@smallwei/avue/lib/index.css";
 Vue.use(Avue, { size: "medium", menuType: "text" });
 import plugin from "./plugin";
-import { getUserInfo, getMenuPermission } from "@/api/api";
+import { getUserInfo } from "@/api/api";
 import VueGridLayout from "vue-grid-layout";
-import './peer-stream.js'
 
 Vue.use(plugin);
 Vue.use(VueI18n);
@@ -217,6 +216,15 @@ Vue.use(businessMsg);
 
 //全局守卫
 router.beforeEach(async (to, from, next) => {
+  if (to.path === "/") {
+    next({ path: "/YJ3DVP", replace: true });
+    return;
+  }
+  if (to.meta && typeof to.meta === "object" && to.meta.title) {
+    document.title = to.meta.title;
+  } else {
+    document.title = "管网智慧管理平台";
+  }
   // 解决首次进入时会显示页面再刷新的问题,直接同步加载,401跳转4A
   // 解耦版不执行该操作
   if (
@@ -228,9 +236,12 @@ router.beforeEach(async (to, from, next) => {
       const result = await getUserInfo({
         t: Math.random()
       });
-      sessionStorage.setItem("user", result.data.data.nowUserName);
-      sessionStorage.setItem("userDept", result.data.data.userDeptName);
-      sessionStorage.setItem("userDeptId", result.data.data.userDeptId);
+      const data = result && result.data && result.data.data;
+      if (data && data.nowUserName) {
+        sessionStorage.setItem("user", data.nowUserName);
+        sessionStorage.setItem("userDept", data.userDeptName);
+        sessionStorage.setItem("userDeptId", data.userDeptId);
+      }
     } catch (e) {
       // 后端不可用时不阻塞入口页渲染
       console.error("获取用户信息失败，继续进入页面", e);
@@ -257,36 +268,9 @@ router.beforeEach(async (to, from, next) => {
     to.path == "/smartFormView"
   ) {
     next();
-  } else {
-    let user = sessionStorage.getItem("user");
-    let userId = user.substr(1, user.indexOf("]") - 1);
-    if (process.env.AUTH_TYPE !== "PRO") {
-      if (sessionStorage.getItem("menus")) {
-        if (hasMenuPerm(to.meta)) {
-          next();
-        } else {
-          next("/404");
-        }
-      } else {
-        getMenuPermission(userId).then(async result => {
-          vuexStore.commit("setNavTree", result.data.data);
-          sessionStorage.setItem("menus", JSON.stringify(result.data.data));
-          if (hasMenuPerm(to.meta)) {
-            next();
-          } else {
-            next("/404");
-          }
-        });
-      }
-    } else {
-      //正常的页面跳转
-      if (hasMenuPerm(to.meta)) {
-        next();
-      } else {
-        next("/404");
-      }
-    }
+    return;
   }
+  next();
 });
 
 const startTime = performance.now();
@@ -298,9 +282,6 @@ router.afterEach((to, from, next) => {
   vuexStore.dispatch("callCmmonMethod", { time, to, type: "WEB" });
 });
 
-function hasMenuPerm(url) {
-  return hasMenuPermission(url);
-}
 //是否显示按钮
 import { hasPermission } from "@/permission/btn";
 Vue.prototype.btnShow = hasPermission;

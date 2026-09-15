@@ -5,6 +5,7 @@ import i18nMixin from "../mixins/i18nMixin";
 import http from '../api/http'
 import VueAxios from 'vue-axios'
 import i18nInput from "../components/i18n/i18n_input";
+import pixelStream from "../utils/pixelStream";
 
 export default function install(Vue) {
   // 动态多语言全局函数绑定
@@ -25,6 +26,13 @@ export default function install(Vue) {
       get() {
         return constant
       }
+    },
+    // 像素流通信全局绑定
+    $pixelStream: {
+      get() {
+        return pixelStream
+      }
     }
   })
+  window.pixelStream = pixelStream
 }

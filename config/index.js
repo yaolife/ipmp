@@ -5,35 +5,48 @@
  */
 "use strict";
 const path = require("path");
+// 业务后端地址，联调时只改这一处
+const BACKEND_API_TARGET = "http://192.168.0.254:8000";//YJ-WIFI
+//const BACKEND_API_TARGET = "http://192.168.29.254:8000";//个人热点的
+//const BACKEND_API_TARGET = "http://localhost:8000";
 module.exports = {
     dev: {
         assetsSubDirectory: "static",
         assetsPublicPath: "/",
         proxyTable: {
+            // 像素流信令（参考 YJ3DVP/web，按实际信令地址调整 target）
+            "/pixelStream": {
+                target: "ws://127.0.0.1:11180",
+                ws: true,
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/pixelStream": ""
+                }
+            },
             // 资源目录、管道等业务接口，避免被 PSC /server-api/api 规则抢走
             "/server-api/api/model-resource-directories": {
-                target: "http://192.168.0.254:8000",
+                target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
                 }
             },
             "/server-api/api/pipelines": {
-                target: "http://192.168.0.254:8000",
+                target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
                 }
             },
             "/server-api/api/pipeline-components": {
-                target: "http://192.168.0.254:8000",
+                target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
                 }
             },
             "/server-api/api/sys-files": {
-                target: "http://192.168.0.254:8000",
+                target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
@@ -42,8 +55,7 @@ module.exports = {
             // 本地代理
             "/server-api": {
                 // 联调后端
-                target: "http://192.168.0.254:8000",
-                // target: "http://localhost:8080",
+                target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": "" // 需要rewrite重写的,
@@ -112,7 +124,7 @@ module.exports = {
         assetsSubDirectory: "static",
         assetsPublicPath: "/",
         productionSourceMap: false,
-        // devtool: "#source-map",
+        devtool: false,
         // Gzip off by default as many popular static hosts such as
         // Surge or Netlify already gzip all static assets for you.
         // Before setting to `true`, make sure to:

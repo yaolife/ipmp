@@ -10,6 +10,7 @@
 module.exports = {
   // 测试环境
   NODE_ENV: '"test"',
+  LIGHT_AUTH: '"true"',
   // api地址
   API_ROOT: '"/server-api"',
   // 系统编码
@@ -25,5 +26,7 @@ module.exports = {
   // PSC地址前缀，用于前端请求PSC相关服务
   PSC_ROOT: '"/api"',
   //kkFileView应用地址
-  kkFileViewUrl: '"http://10.100.139.139:8012"'
+  kkFileViewUrl: '"http://10.100.139.139:8012"',
+  // 像素流路径，最终拼接为 ws(s)://{host}/pixelStream
+  PIXEL_STREAM_PATH: '"/pixelStream"'
 };

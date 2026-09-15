@@ -31,7 +31,19 @@ import nopermission from "@/components/common/401";
 // 面包屑
 import breadcrumb from "@/components/common/breadcrumb";
 
+import { getPixelStreamUrl } from "@/utils/pixelStream";
+
 Vue.use(Router);
+
+const pixelStreamUrl = getPixelStreamUrl();
+
+function redirectToYj3dvp(to) {
+  let path = "/YJ3DVP";
+  if (to.params.modelId) path += "/" + to.params.modelId;
+  if (to.params.others) path += "/" + to.params.others;
+  return path;
+}
+
 const _router = new Router({
   routes: [
     {
@@ -40,16 +52,35 @@ const _router = new Router({
       component: login
     },
     {
+      name: "YJ3DVP",
+      path: "/YJ3DVP/:modelId?/:others?",
+      component: digitalTwinScreen,
+      meta: {
+        title: "阳江核电融合定位可视化平台",
+        menuCode: "digitalTwin",
+        pixelStreamUrl: pixelStreamUrl
+      },
+      props: route => ({ key: route.path })
+    },
+    {
+      path: "/screen/:modelId?/:others?",
+      redirect: redirectToYj3dvp
+    },
+    {
       path: "/",
       name: "manage",
       component: manage,
       children: [
         {
           path: "",
-          redirect: "/pipeDatabase"
+          redirect: "/YJ3DVP"
         },
         {
           path: "/welcome/:id?",
+          redirect: "/pipeDatabase"
+        },
+        {
+          path: "/main",
           redirect: "/pipeDatabase"
         },
         {
@@ -97,12 +128,6 @@ const _router = new Router({
           meta: "modelManage"
         },
         {
-          path: "/screen",
-          name: "数字孪生可视化",
-          component: digitalTwinScreen,
-          meta: "digitalTwin"
-        },
-        {
           path: "/logManage",
           name: "日志管理",
           component: logManage,
@@ -126,6 +151,10 @@ const _router = new Router({
           component: permission,
           name: "权限查询",
           meta: "user_permission"
+        },
+        {
+          path: "*",
+          redirect: "/YJ3DVP"
         }
       ]
     }
