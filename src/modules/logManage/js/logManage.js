@@ -6,7 +6,7 @@ import { calcHeight } from "@/utils/funcUtil";
 const MOCK_LIST = [
   { id: 1, time: "2026-08-27 10:21:08", level: "ERROR", module: "pipe", operator: "张三", ip: "192.168.0.21", cost: 1280, traceId: "tr-8a21c9", requestId: "req-10021", message: "导入管道数据失败：目录名称无法唯一映射", detail: "DIRECTORY_ID 匹配失败，同名资源目录存在多条记录。" },
   { id: 2, time: "2026-08-27 10:18:42", level: "WARN", module: "pipe", operator: "李四", ip: "192.168.0.36", cost: 420, traceId: "tr-7c10ab", requestId: "req-10018", message: "批量导入存在 3 条跳过记录", detail: "跳过原因为必填字段为空：管道名称、责任人。" },
-  { id: 3, time: "2026-08-27 10:12:15", level: "INFO", module: "pipe", operator: "张三", ip: "192.168.0.21", cost: 86, traceId: "tr-6b90de", requestId: "req-10012", message: "查询资源目录树成功", detail: "GET /api/model-resource-directories/tree?type=0，返回 19 个节点。" },
+  { id: 3, time: "2026-08-27 10:12:15", level: "INFO", module: "pipe", operator: "张三", ip: "192.168.0.21", cost: 86, traceId: "tr-6b90de", requestId: "req-10012", message: "查询资源目录树成功", detail: "POST /api/model-resource-directories/tree，moduleType=0，返回 19 个节点。" },
   { id: 4, time: "2026-08-27 09:58:33", level: "INFO", module: "component", operator: "王五", ip: "10.12.8.14", cost: 64, traceId: "tr-5a11ef", requestId: "req-10008", message: "导出管道元件清单", detail: "导出文件 component_20260827.xlsx，共 12 条。" },
   { id: 5, time: "2026-08-27 09:41:09", level: "DEBUG", module: "hanger", operator: "李四", ip: "192.168.0.36", cost: 22, traceId: "tr-49cc01", requestId: "req-10005", message: "支吊架列表筛选条件变更", detail: "keyword=ZABF, type=管线。" },
   { id: 6, time: "2026-08-27 09:22:47", level: "ERROR", module: "auth", operator: "赵六", ip: "10.8.3.19", cost: 15, traceId: "tr-38bb12", requestId: "req-10002", message: "登录失败：账号或密码错误", detail: "连续失败 2 次，剩余可尝试 3 次。" },

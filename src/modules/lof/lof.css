@@ -380,6 +380,86 @@
   line-height: 1.6;
 }
 
+.lof-trace-drawer {
+  height: 100%;
+  padding: 0 20px 24px;
+  overflow-y: auto;
+  color: #1a202c;
+}
+
+.lof-trace-section {
+  margin-bottom: 18px;
+}
+
+.lof-trace-section-title {
+  margin-bottom: 8px;
+  color: #1a202c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lof-trace-text {
+  padding: 10px 12px;
+  border-left: 3px solid #0f4c81;
+  border-radius: 4px;
+  background: #f7f9fc;
+  color: #5f6b7a;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lof-trace-formula {
+  border-left-color: #6c757d;
+  background: #f4f5f7;
+  color: #303133;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+.lof-trace-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e0e4ea;
+  border-radius: 6px;
+}
+
+.lof-trace-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.lof-trace-table th,
+.lof-trace-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #e0e4ea;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: left;
+  vertical-align: top;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.lof-trace-table th {
+  width: 38%;
+  background: #f7f9fc;
+  color: #5f6b7a;
+  font-weight: 500;
+}
+
+.lof-trace-table tr:last-child th,
+.lof-trace-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.lof-trace-empty {
+  padding: 36px 12px;
+  color: #5f6b7a;
+  font-size: 13px;
+  text-align: center;
+}
+
 .lof-page .lof-grid-2 {
   grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
 }

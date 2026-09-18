@@ -42,6 +42,11 @@
         "resource": "lof",
         "children": [
           {
+            "name": "lang.lof_ledger",
+            "url": "/lof/ledger",
+            "resource": "lofLedger"
+          },
+          {
             "name": "lang.lof_tm01",
             "url": "/lof/tm01",
             "resource": "lofTm01"

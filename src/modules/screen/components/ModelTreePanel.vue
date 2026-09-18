@@ -92,7 +92,7 @@ export default {
     loadTree() {
       this.loading = true;
       api
-        .getResourceDirectoryTree({ type: PIPE_DIRECTORY_TYPE })
+        .getResourceDirectoryTree({ moduleType: PIPE_DIRECTORY_TYPE })
         .then(res => {
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {

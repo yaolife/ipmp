@@ -1,6 +1,7 @@
 import axios from '@/api/http';
 
 const resourceDirectoryTreeUrl = '/api/model-resource-directories/tree';
+const lofSegmentTreeUrl = '/api/model-resource-directories/tree/lof-segments';
 const pipelineBaseUrl = '/api/pipelines';
 
 function saveBlob(res, fallbackName) {
@@ -46,9 +47,13 @@ function saveBlob(res, fallbackName) {
 
 export default {
     getResourceDirectoryTree: function(params) {
-        return axios.get(resourceDirectoryTreeUrl, {
-            params,
+        return axios.post(resourceDirectoryTreeUrl, params, {
             apiTitle: '资源目录树查询'
+        }).then(res => res.data);
+    },
+    getLofSegmentTree: function(params) {
+        return axios.post(lofSegmentTreeUrl, params, {
+            apiTitle: 'LOF管段选择树查询'
         }).then(res => res.data);
     },
     getResourceDirectoryChildren: function(id) {

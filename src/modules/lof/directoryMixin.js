@@ -31,11 +31,12 @@ export default {
         const name = node.nodeName || node.pipelineName || node.name || "";
         const nextPath = path ? (name ? path + " / " + name : path) : name;
         const children = Array.isArray(node.children) ? node.children : [];
-        const isLeaf = !children.length;
-        const isLevel5 = Number(node.levelNo) === 5;
         const nameText = String(node.nodeName || "").trim();
+        // 当前评估范围尚未限定具体元件类型，只排除没有元件类型的纯目录节点。
+        // 保留所有业务节点，确保从三维台账携带 segmentId 跳转时能够正确回填选中项。
+        const isAssessmentObject = node.componentType != null;
         if (
-          (isLeaf || isLevel5) &&
+          isAssessmentObject &&
           node.id != null &&
           node.id !== "" &&
           nameText &&
@@ -66,6 +67,14 @@ export default {
           }
           const tree = Array.isArray(res.data) ? res.data : this.unwrapList(res.data);
           this.segments = this.flattenDirectoryNodes(tree, "");
+          const routeQuery = (this.$route && this.$route.query) || {};
+          const requestedId = routeQuery.segmentId || routeQuery.segment;
+          if (requestedId && this.segments.some(item => item.id === String(requestedId))) {
+            this.segmentId = String(requestedId);
+            if (typeof this.onSegmentChange === "function") {
+              this.onSegmentChange(this.segmentId);
+            }
+          }
         })
         .catch(() => {
           this.pageLoading = false;

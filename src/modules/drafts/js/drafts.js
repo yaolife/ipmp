@@ -122,7 +122,7 @@ export default {
       const prevId = keepCurrent && this.currentNode ? this.currentNode.id : "";
       this.treeLoading = true;
       api
-        .getResourceDirectoryTree({ type: PIPE_DIRECTORY_TYPE })
+        .getResourceDirectoryTree({ moduleType: PIPE_DIRECTORY_TYPE })
         .then(res => {
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {

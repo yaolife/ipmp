@@ -52,6 +52,7 @@ export const lang = {
   asset_manage: 'Asset Management',
   analysis_govern: 'Analysis & Governance',
   lof: 'LOF',
+  lof_ledger: '3D Ledger',
   lof_tm01: 'TM01 Qualitative Assessment',
   lof_tm02: 'TM02 Quantitative Assessment',
   lof_tm05: 'TM05 Vibration Check',

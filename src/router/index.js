@@ -17,7 +17,8 @@ import delegation from "@/modules/delegation/delegation";
 import modelManage from "@/modules/modelManage/modelManage";
 // 日志管理
 import logManage from "@/modules/logManage/logManage.vue";
-// 分析治理 / LOF（Vue 页面，后续接接口）
+// 分析治理 / LOF
+import lofLedger from "@/modules/lof/ledger.vue";
 import lofTm01 from "@/modules/lof/tm01.vue";
 import lofTm02 from "@/modules/lof/tm02.vue";
 import lofTm05 from "@/modules/lof/tm05.vue";
@@ -136,6 +137,12 @@ const _router = new Router({
           name: "日志管理",
           component: logManage,
           meta: "operationLogManage"
+        },
+        {
+          path: "/lof/ledger",
+          name: "三维台账",
+          component: lofLedger,
+          meta: "lofLedger"
         },
         {
           path: "/lof/tm01",

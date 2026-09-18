@@ -61,6 +61,7 @@ export const lang = {
     asset_manage: "资产管理",
     analysis_govern: "分析治理",
     lof: "LOF",
+    lof_ledger: "三维台账",
     lof_tm01: "TM01 定性评估",
     lof_tm02: "TM02 定量评估",
     lof_tm05: "TM05 振动校核",

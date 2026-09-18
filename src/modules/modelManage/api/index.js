@@ -114,8 +114,7 @@ export default {
         }).then(res => res.data);
     },
     getResourceDirectoryTree: function(params) {
-        return axios.get(resourceDirectoryTreeUrl, {
-            params,
+        return axios.post(resourceDirectoryTreeUrl, params, {
             apiTitle: "资源目录树查询"
         }).then(res => res.data);
     },

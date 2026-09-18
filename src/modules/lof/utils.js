@@ -14,7 +14,27 @@ export function pickNum(v, fallback) {
   return isFinite(n) ? n : fallback;
 }
 
+/**
+ * 根据管段跨距和外径判定支撑刚度类型，与 LOF 原型中的分区曲线保持一致。
+ * 参数缺失或不是正数时不返回类型，避免无效尺寸参与后续评估。
+ */
+export function calculateSupportType(span, outerDiameter) {
+  const length = Number(span);
+  const diameter = Number(outerDiameter);
+  if (!isFinite(length) || length <= 0 || !isFinite(diameter) || diameter <= 0) {
+    return "";
+  }
+  const boundary1 = -1.2346 * diameter * diameter / 100000 + 0.02 * diameter + 2.0563;
+  const boundary2 = -1.1886 * diameter * diameter / 100000 + 0.025262 * diameter + 3.3601;
+  const boundary3 = -1.5968 * diameter * diameter / 100000 + 0.033583 * diameter + 4.429;
+  if (length <= boundary1) return "刚性";
+  if (length <= boundary2) return "中刚";
+  if (length <= boundary3) return "中等";
+  return "柔性";
+}
+
 export function fmt(v, d) {
+  if (v == null || v === "") return "-";
   const n = Number(v);
   if (!isFinite(n)) return "-";
   return n.toFixed(d == null ? 4 : d);
