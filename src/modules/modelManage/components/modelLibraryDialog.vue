@@ -440,6 +440,7 @@ export default {
       const formData = new FormData();
       formData.append("nodeId", payload.nodeId);
       formData.append("file", payload.file);
+      formData.append("transform", payload.transform || "");
       api
         .updateModelNodeFile(formData)
         .then(res => {

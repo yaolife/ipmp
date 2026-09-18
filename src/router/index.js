@@ -17,6 +17,10 @@ import delegation from "@/modules/delegation/delegation";
 import modelManage from "@/modules/modelManage/modelManage";
 // 日志管理
 import logManage from "@/modules/logManage/logManage.vue";
+// 分析治理 / LOF（Vue 页面，后续接接口）
+import lofTm01 from "@/modules/lof/tm01.vue";
+import lofTm02 from "@/modules/lof/tm02.vue";
+import lofTm05 from "@/modules/lof/tm05.vue";
 
 // 用户中心
 import userinfo from "@/modules/authManage/userCenter/view/userinfo";
@@ -132,6 +136,24 @@ const _router = new Router({
           name: "日志管理",
           component: logManage,
           meta: "operationLogManage"
+        },
+        {
+          path: "/lof/tm01",
+          name: "TM01 定性评估",
+          component: lofTm01,
+          meta: "lofTm01"
+        },
+        {
+          path: "/lof/tm02",
+          name: "TM02 定量评估",
+          component: lofTm02,
+          meta: "lofTm02"
+        },
+        {
+          path: "/lof/tm05",
+          name: "TM05 振动校核",
+          component: lofTm05,
+          meta: "lofTm05"
         },
         // 用户中心
         {

@@ -52,6 +52,13 @@ module.exports = {
                     "^/server-api": ""
                 }
             },
+            "/server-api/tm01-assessments": {
+                target: BACKEND_API_TARGET,
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
             // 本地代理
             "/server-api": {
                 // 联调后端

@@ -15,6 +15,12 @@
       <el-form-item :label="$t('lang.model_code')">
         <el-input :value="form.modelNo" disabled></el-input>
       </el-form-item>
+      <el-form-item :label="$t('lang.model_transform_params')">
+        <el-input
+          v-model="form.transform"
+          :placeholder="$t('lang.model_transform_placeholder')"
+        ></el-input>
+      </el-form-item>
     </el-form>
     <template v-if="hasCurrentFile">
       <div class="file-section-title">{{ $t("lang.current_model_file") }}</div>
@@ -110,7 +116,8 @@ function emptyForm() {
     fileSuffix: "",
     fileSize: null,
     absoluteFileUrl: "",
-    fileUrl: ""
+    fileUrl: "",
+    transform: ""
   };
 }
 
@@ -166,7 +173,8 @@ export default {
         fileSuffix: current.fileSuffix || getExt(current.originalName),
         fileSize: current.fileSize,
         absoluteFileUrl: current.absoluteFileUrl || "",
-        fileUrl: current.fileUrl || ""
+        fileUrl: current.fileUrl || "",
+        transform: source.transform || current.transform || ""
       });
       this.dialogVisible = true;
     },
@@ -214,7 +222,8 @@ export default {
       this.saving = true;
       this.$emit("save", {
         nodeId: this.form.id,
-        file: this.pendingFile
+        file: this.pendingFile,
+        transform: this.form.transform
       });
     }
   }
@@ -258,11 +267,11 @@ export default {
 }
 .replace-form {
   /deep/ .el-form-item {
-    margin-bottom: 16px;
+    margin-bottom: 4px;
   }
   /deep/ .el-form-item__label {
-    padding-bottom: 6px;
-    line-height: 20px;
+    padding-bottom: 0;
+    line-height: 18px;
     color: #606266;
   }
   /deep/ .el-input.is-disabled .el-input__inner {

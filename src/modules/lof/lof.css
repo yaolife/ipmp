@@ -1,0 +1,400 @@
+.lof-page {
+  --primary: #0f4c81;
+  --primary-light: #e6f0f9;
+  --success: #2e7d32;
+  --success-light: #e8f5e9;
+  --warning: #ed6c02;
+  --warning-light: #fff3e0;
+  --danger: #d32f2f;
+  --danger-light: #ffebee;
+  --info: #0288d1;
+  --info-light: #e1f5fe;
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --border: #e0e4ea;
+  --text: #1a202c;
+  --text-2: #5f6b7a;
+  --radius: 8px;
+  --radius-sm: 4px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.lof-page .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.lof-page .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: #fafbfc;
+}
+
+.lof-page .card-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lof-page .card-body {
+  padding: 18px;
+}
+
+.lof-page .grid {
+  display: grid;
+  gap: 16px;
+}
+
+.lof-page .grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.lof-page .form-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.lof-page .form-row-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.lof-page .form-row-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lof-page .form-row-4 {
+  grid-template-columns: minmax(200px, 1.2fr) minmax(280px, 1.6fr) 1fr 1fr;
+}
+
+.lof-page .form-row-equal-4,
+.lof-page .grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.lof-page .tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin: -6px 0 16px;
+}
+
+.lof-page .tab {
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 13px;
+  border-bottom: 2px solid transparent;
+}
+
+.lof-page .tab.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom-color: var(--primary);
+}
+
+.lof-page .tab-panel {
+  padding-top: 4px;
+}
+
+.lof-page .divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}
+
+.lof-page .form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-2);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.lof-page .form-group input,
+.lof-page .form-group select,
+.lof-page .form-group textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: #fff;
+}
+
+.lof-page .form-group input[readonly],
+.lof-page .form-group input:disabled {
+  background: #f5f7fa;
+  color: var(--text-2);
+  cursor: not-allowed;
+}
+
+.lof-page .radio-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.lof-page .radio-group label {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: .2s;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 0;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.lof-page .radio-group input {
+  display: none;
+}
+
+.lof-page .radio-group input:checked + label {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #fff;
+}
+
+.lof-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.lof-page .btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.lof-page .btn-secondary {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.lof-page .btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.lof-page .btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.lof-page .mt-12 {
+  margin-top: 12px;
+}
+
+.lof-page .help-text {
+  font-size: 12px;
+  color: var(--text-2);
+  background: #f5f7fa;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--info);
+}
+
+.lof-page .score-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
+.lof-page .score-card .score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.lof-page .score-card .score-name {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lof-page .score-card .score-reason {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.lof-page .score-select {
+  width: 90px;
+}
+
+.lof-page .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.lof-page .badge-high {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.lof-page .badge-medium {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.lof-page .badge-low {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.lof-page .badge-na {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.lof-page .result-box {
+  background: #f5f7fa;
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.lof-page .result-item {
+  min-width: 120px;
+}
+
+.lof-page .result-item .label {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.lof-page .result-item .value {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.lof-page .table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.lof-page table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.lof-page th,
+.lof-page td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.lof-page th {
+  background: #f5f7fa;
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.lof-page tbody tr {
+  cursor: pointer;
+}
+
+.lof-page tbody tr:hover {
+  background: #f8f9fb;
+}
+
+.lof-page tbody tr.active {
+  background: var(--primary-light);
+}
+
+.lof-page .flex {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.lof-page .gap-8 {
+  gap: 8px;
+}
+
+.lof-page .gap-4 {
+  gap: 4px;
+}
+
+.lof-page .text-sm {
+  font-size: 12px;
+}
+
+.lof-page .text-muted {
+  color: var(--text-2);
+}
+
+.lof-page .section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 18px 0 10px;
+}
+
+.lof-page .drawer-pre {
+  margin: 0;
+  padding: 12px;
+  background: #f6f8fa;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.lof-page .lof-grid-2 {
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+}
+
+.lof-page .lof-form-row-4 {
+  grid-template-columns: minmax(200px, 1.2fr) minmax(280px, 1.6fr) 1fr 1fr;
+}
+
+@media (max-width: 800px) {
+  .lof-page .lof-grid-2,
+  .lof-page .lof-form-row-4,
+  .lof-page .form-row-2,
+  .lof-page .form-row-3,
+  .lof-page .form-row-equal-4,
+  .lof-page .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}

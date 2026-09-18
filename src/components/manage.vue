@@ -72,6 +72,7 @@
             <el-menu
               :default-active="defaultActive"
               :default-openeds="defaultOpeneds"
+              :key="'left-menu-' + defaultOpeneds.join('-')"
               class="el-menu-vertical-demo"
               height="100%"
               router
@@ -112,15 +113,11 @@
                       secondMenuClick(menu.children.length === idx + 1, subitem)
                     "
                   >
-                    <!-- 二级 有子菜单 -->
+                    <!-- 二级 有子菜单：三级项直接在下方展开 -->
                     <div
                       v-if="subitem.children && subitem.children.length > 0"
                     >
-                      <!-- 三级菜单 原有 菜单折叠时使用 -->
-                      <el-submenu
-                        :index="String(idx + 100)"
-                        v-if="$store.state.app.collapse"
-                      >
+                      <el-submenu :index="String(index) + '-' + idx">
                         <template slot="title">
                           <div :title="$t(subitem.name)">
                             <i
@@ -130,73 +127,18 @@
                               >{{ iconfontFn(subitem.iconNor) }}</i
                             >
                             <span>{{ $t(subitem.name) }}</span>
-                          </div></template
-                        >
+                          </div>
+                        </template>
                         <el-menu-item
                           :index="lastItem.url"
                           v-for="(lastItem, lastIndex) in subitem.children"
                           :key="lastIndex"
-                          ><div>
+                        >
+                          <div :title="$t(lastItem.name)">
                             <span>{{ $t(lastItem.name) }}</span>
-                          </div></el-menu-item
-                        >
+                          </div>
+                        </el-menu-item>
                       </el-submenu>
-                      <!-- 三级菜单 新版 不折叠时使用 不需要可以注释，并将原有三级菜单submenu的v-if去掉 -->
-                      <div v-else class="cud-menu-level3 menu-level3-col1">
-                        <!-- <div v-else class="cud-menu-level3 menu-level3-col3"> -->
-                        <!-- 原有菜单必须click才能展开，这里模拟一个el-menu-item使用hover展开 -->
-                        <div
-                          class="el-menu-item"
-                          style="padding-left: 40px"
-                          :class="
-                            subitem.children.some(
-                              (item3) =>
-                                item3.url == defaultActive ||
-                                defaultActive.includes(item3.url)
-                            )
-                              ? 'is-active'
-                              : ''
-                          "
-                        >
-                          <div :title="$t(subitem.name)">
-                            <i
-                              v-if="subitem.iconNor"
-                              class="iconfont"
-                              id="icon"
-                              >{{ iconfontFn(subitem.iconNor) }}</i
-                            >
-                            <span>{{ $t(subitem.name) }}</span>
-                          </div>
-                          <i
-                            class="el-submenu__icon-arrow el-icon-arrow-right"
-                          ></i>
-                          <div
-                            class="menu-level3-list"
-                            :style="
-                              'background-image: url(' +
-                              require('@/assets/img/menu-l3.png') +
-                              ');'
-                            "
-                          >
-                            <div class="menu-level3-title">
-                              {{ $t(subitem.name) }}
-                            </div>
-                            <el-menu-item
-                              :index="lastItem.url"
-                              v-for="(lastItem, lastIndex) in subitem.children"
-                              :key="lastIndex"
-                            >
-                              <i
-                                v-if="lastItem.iconNor"
-                                class="iconfont"
-                                id="icon"
-                                >{{ iconfontFn(lastItem.iconNor) }}</i
-                              >
-                              <span>{{ $t(lastItem.name) }}</span>
-                            </el-menu-item>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                     <!-- 二级 无子菜单 -->
                     <div v-else>
@@ -325,8 +267,6 @@ export default {
       isLastShow: true,
       //关联菜单默认选中
       defaultActive: "",
-      //打开的菜单，默认展开资产管理以便高亮管道数据库
-      defaultOpeneds: ["0"],
       //搜索
       searchInput: "",
       searchResult: [],
@@ -344,8 +284,26 @@ export default {
     collapse() {
       return this.$store.state.app.collapse;
     },
+    defaultOpeneds() {
+      const path = (this.defaultActive || (this.$route && this.$route.path) || "").split("?")[0];
+      const opened = [];
+      (this.menus || []).forEach((menu, index) => {
+        (menu.children || []).forEach((sub, idx) => {
+          const last = sub.children || [];
+          if (last.some(item => item.url && path.indexOf(item.url) === 0)) {
+            opened.push(String(index));
+            opened.push(String(index) + "-" + idx);
+          } else if (sub.url && path.indexOf(sub.url) === 0) {
+            opened.push(String(index));
+          }
+        });
+      });
+      if (!opened.length) opened.push("0");
+      return opened;
+    },
   },
   created() {
+    this.defaultActive = this.$route.fullPath;
     this.getMenuManagerGetFormMenuTree();
     this.$nextTick(async () => {
       await this.getNowUser(); //获取当前用户信息，右上角展示
@@ -904,6 +862,14 @@ export default {
 /* 隐藏单个一级菜单项的箭头 */
 .single-level-menu /deep/.el-submenu__icon-arrow {
   display: none;
+}
+
+.left-menu /deep/ .el-submenu .el-submenu .el-submenu__title {
+  padding-left: 40px !important;
+}
+.left-menu /deep/ .el-submenu .el-submenu .el-menu-item {
+  padding-left: 56px !important;
+  min-width: auto;
 }
 
 /* 路由切换过渡 */
