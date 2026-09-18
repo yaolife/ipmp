@@ -36,7 +36,11 @@
 
     <div class="detail-body-card">
       <el-tabs v-model="activeTab" class="detail-tabs">
-        <el-tab-pane :label="$t('lang.screen_tab_basic')" name="basic">
+        <el-tab-pane name="basic">
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="file-text"></tab-svg>
+            {{ $t("lang.screen_tab_basic") }}
+          </span>
           <div class="section-block">
             <div class="section-title">{{ $t("lang.basic_identity") }}</div>
             <el-row :gutter="24" class="form-grid">
@@ -230,7 +234,11 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('lang.tab_tech_params')" name="technical">
+        <el-tab-pane name="technical">
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="settings-2"></tab-svg>
+            {{ $t("lang.tab_tech_params") }}
+          </span>
           <div class="section-block">
             <div class="section-title">{{ $t("lang.run_condition") }}</div>
             <el-row :gutter="24" class="form-grid">
@@ -292,7 +300,63 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('lang.tab_related_segment')" name="related">
+        <el-tab-pane name="lof">
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="database"></tab-svg>
+            {{ $t("lang.tab_lof_basic") }}
+          </span>
+          <div
+            class="section-block"
+            v-for="section in lofSections"
+            :key="section.title"
+          >
+            <div class="section-title">{{ $t(section.title) }}</div>
+            <el-row :gutter="24" class="form-grid">
+              <el-col
+                :span="item.span || 8"
+                v-for="item in section.fields"
+                :key="section.title + '-' + item.key"
+              >
+                <div class="field">
+                  <label>{{ $t(item.label) }}</label>
+                  <el-select
+                    v-if="item.type === 'select'"
+                    v-model="form[item.key]"
+                    size="small"
+                    clearable
+                  >
+                    <el-option
+                      v-for="opt in getFieldOptions(item)"
+                      :key="item.key + '-' + String(opt.value)"
+                      :label="opt.label"
+                      :value="opt.value"
+                    ></el-option>
+                  </el-select>
+                  <el-input
+                    v-else-if="item.type === 'textarea'"
+                    type="textarea"
+                    :rows="3"
+                    v-model="form[item.key]"
+                    :placeholder="item.placeholder || ''"
+                  ></el-input>
+                  <el-input
+                    v-else
+                    v-model="form[item.key]"
+                    size="small"
+                    :type="item.type === 'number' ? 'number' : 'text'"
+                    :placeholder="item.placeholder || ''"
+                  ></el-input>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
+        </el-tab-pane>
+
+        <el-tab-pane name="related">
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="link"></tab-svg>
+            {{ $t("lang.tab_related_segment") }}
+          </span>
           <div class="section-block">
             <div class="section-title">{{ $t("lang.related_segment_list") }}</div>
             <div class="toolbar-row">
@@ -445,7 +509,11 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane :label="$t('lang.maintenance_records')" name="maintenance">
+        <el-tab-pane name="maintenance">
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="wrench"></tab-svg>
+            {{ $t("lang.maintenance_records") }}
+          </span>
           <div class="section-block">
             <div class="section-title">{{ $t("lang.maintenance_records") }}</div>
             <div class="stat-grid">
@@ -783,6 +851,45 @@ import {
   getComponentTypeOptions
 } from "@/constant/componentType";
 
+const TAB_ICONS = {
+  "file-text":
+    '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/>',
+  "settings-2":
+    '<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
+  database:
+    '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+  link:
+    '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  wrench:
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'
+};
+
+const TabSvg = {
+  name: "TabSvg",
+  props: {
+    name: {
+      type: String,
+      required: true
+    }
+  },
+  render(h) {
+    return h("svg", {
+      class: "tab-svg",
+      attrs: {
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+      },
+      domProps: {
+        innerHTML: TAB_ICONS[this.name] || ""
+      }
+    });
+  }
+};
+
 function emptyForm() {
   return {
     nodeName: "",
@@ -791,6 +898,7 @@ function emptyForm() {
     componentType: "",
     name: "",
     kksCode: "",
+    pipeStandardKks: "",
     unitName: "",
     systemNo: "",
     safetyArea: "",
@@ -831,10 +939,49 @@ function emptyForm() {
     centerElevation: "",
     workingMedium: "",
     flowVelocity: "",
+    maxVelocity: "",
     thermalDisplacement: "",
     dataStatus: "已发布",
     dataSource: "",
-    modifyDate: ""
+    modifyDate: "",
+    fluidDensity: "",
+    isChokedFlow: "",
+    hasSlugFlow: "",
+    equipmentType: "",
+    spanReference: "",
+    lofRemark: "",
+    mediumType: "",
+    materialGrade: "",
+    elasticModulus: "",
+    poissonRatio: "",
+    materialDensity: "",
+    yieldStrength: "",
+    fatigueLimit: "",
+    naturalFrequencyParams: "",
+    annualUnplannedStops: "",
+    annualStartStops: "",
+    annualFastValveActions: "",
+    periodicOperation: "",
+    c1Level: "",
+    c2Level: "",
+    c3Level: "",
+    c4Level: "",
+    hasThrottlingElement: "",
+    hasReciprocatingEquipment: "",
+    hasCentrifugalEquipment: "",
+    lowFlowRatio: "",
+    fastActingValveType: "",
+    hasFlashingCavitation: "",
+    hasThermowellProbe: "",
+    hasDeadBranch: "",
+    vibrationFailureHistory: "",
+    manufacturingStandard: "",
+    weldCode: "",
+    weldType: "",
+    weldCategory: "",
+    stressConcentrationFactor: "",
+    fatigueLevel: "",
+    visualDefectStandard: ""
   };
 }
 
@@ -867,6 +1014,9 @@ function nextId() {
 
 export default {
   name: "DirectoryDetail",
+  components: {
+    TabSvg
+  },
   props: {
     directoryId: {
       type: [String, Number],
@@ -910,7 +1060,8 @@ export default {
           type: "select",
           disabled: true
         },
-        { key: "kksCode", label: "lang.kks_code" },
+        { key: "pipeStandardKks", label: "lang.kks_code" },
+        { key: "specCode", label: "lang.spec_code" },
         { key: "unitName", label: "lang.belong_unit", required: true },
         { key: "systemNo", label: "lang.system_no" },
         { key: "safetyArea", label: "lang.safety_area" },
@@ -966,8 +1117,89 @@ export default {
         { key: "material", label: "lang.pipe_material" },
         { key: "centerElevation", label: "lang.pipe_center_elevation" },
         { key: "workingMedium", label: "lang.fluid_medium" },
-        { key: "flowVelocity", label: "lang.flow_velocity" },
+        { key: "maxVelocity", label: "lang.flow_velocity" },
         { key: "thermalDisplacement", label: "lang.thermal_displacement" }
+      ],
+      lofSections: [
+        {
+          title: "lang.lof_pipe_params",
+          fields: [
+            {
+              key: "pipeStandardKks",
+              label: "lang.pipe_standard_kks",
+              placeholder: "如 P-273-12.5-316LN"
+            },
+            { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm", type: "number" },
+            { key: "wallThickness", label: "lang.pipe_wall_thickness_mm", type: "number" },
+            { key: "material", label: "lang.standard_material", placeholder: "如 316LN / 碳钢" },
+            { key: "designTemperature", label: "lang.design_temperature_c", type: "number" },
+            { key: "designPressure", label: "lang.design_pressure_mpa", type: "number" },
+            { key: "mediumType", label: "lang.medium_type", type: "select", options: "mediumType" },
+            { key: "fluidDensity", label: "lang.fluid_density", type: "number" },
+            { key: "equipmentType", label: "lang.equipment_type", placeholder: "如 主蒸汽隔离阀 / 给水泵" },
+            { key: "spanReference", label: "lang.span_reference", type: "number" }
+          ]
+        },
+        {
+          title: "lang.lof_material_info",
+          fields: [
+            { key: "materialGrade", label: "lang.material_grade", placeholder: "如 316LN" },
+            { key: "elasticModulus", label: "lang.elastic_modulus", type: "number" },
+            { key: "poissonRatio", label: "lang.poisson_ratio", type: "number" },
+            { key: "materialDensity", label: "lang.material_density", type: "number" },
+            { key: "yieldStrength", label: "lang.yield_strength", type: "number" },
+            { key: "fatigueLimit", label: "lang.fatigue_limit", type: "number" },
+            {
+              key: "naturalFrequencyParams",
+              label: "lang.natural_frequency_params",
+              placeholder: "如 C1=1.0, C2=0.85",
+              span: 16
+            }
+          ]
+        },
+        {
+          title: "lang.lof_operate_condition",
+          fields: [
+            { key: "annualUnplannedStops", label: "lang.annual_unplanned_stops", type: "number" },
+            { key: "annualStartStops", label: "lang.annual_start_stops", type: "number" },
+            { key: "annualFastValveActions", label: "lang.annual_fast_valve_actions", type: "number" },
+            { key: "periodicOperation", label: "lang.periodic_operation", placeholder: "如 频繁间歇 / 长期稳态" },
+            { key: "c1Level", label: "lang.c1_level", type: "select", options: "level" },
+            { key: "c2Level", label: "lang.c2_level", type: "select", options: "level" },
+            { key: "c3Level", label: "lang.c3_level", type: "select", options: "level" },
+            { key: "c4Level", label: "lang.c4_level", type: "select", options: "level" }
+          ]
+        },
+        {
+          title: "lang.lof_incentive_flags",
+          fields: [
+            { key: "maxVelocity", label: "lang.max_velocity", type: "number", span: 6 },
+            { key: "hasThrottlingElement", label: "lang.has_throttling", type: "select", options: "yesNo", span: 6 },
+            { key: "isChokedFlow", label: "lang.is_choked_flow", type: "select", options: "yesNo", span: 6 },
+            { key: "hasReciprocatingEquipment", label: "lang.has_reciprocating", type: "select", options: "yesNo", span: 6 },
+            { key: "hasCentrifugalEquipment", label: "lang.has_centrifugal", type: "select", options: "yesNo", span: 6 },
+            { key: "lowFlowRatio", label: "lang.low_flow_ratio", type: "number", span: 6 },
+            { key: "fastActingValveType", label: "lang.fast_acting_valve", type: "select", options: "fastValve", span: 6 },
+            { key: "hasFlashingCavitation", label: "lang.has_flashing_cavitation", type: "select", options: "yesNo", span: 6 },
+            { key: "hasThermowellProbe", label: "lang.has_thermowell_probe", type: "select", options: "yesNo", span: 6 },
+            { key: "hasDeadBranch", label: "lang.has_dead_branch", type: "select", options: "yesNo", span: 6 },
+            { key: "hasSlugFlow", label: "lang.has_slug_flow", type: "select", options: "yesNo", span: 6 },
+            { key: "vibrationFailureHistory", label: "lang.vibration_failure_history", type: "select", options: "vibration", span: 6 }
+          ]
+        },
+        {
+          title: "lang.lof_weld_info",
+          fields: [
+            { key: "manufacturingStandard", label: "lang.manufacturing_standard" },
+            { key: "weldCode", label: "lang.weld_code" },
+            { key: "weldType", label: "lang.weld_type" },
+            { key: "weldCategory", label: "lang.weld_category" },
+            { key: "stressConcentrationFactor", label: "lang.stress_concentration_factor", type: "number" },
+            { key: "fatigueLevel", label: "lang.fatigue_level" },
+            { key: "visualDefectStandard", label: "lang.visual_defect_standard" },
+            { key: "lofRemark", label: "lang.lof_remark", type: "textarea", span: 24 }
+          ]
+        }
       ]
     };
   },
@@ -976,6 +1208,41 @@ export default {
       return [
         { label: this.$t("lang.conventional_island"), value: "常规岛" },
         { label: this.$t("lang.nuclear_island"), value: "核岛" }
+      ];
+    },
+    yesNoOptions() {
+      return [
+        { label: this.$t("lang.option_no"), value: 0 },
+        { label: this.$t("lang.option_yes"), value: 1 }
+      ];
+    },
+    levelOptions() {
+      return [
+        { label: this.$t("lang.level_low"), value: 0 },
+        { label: this.$t("lang.level_medium"), value: 1 },
+        { label: this.$t("lang.level_high"), value: 2 }
+      ];
+    },
+    mediumTypeOptions() {
+      return [
+        { label: this.$t("lang.medium_steam"), value: 0 },
+        { label: this.$t("lang.medium_water"), value: 1 },
+        { label: this.$t("lang.medium_two_phase"), value: 2 },
+        { label: this.$t("lang.medium_multi_phase"), value: 3 }
+      ];
+    },
+    fastValveOptions() {
+      return [
+        { label: this.$t("lang.valve_none"), value: 0 },
+        { label: this.$t("lang.valve_esd"), value: 1 },
+        { label: this.$t("lang.valve_safety"), value: 2 }
+      ];
+    },
+    vibrationOptions() {
+      return [
+        { label: this.$t("lang.vib_none"), value: 0 },
+        { label: this.$t("lang.vib_slight"), value: 1 },
+        { label: this.$t("lang.vib_severe"), value: 2 }
       ];
     },
     componentTypeOptions() {
@@ -1100,6 +1367,11 @@ export default {
     getFieldOptions(item) {
       if (item.key === "islandType") return this.islandOptions;
       if (item.key === "componentType") return this.componentTypeOptions;
+      if (item.options === "yesNo") return this.yesNoOptions;
+      if (item.options === "level") return this.levelOptions;
+      if (item.options === "mediumType") return this.mediumTypeOptions;
+      if (item.options === "fastValve") return this.fastValveOptions;
+      if (item.options === "vibration") return this.vibrationOptions;
       return [];
     },
     normalizeText(val) {
@@ -1118,6 +1390,17 @@ export default {
       if (!form.nodeName) form.nodeName = detail.nodeName || "";
       if (!form.specCode) form.specCode = detail.specCode || "";
       if (!form.systemCode) form.systemCode = detail.systemNo || "";
+      if (!form.pipeStandardKks) {
+        form.pipeStandardKks = detail.pipeStandardKks || detail.kksCode || "";
+      }
+      if (form.maxVelocity === "" || form.maxVelocity == null) {
+        form.maxVelocity = this.normalizeText(
+          detail.maxVelocity != null ? detail.maxVelocity : detail.flowVelocity
+        );
+      }
+      if (form.flowVelocity === "" || form.flowVelocity == null) {
+        form.flowVelocity = form.maxVelocity;
+      }
       const typeItem = getComponentTypeItem(detail.componentType);
       form.componentType = typeItem ? typeItem.code : "";
       this.form = form;
@@ -1449,6 +1732,50 @@ export default {
         operatingTemperature: this.toNumber(form.operatingTemperature),
         isoCode: this.toText(form.isoCode),
         componentType: this.toInteger(form.componentType),
+        pipeStandardKks: this.toText(form.pipeStandardKks),
+        fluidDensity: this.toNumber(form.fluidDensity),
+        maxVelocity: this.toNumber(
+          form.maxVelocity !== "" && form.maxVelocity != null
+            ? form.maxVelocity
+            : form.flowVelocity
+        ),
+        isChokedFlow: this.toInteger(form.isChokedFlow),
+        hasSlugFlow: this.toInteger(form.hasSlugFlow),
+        equipmentType: this.toText(form.equipmentType),
+        spanReference: this.toNumber(form.spanReference),
+        lofRemark: this.toText(form.lofRemark),
+        mediumType: this.toInteger(form.mediumType),
+        materialGrade: this.toText(form.materialGrade),
+        elasticModulus: this.toNumber(form.elasticModulus),
+        poissonRatio: this.toNumber(form.poissonRatio),
+        materialDensity: this.toNumber(form.materialDensity),
+        yieldStrength: this.toNumber(form.yieldStrength),
+        fatigueLimit: this.toNumber(form.fatigueLimit),
+        naturalFrequencyParams: this.toText(form.naturalFrequencyParams),
+        annualUnplannedStops: this.toInteger(form.annualUnplannedStops),
+        annualStartStops: this.toInteger(form.annualStartStops),
+        annualFastValveActions: this.toInteger(form.annualFastValveActions),
+        periodicOperation: this.toText(form.periodicOperation),
+        c1Level: this.toInteger(form.c1Level),
+        c2Level: this.toInteger(form.c2Level),
+        c3Level: this.toInteger(form.c3Level),
+        c4Level: this.toInteger(form.c4Level),
+        hasThrottlingElement: this.toInteger(form.hasThrottlingElement),
+        hasReciprocatingEquipment: this.toInteger(form.hasReciprocatingEquipment),
+        hasCentrifugalEquipment: this.toInteger(form.hasCentrifugalEquipment),
+        lowFlowRatio: this.toNumber(form.lowFlowRatio),
+        fastActingValveType: this.toInteger(form.fastActingValveType),
+        hasFlashingCavitation: this.toInteger(form.hasFlashingCavitation),
+        hasThermowellProbe: this.toInteger(form.hasThermowellProbe),
+        hasDeadBranch: this.toInteger(form.hasDeadBranch),
+        vibrationFailureHistory: this.toInteger(form.vibrationFailureHistory),
+        manufacturingStandard: this.toText(form.manufacturingStandard),
+        weldCode: this.toText(form.weldCode),
+        weldType: this.toText(form.weldType),
+        weldCategory: this.toText(form.weldCategory),
+        stressConcentrationFactor: this.toNumber(form.stressConcentrationFactor),
+        fatigueLevel: this.toText(form.fatigueLevel),
+        visualDefectStandard: this.toText(form.visualDefectStandard),
         privateAttributes: this.buildPrivateAttributes(),
         attachmentIds: this.buildAttachmentIds()
       };
@@ -1572,6 +1899,8 @@ export default {
     line-height: 44px;
     font-size: 14px;
     color: #606266;
+    display: inline-flex;
+    align-items: center;
   }
   /deep/ .el-tabs__item.is-active {
     color: #1a6fc4;
@@ -1580,6 +1909,16 @@ export default {
   /deep/ .el-tabs__active-bar {
     background-color: #1a6fc4;
     height: 2px;
+  }
+  .tab-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /deep/ .tab-svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
   }
 }
 .section-block {
