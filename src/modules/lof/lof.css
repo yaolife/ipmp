@@ -136,6 +136,14 @@
   cursor: not-allowed;
 }
 
+.lof-page .form-group-active-select input,
+.lof-page .form-group-active-select input[readonly],
+.lof-page .form-group-active-select .el-input__inner {
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
 .lof-page .radio-group {
   display: flex;
   gap: 8px;

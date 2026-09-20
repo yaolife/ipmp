@@ -9,7 +9,7 @@
           </div>
           <div class="card-body">
             <div class="form-row lof-form-row-4">
-              <div class="form-group">
+              <div class="form-group form-group-active-select">
                 <label>管段选择</label>
                 <el-select
                   v-model="segmentId"
@@ -127,7 +127,7 @@
                 <div class="card-title">C1~C4 工况因子（只读）</div>
               </div>
               <div class="card-body">
-                <div class="form-row form-row-2">
+                <div class="form-row">
                   <div
                     class="form-group"
                     v-for="item in conditions"
