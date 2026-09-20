@@ -1,7 +1,6 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <breadcrumb :arrayName="brand" :hasIcon="hasIcon"></breadcrumb>
       <div class="lof-page" v-loading="pageLoading">
         <div class="card">
           <div class="card-header">
@@ -284,7 +283,6 @@
 </template>
 
 <script>
-import breadcrumb from "@/components/common/breadcrumb";
 import LofTraceDrawer from "./components/LofTraceDrawer";
 import api from "./api";
 import { calculateSupportType } from "./utils";
@@ -333,15 +331,9 @@ const CONDITION_RULES = {
 };
 
 export default {
-  components: { breadcrumb, LofTraceDrawer },
+  components: { LofTraceDrawer },
   data() {
     return {
-      hasIcon: false,
-      brand: [
-        { name: "lang.analysis_govern" },
-        { name: "lang.lof" },
-        { name: "lang.lof_tm01" }
-      ],
       incentives: INCENTIVES,
       conditions: CONDITIONS,
       scoreOptions: SCORE_OPTIONS,

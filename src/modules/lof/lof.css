@@ -16,6 +16,8 @@
   --text-2: #5f6b7a;
   --radius: 8px;
   --radius-sm: 4px;
+  padding: 15px 22px 15px 15px;
+  box-sizing: border-box;
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
@@ -27,6 +29,11 @@
   border-radius: var(--radius);
   margin-bottom: 20px;
   overflow: hidden;
+}
+
+.lof-page > .card:last-child,
+.lof-ledger .card {
+  margin-bottom: 0;
 }
 
 .lof-page .card-header {

@@ -1,7 +1,6 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <breadcrumb :arrayName="brand" :hasIcon="hasIcon"></breadcrumb>
       <div class="lof-page lof-ledger" v-loading="pageLoading">
         <div class="ledger-layout">
           <div class="card ledger-tree-card">
@@ -258,7 +257,6 @@
 </template>
 
 <script>
-import breadcrumb from "@/components/common/breadcrumb";
 import draftsApi from "@/modules/drafts/api";
 import api from "./api";
 import { isSuccessCode, unwrapList } from "./utils";
@@ -295,15 +293,8 @@ function emptyEditForm() {
 }
 
 export default {
-  components: { breadcrumb },
   data() {
     return {
-      hasIcon: false,
-      brand: [
-        { name: "lang.analysis_govern" },
-        { name: "lang.lof" },
-        { name: "lang.lof_ledger" }
-      ],
       pageLoading: false,
       batchAnalyzing: false,
       directoryTree: [],
@@ -622,7 +613,7 @@ export default {
 
 <style scoped>
 .lof-ledger {
-  height: calc(100vh - 118px);
+  height: calc(100vh - 90px);
   min-height: 560px;
 }
 
