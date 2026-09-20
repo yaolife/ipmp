@@ -145,7 +145,10 @@
 
 .lof-page .form-group-active-select input,
 .lof-page .form-group-active-select input[readonly],
-.lof-page .form-group-active-select .el-input__inner {
+.lof-page .form-group-active-select .el-input__inner,
+.lof-page .form-group .el-select:not(.is-disabled) input,
+.lof-page .form-group .el-select:not(.is-disabled) input[readonly],
+.lof-page .form-group .el-select:not(.is-disabled) .el-input__inner {
   background: #fff;
   color: var(--text);
   cursor: pointer;
