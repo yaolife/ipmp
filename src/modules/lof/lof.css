@@ -16,7 +16,7 @@
   --text-2: #5f6b7a;
   --radius: 8px;
   --radius-sm: 4px;
-  padding: 15px 22px 15px 15px;
+  padding: 8px 12px 8px 8px;
   box-sizing: border-box;
   color: var(--text);
   font-size: 14px;
@@ -27,7 +27,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   overflow: hidden;
 }
 
@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   background: #fafbfc;
 }
@@ -51,12 +51,12 @@
 }
 
 .lof-page .card-body {
-  padding: 18px;
+  padding: 12px 14px;
 }
 
 .lof-page .grid {
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
 .lof-page .grid-2 {
@@ -65,8 +65,8 @@
 
 .lof-page .form-row {
   display: grid;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .lof-page .form-row-2 {
@@ -219,7 +219,7 @@
 }
 
 .lof-page .mt-12 {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .lof-page .help-text {

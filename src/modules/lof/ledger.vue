@@ -620,7 +620,7 @@ export default {
 .ledger-layout {
   display: flex;
   height: 100%;
-  gap: 16px;
+  gap: 10px;
 }
 
 .ledger-tree-card {
