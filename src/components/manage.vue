@@ -345,18 +345,26 @@ export default {
     },
   },
   methods: {
-    //设置草稿菜单数量标记
+    //设置管道数据库菜单数量标记
     getDraftCount() {
-      let params = {
-        current: 1,
-        size: 10,
-      };
-      draftApi.pageListAPI(params).then((res) => {
-        if (res.code === "0") {
-          let count = res.total > 99 ? "99+" : res.total;
+      if (!draftApi || typeof draftApi.pagePipelines !== "function") {
+        return;
+      }
+      draftApi
+        .pagePipelines({
+          current: 1,
+          size: 1
+        })
+        .then((res) => {
+          const ok = res && (res.code === "0" || res.code === 0);
+          if (!ok) return;
+          const total =
+            (res.data && res.data.total != null ? res.data.total : res.total) ||
+            0;
+          const count = total > 99 ? "99+" : total;
           store.commit("setBadgeCount", { name: "draftCount", count: count });
-        }
-      }).catch(() => {});
+        })
+        .catch(() => {});
     },
     //初始化搜索
     searchInit(val) {
