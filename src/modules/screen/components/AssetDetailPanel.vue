@@ -245,8 +245,9 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 1064px;
+  width: 100%;
   height: 100%;
+  max-width: 100%;
   max-height: 100%;
   box-sizing: border-box;
   overflow: hidden;

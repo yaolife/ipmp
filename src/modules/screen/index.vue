@@ -12,9 +12,11 @@
     <div class="screen-left" v-show="loaded && treeVisible">
       <model-tree-panel
         ref="treePanel"
+        :icon-visible="showcaseIconVisible"
         @loaded="onTreeLoaded"
         @select="onTreeSelect"
         @unselect="onTreeUnselect"
+        @showcase="onTreeShowcase"
         @close="onTreeClose"
       ></model-tree-panel>
     </div>
@@ -67,6 +69,7 @@ export default {
       pipelineId: "",
       detailVisible: false,
       treeVisible: false,
+      showcaseIconVisible: false,
       syncingFromUe: false,
       currentMeshId: "",
       userInfoLoading: true,
@@ -114,6 +117,7 @@ export default {
   mounted() {
     const self = this;
     this.userInfoLoading = false;
+    window.addEventListener("ipmp-showcase", this.onDomShowCase);
     this.$nextTick(function() {
       self.applyPendingDetail();
       self.ensurePeerStreamVideo();
@@ -140,6 +144,7 @@ export default {
     }
     this.unbindUeEvents();
     this.unbindPeerStreamRef();
+    window.removeEventListener("ipmp-showcase", this.onDomShowCase);
   },
   methods: {
     ensurePeerStreamVideo() {
@@ -268,6 +273,7 @@ export default {
       ps.on(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
       ps.on(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
       ps.on(ps.EVENTS.SET_MENU, this.onSetMenu);
+      ps.on(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
       ps.on(ps.EVENTS.PROGRESS, this.onUeProgress);
       ps.on(ps.EVENTS.USER_INFO, this.onUeUserInfo);
     },
@@ -278,6 +284,7 @@ export default {
       ps.off(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
       ps.off(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
       ps.off(ps.EVENTS.SET_MENU, this.onSetMenu);
+      ps.off(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
       ps.off(ps.EVENTS.PROGRESS, this.onUeProgress);
       ps.off(ps.EVENTS.USER_INFO, this.onUeUserInfo);
     },
@@ -357,10 +364,35 @@ export default {
       const showPlant =
         menu === this.$pixelStream.MENUS.PIPELINE_NETWORK_PLANT;
       this.treeVisible = showPlant;
-      if (!showPlant) {
+      if (showPlant) {
+        this.showcaseIconVisible = true;
+      } else {
         this.detailVisible = false;
         this.$refs.treePanel && this.$refs.treePanel.clearCurrent();
       }
+    },
+    onExitShowCase(data) {
+      const modelNo = this.$pixelStream.normalizeMeshId(data);
+      this.treeVisible = true;
+      this.showcaseIconVisible = true;
+      if (!modelNo) return;
+      this.syncingFromUe = true;
+      this.currentMeshId = modelNo;
+      this.$pixelStream.selectedMeshId = modelNo;
+      const node = this.syncTreeByMeshId(modelNo);
+      this.currentNode = node;
+      this.syncingFromUe = false;
+    },
+    onTreeShowcase(node, modelNo) {
+      const id = String(modelNo == null ? "" : modelNo).trim();
+      this.currentNode = node;
+      this.currentMeshId = id;
+      if (id) this.$pixelStream.selectedMeshId = id;
+      this.treeVisible = false;
+      this.showcaseIconVisible = false;
+    },
+    onDomShowCase(e) {
+      this.onTreeShowcase(null, e && e.detail);
     },
     goAdminBackend() {
       const route = this.$router.resolve({ path: "/pipeDatabase" });
@@ -576,18 +608,19 @@ export default {
 }
 .screen-left {
   position: absolute;
-  left: 30px;
-  top: 90px;
-  bottom: 80px;
-  width: 318px;
-  z-index: 2;
+  left: 1.56%;
+  top: 8.33%;
+  bottom: 7.41%;
+  width: 16.56%;
+  z-index: 5000;
   pointer-events: auto;
 }
 .screen-right {
   position: absolute;
-  left: 428px;
-  top: 100px;
-  bottom: 160px;
+  left: 22.29%;
+  top: 9.26%;
+  width: 55.42%;
+  height: 75.93%;
   z-index: 2;
   pointer-events: auto;
 }
@@ -595,8 +628,8 @@ export default {
 <style lang="less">
 .screen-page .admin-entry {
   position: fixed !important;
-  top: 70px !important;
-  right: 17px !important;
+  top: 13% !important;
+  right: 0.89% !important;
   z-index: 4000 !important;
   box-sizing: border-box;
   width: 110px;

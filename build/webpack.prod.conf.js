@@ -77,6 +77,7 @@ const webpackConfig = merge(baseWebpackConfig, {
         removeAttributeQuotes: true
       },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
+      hash: true,
       chunksSortMode: "manual",
       //chunksSortMode: 'dependency'
       chunks: ["manifest", "vendor", "vue", "element-ui", "echarts", "tinymce", "editor", "app"],

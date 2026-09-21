@@ -26,8 +26,19 @@
         :empty-text="$t('cm.nodata')"
         @node-click="onNodeClick"
       >
-        <span class="tree-node" slot-scope="{ node }">
+        <span class="tree-node" slot-scope="{ node, data }">
           <span class="tree-node-label" :title="node.label">{{ node.label }}</span>
+          <button
+            v-show="iconVisible"
+            type="button"
+            class="tree-showcase-btn"
+            :data-showcase="getShowcaseModelNo(data, node)"
+            :data-node-id="data && data.id"
+            @click.stop.prevent="onShowcaseClick($event, data, node)"
+            @mousedown.stop="onShowcaseClick($event, data, node)"
+          >
+            <img class="tree-showcase-icon" :src="showcaseIcon" alt="" />
+          </button>
         </span>
       </el-tree>
     </div>
@@ -37,6 +48,7 @@
 <script>
 import api from "@/modules/drafts/api";
 import { getNodeMeshId, normalizeMeshId } from "@/utils/pixelStream";
+import showcaseIcon from "@/assets/img/showcase-icon.png";
 
 const PIPE_DIRECTORY_TYPE = 0;
 
@@ -58,6 +70,12 @@ function normalizeTree(list) {
 
 export default {
   name: "ModelTreePanel",
+  props: {
+    iconVisible: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
       loading: false,
@@ -68,7 +86,9 @@ export default {
         label: "nodeName"
       },
       currentNodeId: null,
-      currentMeshId: ""
+      currentMeshId: "",
+      showcaseIcon: showcaseIcon,
+      lastShowcaseAt: 0
     };
   },
   watch: {
@@ -79,6 +99,10 @@ export default {
   },
   mounted() {
     this.loadTree();
+    window.addEventListener("ipmp-showcase", this.onWindowShowCase);
+  },
+  beforeDestroy() {
+    window.removeEventListener("ipmp-showcase", this.onWindowShowCase);
   },
   methods: {
     isSuccessCode(code) {
@@ -88,6 +112,68 @@ export default {
       if (!value) return true;
       const keyword = value.toLowerCase();
       return getNodeLabel(data).toLowerCase().indexOf(keyword) !== -1;
+    },
+    pickShowcaseText(value) {
+      return String(value == null ? "" : value)
+        .replace(/\0/g, "")
+        .replace(/^["']+|["']+$/g, "")
+        .trim();
+    },
+    getShowcaseModelNo(data, node) {
+      const source = data || (node && node.data) || {};
+      const label = (node && node.label) || getNodeLabel(source);
+      const candidates = [
+        source.pipelineNo,
+        source.modelCode,
+        source.modelNo,
+        source.kks,
+        source.kksCode,
+        source.pipeNo,
+        source.sysName,
+        source.pipelineName,
+        source.modelName,
+        source.resourceName,
+        source.directoryName,
+        source.nodeName,
+        source.name,
+        source.code,
+        label,
+        source.id
+      ];
+      for (let i = 0; i < candidates.length; i++) {
+        const text = this.pickShowcaseText(candidates[i]);
+        if (text) return text;
+      }
+      return "";
+    },
+    onShowcaseClick(e, data, node) {
+      if (e) {
+        if (typeof e.stopPropagation === "function") e.stopPropagation();
+        if (typeof e.preventDefault === "function") e.preventDefault();
+      }
+      const payload = data || (node && node.data) || {};
+      const modelNo = this.getShowcaseModelNo(payload, node);
+      this.dispatchShowCase(payload, modelNo);
+    },
+    onWindowShowCase(e) {
+      const id = this.pickShowcaseText(e && e.detail);
+      const now = Date.now();
+      if (this.lastShowcaseAt && now - this.lastShowcaseAt < 400) return;
+      this.lastShowcaseAt = now;
+      const payload = this.findNodeByMeshId(id) || {};
+      this.$emit("showcase", payload, id);
+    },
+    dispatchShowCase(payload, modelNo) {
+      const now = Date.now();
+      if (this.lastShowcaseAt && now - this.lastShowcaseAt < 400) return;
+      this.lastShowcaseAt = now;
+      const id = this.pickShowcaseText(modelNo);
+      if (typeof window.sendShowCase === "function") {
+        window.sendShowCase(id);
+      } else if (this.$pixelStream && this.$pixelStream.sendShowCase) {
+        this.$pixelStream.sendShowCase(id);
+      }
+      this.$emit("showcase", payload, id);
     },
     loadTree() {
       this.loading = true;
@@ -128,15 +214,25 @@ export default {
       this.setCurrentKey(null);
     },
     findNodeByMeshId(meshId, list) {
-      const id = normalizeMeshId(meshId);
+      const id = this.pickShowcaseText(meshId);
       if (!id) return null;
       const nodes = Array.isArray(list) ? list : this.treeData;
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         if (!node) continue;
-        const nodeMeshId = getNodeMeshId(node);
-        if (nodeMeshId && nodeMeshId === id) return node;
-        if (node.id != null && String(node.id) === id) return node;
+        const keys = [
+          getNodeMeshId(node),
+          node.pipelineNo,
+          node.modelCode,
+          node.modelNo,
+          node.pipelineName,
+          node.modelName,
+          node.nodeName,
+          node.name,
+          node.code,
+          node.id
+        ];
+        if (keys.some(item => this.pickShowcaseText(item) === id)) return node;
         const found = this.findNodeByMeshId(id, node.children || []);
         if (found) return found;
       }
@@ -166,7 +262,7 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 318px;
+  width: 100%;
   height: 100%;
   padding: 12px 12px 10px;
   box-sizing: border-box;
@@ -228,6 +324,10 @@ export default {
   /deep/ .el-tree-node__content {
     height: 32px;
     background: transparent;
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+    overflow: visible;
   }
   /deep/ .el-tree-node__content:hover {
     background: rgba(255, 255, 255, 0.08);
@@ -258,14 +358,97 @@ export default {
   border-radius: 3px;
 }
 .tree-node {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  flex: 1;
   min-width: 0;
+  width: 0;
   font-size: 13px;
 }
 .tree-node-label {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.tree-showcase-btn {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 2;
+  pointer-events: auto;
+  position: relative;
+}
+.tree-showcase-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+  pointer-events: none;
+}
+.tree-showcase-btn:hover .tree-showcase-icon {
+  opacity: 1;
+}
+/deep/ .el-tree-node.is-current .tree-showcase-icon {
+  opacity: 1;
+}
+</style>
+<style lang="less">
+.model-tree-panel .tree-node {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  font-size: 13px;
+}
+.model-tree-panel .tree-node-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.model-tree-panel .tree-showcase-btn {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.model-tree-panel .tree-showcase-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  filter: brightness(0) invert(1);
+  pointer-events: none;
 }
 </style>

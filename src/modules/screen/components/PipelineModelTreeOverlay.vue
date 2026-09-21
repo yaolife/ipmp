@@ -6,9 +6,11 @@
     <model-tree-panel
       v-if="visible"
       ref="treePanel"
+      :icon-visible="showcaseIconVisible"
       @loaded="onTreeLoaded"
       @select="onTreeSelect"
       @unselect="onTreeUnselect"
+      @showcase="onTreeShowcase"
       @close="visible = false"
     ></model-tree-panel>
   </div>
@@ -25,6 +27,7 @@ export default {
   data() {
     return {
       visible: false,
+      showcaseIconVisible: false,
       syncingFromUe: false,
       currentMeshId: ""
     };
@@ -46,6 +49,7 @@ export default {
   created() {
     const ps = this.$pixelStream;
     ps.on(ps.EVENTS.SET_MENU, this.onSetMenu);
+    ps.on(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
     ps.on(ps.EVENTS.SELECT_MESH, this.onUeSelectMesh);
     ps.on(ps.EVENTS.CANCEL_SELECTED_MESH, this.onUeCancelSelectedMesh);
     ps.on(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
@@ -53,15 +57,18 @@ export default {
   },
   mounted() {
     this.$pixelStream.bindWhenReady();
+    window.addEventListener("ipmp-showcase", this.onDomShowCase);
   },
   beforeDestroy() {
     const ps = this.$pixelStream;
     ps.off(ps.EVENTS.SET_MENU, this.onSetMenu);
+    ps.off(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
     ps.off(ps.EVENTS.SELECT_MESH, this.onUeSelectMesh);
     ps.off(ps.EVENTS.CANCEL_SELECTED_MESH, this.onUeCancelSelectedMesh);
     ps.off(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
     ps.off(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
     this.$pixelStream.stopBindWatch();
+    window.removeEventListener("ipmp-showcase", this.onDomShowCase);
   },
   methods: {
     getMeshId(node, fallback) {
@@ -75,7 +82,30 @@ export default {
         .replace(/\0/g, "")
         .replace(/^["']+|["']+$/g, "")
         .trim();
-      this.visible = menu === this.$pixelStream.MENUS.PIPELINE_NETWORK_PLANT;
+      const showPlant = menu === this.$pixelStream.MENUS.PIPELINE_NETWORK_PLANT;
+      this.visible = showPlant;
+      if (showPlant) this.showcaseIconVisible = true;
+    },
+    onExitShowCase(data) {
+      const modelNo = this.$pixelStream.normalizeMeshId(data);
+      this.visible = true;
+      this.showcaseIconVisible = true;
+      if (!modelNo) return;
+      this.syncingFromUe = true;
+      this.currentMeshId = modelNo;
+      this.$pixelStream.selectedMeshId = modelNo;
+      this.syncTreeByMeshId(modelNo);
+      this.syncingFromUe = false;
+    },
+    onTreeShowcase(node, modelNo) {
+      const id = String(modelNo == null ? "" : modelNo).trim();
+      this.currentMeshId = id;
+      if (id) this.$pixelStream.selectedMeshId = id;
+      this.visible = false;
+      this.showcaseIconVisible = false;
+    },
+    onDomShowCase(e) {
+      this.onTreeShowcase(null, e && e.detail);
     },
     onTreeLoaded() {
       const meshId = this.$pixelStream.selectedMeshId || this.currentMeshId;
@@ -147,10 +177,10 @@ export default {
 <style lang="less" scoped>
 .pipeline-model-tree-overlay {
   position: fixed;
-  left: 30px;
-  top: 80px;
-  bottom: 80px;
-  width: 318px;
+  left: 1.56%;
+  top: 8.33%;
+  bottom: 7.41%;
+  width: 16.56%;
   z-index: 4000;
   pointer-events: auto;
 }

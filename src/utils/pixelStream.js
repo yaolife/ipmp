@@ -17,7 +17,9 @@ export const PIXEL_STREAM_EVENT = {
   SELECT_MESH: "SelectMesh",
   CANCEL_SELECTED_MESH: "CancelSelectedMesh",
   SHOW_DETAILS: "ShowDetails",
-  SHOW_ONLINE_MONITORING: "ShowOnlineMonitoring"
+  SHOW_ONLINE_MONITORING: "ShowOnlineMonitoring",
+  SHOW_CASE: "ShowCase",
+  EXIT_SHOW_CASE: "ExitShowCase"
 };
 
 export const PIXEL_STREAM_MENU = {
@@ -230,7 +232,9 @@ class PixelStreamClient {
       msg.event === PIXEL_STREAM_EVENT.SELECT_MESH ||
       msg.event === PIXEL_STREAM_EVENT.CANCEL_SELECTED_MESH ||
       msg.event === PIXEL_STREAM_EVENT.SHOW_DETAILS ||
-      msg.event === PIXEL_STREAM_EVENT.SHOW_ONLINE_MONITORING
+      msg.event === PIXEL_STREAM_EVENT.SHOW_ONLINE_MONITORING ||
+      msg.event === PIXEL_STREAM_EVENT.SHOW_CASE ||
+      msg.event === PIXEL_STREAM_EVENT.EXIT_SHOW_CASE
     ) {
       msg.data = normalizeMeshId(msg.data);
     }
@@ -284,9 +288,14 @@ class PixelStreamClient {
   }
 
   findElement() {
+    if (this.el && this.el.tagName === "VIDEO") return this.el;
+    if (window.pixelStreamRef && window.pixelStreamRef.tagName === "VIDEO") {
+      return window.pixelStreamRef;
+    }
     if (window.ps && window.ps.tagName === "VIDEO") return window.ps;
     return (
       document.querySelector('video[is="peer-stream"]') ||
+      document.querySelector("video.pixelStream") ||
       document.querySelector("video.pixel-stream")
     );
   }
@@ -358,11 +367,21 @@ class PixelStreamClient {
   }
 
   emitMessage(msg) {
-    if (!this.el || typeof this.el.emitMessage !== "function") {
+    const el = this.findElement();
+    if (!el) {
       console.warn("[pixelStream] 像素流尚未就绪，无法发送", msg);
       return;
     }
-    return this.el.emitMessage(msg);
+    if (this.el !== el) this.attachElement(el);
+    if (typeof el.emitMessage !== "function") {
+      console.warn("[pixelStream] peer-stream 未生效，无法发送", msg);
+      return;
+    }
+    try {
+      return el.emitMessage(msg);
+    } catch (e) {
+      console.warn("[pixelStream] 发送失败", msg, e);
+    }
   }
 
   send(event, data) {
@@ -371,7 +390,7 @@ class PixelStreamClient {
     }
     return this.emitMessage({
       event: event,
-      data: data
+      data: data == null ? "" : data
     });
   }
 
@@ -387,6 +406,15 @@ class PixelStreamClient {
     if (!id) return;
     if (this.selectedMeshId === id) this.selectedMeshId = "";
     return this.send(PIXEL_STREAM_EVENT.CANCEL_SELECTED_MESH, id);
+  }
+
+  sendShowCase(modelNo) {
+    const id = unwrapQuoted(modelNo);
+    this.selectedMeshId = id;
+    if (typeof window !== "undefined" && typeof window.sendShowCase === "function") {
+      return window.sendShowCase(id);
+    }
+    return this.send(PIXEL_STREAM_EVENT.SHOW_CASE, id);
   }
 
   setPendingDetail(meshId, tab) {

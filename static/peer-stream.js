@@ -1044,6 +1044,11 @@ class PeerStream extends HTMLVideoElement {
   // emit string
   emitMessage(msg, messageType = SEND.UIInteraction) {
     if (typeof msg !== 'string') msg = JSON.stringify(msg)
+    console.log('[peer-stream] emitMessage', msg)
+    if (!this.dc || typeof this.dc.send !== 'function') {
+      console.warn('[peer-stream] DataChannel 未就绪，无法发送', msg)
+      return
+    }
 
     // Add the UTF-16 JSON string to the array byte buffer, going two bytes at a time.
     const data = new DataView(new ArrayBuffer(1 + 2 + 2 * msg.length))

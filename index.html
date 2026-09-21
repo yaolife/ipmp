@@ -21,7 +21,8 @@
   <link href="./static/lib/psc-module-icons/iconfont.css" rel="stylesheet" type="text/css" />
   <link href="./static/css/el-icon.css" rel="stylesheet" type="text/css" />
   <!-- 像素流组件需原生 class，不能经 webpack/babel 转译 -->
-  <script src="./static/peer-stream.js?v=20260914"></script>
+  <script src="./static/peer-stream.js?v=20260921"></script>
+  <script src="./static/showcase-bridge.js?v=20260921"></script>
 
 
   <style>
@@ -69,12 +70,68 @@
       background: #000;
     }
     .screen-page .screen-left {
-      top: 90px !important;
+      left: 1.56% !important;
+      top: 8.33% !important;
+      bottom: 7.41% !important;
+      width: 16.56% !important;
+      z-index: 5000 !important;
+      pointer-events: auto !important;
+    }
+    .screen-page .screen-right {
+      left: 22.29% !important;
+      top: 9.26% !important;
+      width: 55.42% !important;
+      height: 75.93% !important;
+      bottom: auto !important;
+    }
+    .model-tree-panel .tree-node {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+      width: 0;
+    }
+    .model-tree-panel .tree-node-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .model-tree-panel .tree-showcase-btn {
+      flex-shrink: 0;
+      box-sizing: border-box;
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      min-height: 22px !important;
+      margin-left: 8px;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      position: relative;
+      z-index: 2;
+      pointer-events: auto;
+    }
+    .model-tree-panel .tree-showcase-icon {
+      width: 18px !important;
+      height: 18px !important;
+      display: block;
+      filter: brightness(0) invert(1);
+      pointer-events: none;
     }
     .screen-page .admin-entry {
       position: fixed !important;
-      top: 70px !important;
-      right: 17px !important;
+      top: 13% !important;
+      right: 0.89% !important;
       z-index: 4000 !important;
       box-sizing: border-box;
       width: 110px;
