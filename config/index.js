@@ -7,8 +7,8 @@
 const path = require("path");
 // 业务后端地址，联调时只改这一处
 //const BACKEND_API_TARGET = "http://192.168.0.254:8000";//YJ-WIFI
-//const BACKEND_API_TARGET = "http://192.168.184.254:8000";//局域网
-const BACKEND_API_TARGET = "http://localhost";//本地直连
+const BACKEND_API_TARGET = "http://192.168.184.254:8000";//局域网
+//const BACKEND_API_TARGET = "http://localhost";//本地直连
 module.exports = {
     dev: {
         assetsSubDirectory: "static",
