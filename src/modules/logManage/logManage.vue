@@ -5,9 +5,9 @@
         <query-form
           :queryFormId="'logManage'"
           :queryFields="queryFields"
-          :loading="loading"
-          :showMoreSetting="false"
-          labelWidth="180px"
+          :loading="tableLoading"
+          :showMoreSetting="true"
+          labelWidth="120px"
           @resize="initMaxHeight"
           @submit="search"
           ref="queryForm"
@@ -16,58 +16,6 @@
         </query-form>
       </el-card>
       <el-card>
-        <div class="table-toolbar">
-          <div class="level-chips">
-            <span
-              class="level-chip"
-              :class="{ active: !activeLevel }"
-              @click="filterByLevel('')"
-            >
-              {{ $t("lang.log_all") }}
-              <em>{{ levelCounts.ALL }}</em>
-            </span>
-            <span
-              class="level-chip error"
-              :class="{ active: activeLevel === 'ERROR' }"
-              @click="filterByLevel('ERROR')"
-            >
-              {{ $t("lang.log_level_error") }}
-              <em>{{ levelCounts.ERROR }}</em>
-            </span>
-            <span
-              class="level-chip warn"
-              :class="{ active: activeLevel === 'WARN' }"
-              @click="filterByLevel('WARN')"
-            >
-              {{ $t("lang.log_level_warn") }}
-              <em>{{ levelCounts.WARN }}</em>
-            </span>
-            <span
-              class="level-chip info"
-              :class="{ active: activeLevel === 'INFO' }"
-              @click="filterByLevel('INFO')"
-            >
-              {{ $t("lang.log_level_info") }}
-              <em>{{ levelCounts.INFO }}</em>
-            </span>
-            <span
-              class="level-chip debug"
-              :class="{ active: activeLevel === 'DEBUG' }"
-              @click="filterByLevel('DEBUG')"
-            >
-              {{ $t("lang.log_level_debug") }}
-              <em>{{ levelCounts.DEBUG }}</em>
-            </span>
-          </div>
-          <div class="table-button">
-            <el-button size="small" @click="exportList">{{
-              $t("cm.export")
-            }}</el-button>
-            <el-button type="primary" size="small" @click="refreshList">{{
-              $t("cm.refresh")
-            }}</el-button>
-          </div>
-        </div>
         <el-row
           class="cud__table--list"
           :style="{ height: computedTableHeight + 'px' }"
@@ -76,7 +24,7 @@
             :data="tableData"
             ref="multipleSelection"
             @selection-change="handleSelectionChange"
-            v-loading="loading"
+            v-loading="tableLoading"
             :empty-text="$t('cm.nodata')"
             highlight-current-row
             border
@@ -84,13 +32,7 @@
             :max-height="computedTableHeight"
             header-row-class-name="cud-office-table-header"
             class="cud-office-table"
-            @row-click="viewRow"
           >
-            <el-table-column
-              align="center"
-              type="selection"
-              width="55"
-            ></el-table-column>
             <el-table-column
               align="center"
               type="index"
@@ -100,78 +42,128 @@
             ></el-table-column>
             <el-table-column
               align="center"
-              prop="time"
-              :label="$t('lang.log_time_range')"
-              min-width="170"
+              prop="requestTime"
+              label="请求时间"
+              width="170"
               show-overflow-tooltip
             ></el-table-column>
+
             <el-table-column
               align="center"
-              prop="level"
-              :label="$t('lang.log_level')"
+              prop="callType"
+              label="关联系统"
+              width="130"
+            ></el-table-column>
+
+            <el-table-column
+              align="center"
+              prop="methodName"
+              label="接口名称"
+              width="170"
+              show-overflow-tooltip
+            ></el-table-column>
+
+            <el-table-column
+              align="center"
+              prop="operTitle"
+              label="业务模块"
+              width="150"
+            ></el-table-column>
+
+            <el-table-column
+              align="center"
+              prop="logType"
+              label="业务类型"
+              width="150"
+            ></el-table-column>
+
+            <el-table-column
+              label="响应状态"
+              prop="responseStatus"
+              align="center"
+              width="80"
+            >
+              <template slot-scope="scope">
+                <el-tag type="success" size="mini"
+                        v-if="scope.row.responseStatus === 'SUCCESS'"
+                        style="color: green;"
+                >成功</el-tag>
+                <el-tag type="error" size="mini" style="color: orangered;" v-else>失败</el-tag>
+              </template>
+            </el-table-column>
+
+            <el-table-column
+              label="请求ip"
+              prop="requestIp"
+              align="center"
+              width="150"
+            >
+              <template slot-scope="scope">
+                <span>{{(!scope.row.requestIp?"-":scope.row.requestIp)}} </span>
+              </template>
+            </el-table-column>
+
+            <el-table-column
+              label="入参参数"
+              prop="methodArgs"
+              align="center"
+              show-overflow-tooltip
+            />
+            <el-table-column
+              label="响应消息"
+              prop="responseMsg"
+              align="center"
+              show-overflow-tooltip
+            >
+              <template slot-scope="scope">
+                <span>{{(!scope.row.responseMsg?"/":scope.row.responseMsg)}} </span>
+              </template>
+            </el-table-column>
+
+            <el-table-column
+              label="响应数据"
+              prop="responseData"
+              align="center"
+              show-overflow-tooltip
+            >
+              <template slot-scope="scope">
+                <span>{{(!scope.row.responseData?"/":scope.row.responseData)}} </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="响应耗时"
+              prop="costTime"
+              align="center"
               width="100"
             >
               <template slot-scope="scope">
-                <el-tag
-                  :type="levelTagType(scope.row.level)"
-                  size="mini"
-                  effect="dark"
-                  >{{ $t("lang.log_level_" + scope.row.level.toLowerCase()) }}</el-tag
-                >
+                <span>{{toPercentNumMs(scope.row.costTime)}}</span>
               </template>
             </el-table-column>
+
             <el-table-column
               align="center"
-              prop="module"
-              :label="$t('lang.log_module')"
-              min-width="130"
-              show-overflow-tooltip
-            >
-              <template slot-scope="scope">{{
-                moduleLabel(scope.row.module)
-              }}</template>
-            </el-table-column>
-            <el-table-column
-              align="center"
-              prop="operator"
-              :label="$t('lang.log_operator')"
-              min-width="100"
-              show-overflow-tooltip
+              prop="operUser"
+              label="操作用户"
+              width="180"
             ></el-table-column>
-            <el-table-column
-              align="center"
-              prop="ip"
-              :label="$t('lang.log_ip')"
-              min-width="130"
-              show-overflow-tooltip
-            ></el-table-column>
-            <el-table-column
-              align="center"
-              prop="message"
-              :label="$t('lang.log_message')"
-              min-width="240"
-              show-overflow-tooltip
-            >
-              <template slot-scope="scope">
-                <span class="log-message">{{ scope.row.message }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-              align="center"
-              :label="$t('cm.operate')"
-              width="100"
-              fixed="right"
-            >
-              <template slot-scope="scope">
-                <el-button
-                  type="text"
-                  size="small"
-                  class="cud-common-operate-edit"
-                  @click.stop="viewRow(scope.row)"
-                  >{{ $t("cm.look") }}</el-button
-                >
-              </template>
-            </el-table-column>
+
+<!--            <el-table-column-->
+<!--              align="center"-->
+<!--              :label="$t('cm.operate')"-->
+<!--              width="100"-->
+<!--              fixed="right"-->
+<!--            >-->
+<!--              <template slot-scope="scope">-->
+<!--                <el-button-->
+<!--                  type="text"-->
+<!--                  size="small"-->
+<!--                  class="cud-common-operate-edit"-->
+<!--                  @click.stop="viewRow(scope.row)"-->
+<!--                  >{{ $t("cm.look") }}</el-button-->
+<!--                >-->
+<!--              </template>-->
+<!--            </el-table-column>-->
           </el-table>
         </el-row>
         <el-row>
@@ -182,13 +174,13 @@
               class="cud__page"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
-              :current-page="current"
+              :current-page="currentNo"
               :page-sizes="[10, 20, 30, 40]"
-              :page-size="size"
+              :page-size="sizeNo"
               layout="total,sizes, prev, pager, next"
               :pager-count="5"
               :total="total"
-              :disabled="loading"
+              :disabled="tableLoading"
             >
             </el-pagination>
           </div>
@@ -254,9 +246,6 @@ import logManage from "./js/logManage.js";
 export default logManage;
 </script>
 <style lang="less" scoped>
-.el-card.is-always-shadow {
-  margin-left: 15px;
-}
 /deep/ .el-button--text {
   user-select: unset;
 }

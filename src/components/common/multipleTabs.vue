@@ -181,6 +181,16 @@ export default {
             this.addTab(this.$route);
           }
         }
+        if (!this.isHomeRoute(this.$route)) {
+          const exists = this.multipleTabs.some(
+            item =>
+              item.name === this.$route.fullPath ||
+              item.path === this.$route.path
+          );
+          if (!exists) {
+            this.addTab(this.$route);
+          }
+        }
         //切换到当前TAB页面
         this.currentTab = this.$route.fullPath;
         //页签拖拽
@@ -230,6 +240,9 @@ export default {
       const tabRenameMap = {
         "/drafts": { path: "/pipeDatabase", label: "管道数据库" },
         "/concern": { path: "/hangerDatabase", label: "支吊架数据库" },
+        "/fupportInfo": { path: "/hangerDatabase", label: "支吊架数据库" },
+        "/fupportDetail": { path: "/hangerDetail", label: "支吊架数据详情" },
+        "/operationLogManage": { path: "/logManage", label: "日志管理" },
         "/delegation": { path: "/pipeComponentDatabase", label: "管道模型数据库" }
       };
       const mapped = tabRenameMap[item.path] || tabRenameMap[item.name];

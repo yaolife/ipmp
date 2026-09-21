@@ -10,13 +10,15 @@ import drafts from "@/modules/drafts/drafts";
 // 数字孪生可视化
 import digitalTwinScreen from "@/modules/screen/index";
 // 支吊架数据库
-import concern from "@/modules/concern/concern";
+import fupportInfo from "@/modules/fupport/fupportInfo";
+import fupportDetail from "@/modules/fupport/page/fupportDetail";
 // 管道模型数据库
 import delegation from "@/modules/delegation/delegation";
 // 模型管理
 import modelManage from "@/modules/modelManage/modelManage";
-// 日志管理
+// 系统管理
 import logManage from "@/modules/logManage/logManage.vue";
+import apiManage from "@/modules/system/apiManage/apiManage.vue";
 // 分析治理 / LOF
 import lofLedger from "@/modules/lof/ledger.vue";
 import lofTm01 from "@/modules/lof/tm01.vue";
@@ -115,9 +117,16 @@ const _router = new Router({
         {
           path: "/hangerDatabase",
           name: "支吊架数据库",
-          component: concern,
+          component: fupportInfo,
           meta: "hangerDatabase",
-          alias: "/concern"
+          alias: ["/concern", "/fupportInfo"]
+        },
+        {
+          path: "/hangerDetail",
+          name: "支吊架数据详情",
+          component: fupportDetail,
+          meta: "hangerDatabase",
+          alias: "/fupportDetail"
         },
         {
           path: "/pipeComponentDatabase",
@@ -136,7 +145,14 @@ const _router = new Router({
           path: "/logManage",
           name: "日志管理",
           component: logManage,
-          meta: "operationLogManage"
+          meta: "logManage",
+          alias: "/operationLogManage"
+        },
+        {
+          path: "/apiManage",
+          name: "接口管理",
+          component: apiManage,
+          meta: "apiManage"
         },
         {
           path: "/lof/ledger",

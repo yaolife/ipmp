@@ -274,5 +274,25 @@
     "code": "interface_manage_btnDelete",
     "notes": "接口管理删除",
     "enable": false
+  },
+  "fupp_batch_input": {
+    "code": "fupp_batch_input",
+    "notes": "支吊架批量导入",
+    "enable": false
+  },
+  "fupp_downloadTemplate": {
+    "code": "fupp_downloadTemplate",
+    "notes": "支吊架下载导入模板",
+    "enable": false
+  },
+  "fupp_export": {
+    "code": "fupp_export",
+    "notes": "支吊架导出",
+    "enable": false
+  },
+  "fupp_delete": {
+    "code": "fupp_delete",
+    "notes": "支吊架删除",
+    "enable": false
   }
 }

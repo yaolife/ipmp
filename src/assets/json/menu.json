@@ -66,14 +66,19 @@
     ]
   },
   {
-    "name": "lang.log_manage",
-    "iconNor": "&#xe994;",
-    "resource": "operationLog",
+    "name": "lang.system_manage",
+    "iconNor": "&#xe9ac;",
+    "resource": "systemManage",
     "children": [
       {
-        "name": "lang.log_list",
+        "name": "lang.log_manage",
         "url": "/logManage",
-        "resource": "operationLogManage"
+        "resource": "logManage"
+      },
+      {
+        "name": "lang.api_manage",
+        "url": "/apiManage",
+        "resource": "apiManage"
       }
     ]
   }
