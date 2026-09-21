@@ -32,9 +32,9 @@ export default {
         const nextPath = path ? (name ? path + " / " + name : path) : name;
         const children = Array.isArray(node.children) ? node.children : [];
         const nameText = String(node.nodeName || "").trim();
-        // 当前评估范围尚未限定具体元件类型，只排除没有元件类型的纯目录节点。
-        // 保留所有业务节点，确保从三维台账携带 segmentId 跳转时能够正确回填选中项。
-        const isAssessmentObject = node.componentType != null;
+        // 三个评估页面的评估对象已经明确为0-管段。
+        // 后端会保留管段的祖先路径，因此这里再次校验类型，避免有类型的祖先节点进入下拉框。
+        const isAssessmentObject = Number(node.componentType) === 0;
         if (
           isAssessmentObject &&
           node.id != null &&
@@ -58,7 +58,7 @@ export default {
     loadSegments() {
       this.pageLoading = true;
       api
-        .getResourceDirectoryTree()
+        .getResourceDirectoryTree({ componentType: 0 })
         .then(res => {
           this.pageLoading = false;
           if (!this.isSuccessCode(res && res.code)) {

@@ -24,7 +24,10 @@ export const COMPONENT_TYPES = [
   { code: 18, key: "FLOW_ELEMENT", i18nKey: "lang.component_type_flow_element" },
   { code: 19, key: "TEMP_ELEMENT", i18nKey: "lang.component_type_temp_element" },
   { code: 20, key: "SUPPORT", i18nKey: "lang.component_type_support" },
-  { code: 21, key: "BOILER_PART", i18nKey: "lang.component_type_boiler_part" }
+  { code: 21, key: "BOILER_PART", i18nKey: "lang.component_type_boiler_part" },
+  { code: 22, key: "SMALL_BRANCH_PIPE", i18nKey: "lang.component_type_small_branch_pipe" },
+  { code: 23, key: "SMALL_BRANCH_PIPE_SEAT", i18nKey: "lang.component_type_small_branch_pipe_seat" },
+  { code: 24, key: "ELECTRIC_GATE_VALVE", i18nKey: "lang.component_type_electric_gate_valve" }
 ];
 
 export const COMPONENT_TYPE = COMPONENT_TYPES.reduce((map, item) => {

@@ -146,19 +146,19 @@ const _router = new Router({
         },
         {
           path: "/lof/tm01",
-          name: "TM01 定性评估",
+          name: "定性评估",
           component: lofTm01,
           meta: "lofTm01"
         },
         {
           path: "/lof/tm02",
-          name: "TM02 定量评估",
+          name: "定量评估",
           component: lofTm02,
           meta: "lofTm02"
         },
         {
           path: "/lof/tm05",
-          name: "TM05 振动校核",
+          name: "振动校核",
           component: lofTm05,
           meta: "lofTm05"
         },

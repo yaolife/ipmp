@@ -49,7 +49,7 @@
                   <el-option label="High" :value="2"></el-option>
                   <el-option label="Medium" :value="1"></el-option>
                   <el-option label="Low" :value="0"></el-option>
-                  <el-option label="NA（未完成TM02）" :value="-1"></el-option>
+                  <el-option label="NA（未完成定量评估）" :value="-1"></el-option>
                 </el-select>
                 <el-select v-model="query.completeness" size="small" clearable placeholder="数据完整性" @change="search">
                   <el-option label="完整" :value="1"></el-option>
@@ -57,9 +57,9 @@
                 </el-select>
                 <el-select v-model="query.analysisStatus" size="small" clearable placeholder="分析状态" @change="search">
                   <el-option label="待分析" :value="0"></el-option>
-                  <el-option label="已完成TM01" :value="1"></el-option>
-                  <el-option label="已完成TM02" :value="2"></el-option>
-                  <el-option label="已完成TM05" :value="3"></el-option>
+                  <el-option label="已完成定性评估" :value="1"></el-option>
+                  <el-option label="已完成定量评估" :value="2"></el-option>
+                  <el-option label="已完成振动校核" :value="3"></el-option>
                 </el-select>
                 <el-button type="primary" size="small" @click="search">查询</el-button>
               </div>
@@ -122,9 +122,9 @@
                     <el-button type="text" size="mini" @click="openDetail(scope.row)">查看</el-button>
                     <el-button type="text" size="mini" @click="openEdit(scope.row)">编辑参数</el-button>
                     <el-button type="text" size="mini" @click="openHistory(scope.row)">分析历史</el-button>
-                    <el-button type="text" size="mini" @click="goAssessment('tm01', scope.row)">TM01</el-button>
-                    <el-button type="text" size="mini" @click="goAssessment('tm02', scope.row)">TM02</el-button>
-                    <el-button type="text" size="mini" @click="goAssessment('tm05', scope.row)">TM05</el-button>
+                    <el-button type="text" size="mini" @click="goAssessment('tm01', scope.row)">定性评估</el-button>
+                    <el-button type="text" size="mini" @click="goAssessment('tm02', scope.row)">定量评估</el-button>
+                    <el-button type="text" size="mini" @click="goAssessment('tm05', scope.row)">振动校核</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -173,7 +173,7 @@
         append-to-body
       >
         <div class="ledger-drawer-body" v-loading="historyLoading">
-          <div class="section-title">TM01 定性评估历史</div>
+          <div class="section-title">定性评估历史</div>
           <el-table :data="history.tm01" border size="mini">
             <el-table-column prop="versionNo" label="版本" width="75"></el-table-column>
             <el-table-column label="风险等级" width="100">
@@ -182,7 +182,7 @@
             <el-table-column prop="assessmentType" label="评估类型"></el-table-column>
             <el-table-column prop="createDate" label="创建时间" width="160"></el-table-column>
           </el-table>
-          <div class="section-title">TM02 定量评估历史</div>
+          <div class="section-title">定量评估历史</div>
           <el-table :data="history.tm02" border size="mini">
             <el-table-column prop="versionNo" label="版本" width="75"></el-table-column>
             <el-table-column prop="maxLof" label="Main_LOF"></el-table-column>
@@ -191,7 +191,7 @@
             </el-table-column>
             <el-table-column prop="createDate" label="创建时间" width="160"></el-table-column>
           </el-table>
-          <div class="section-title">TM05 振动校核历史</div>
+          <div class="section-title">振动校核历史</div>
           <el-table :data="history.tm05" border size="mini">
             <el-table-column prop="versionNo" label="版本" width="75"></el-table-column>
             <el-table-column prop="vPeakAllow" label="许用峰值速度"></el-table-column>
@@ -505,7 +505,7 @@ export default {
         return;
       }
       this.$confirm(
-        "将对当前筛选范围内的全部管段逐条执行 TM01 和 TM02 自动分析并保存版本，是否继续？",
+        "将对当前筛选范围内的全部管段逐条执行定性评估和定量评估并保存版本，是否继续？",
         "一键自动分析",
         { type: "warning" }
       ).then(() => {
@@ -581,7 +581,7 @@ export default {
       return value == null ? "-" : (labels[Number(value)] || "-");
     },
     analysisStatusText(value) {
-      const labels = ["待分析", "已完成TM01", "已完成TM02", "已完成TM05"];
+      const labels = ["待分析", "已完成定性评估", "已完成定量评估", "已完成振动校核"];
       return labels[Number(value)] || "待分析";
     },
     riskMeta(level) {
