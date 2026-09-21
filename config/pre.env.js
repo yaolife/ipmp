@@ -10,10 +10,10 @@ module.exports = {
   LIGHT_AUTH: '"true"',
   // api地址
   API_ROOT: '"/server-api"',
+  // 外网业务接口前缀
+  BIZ_API_PREFIX: '"/api"',
   // 系统编码
   APP_CODE: '"CUDDEMO4"',
-  // api地址
-  API_ROOT: '"/server-api"',
   // 中台选人选部门控件地址名前缀 aep-t测试环境  aep生产环境
   ASC_ROOT: '"https://aep-p/SelectPersonandDept"',
   // 中台的地址

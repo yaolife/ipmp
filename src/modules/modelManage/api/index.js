@@ -1,9 +1,9 @@
 import axios from "@/api/http";
 
-const modelResourceUrl = "/api/model-resources";
-const modelResourceItemUrl = "/api/model-resource-items";
-const sysFileBaseUrl = "/api/sys-files";
-const resourceDirectoryTreeUrl = "/api/model-resource-directories/tree";
+const modelResourceUrl = "/model-resources";
+const modelResourceItemUrl = "/model-resource-items";
+const sysFileBaseUrl = "/sys-files";
+const resourceDirectoryTreeUrl = "/model-resource-directories/tree";
 
 function saveBlob(res, fallbackName) {
     const blob = res && res.data;
@@ -124,12 +124,12 @@ export default {
         }).then(res => res.data);
     },
     getResourceDirectoryChildren: function(id) {
-        return axios.get("/api/model-resource-directories/children/" + id, {
+        return axios.get("/model-resource-directories/children/" + id, {
             apiTitle: "查询资源目录子节点"
         }).then(res => res.data);
     },
     getResourceDirectoryDetail: function(id) {
-        return axios.get("/api/model-resource-directories/" + id, {
+        return axios.get("/model-resource-directories/" + id, {
             apiTitle: "查询资源目录详情"
         }).then(res => res.data);
     },

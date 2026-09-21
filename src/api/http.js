@@ -30,6 +30,36 @@ instance.defaults.baseURL = process.env.API_ROOT;  // 默认地址
 instance.defaults.withCredentials = true;
 instance.defaults.crossDomain = true;
 
+// 管网业务接口前缀：内网为空，外网为 /api，见 config/*.env.js 的 BIZ_API_PREFIX
+var BIZ_API_PREFIX = process.env.BIZ_API_PREFIX || "";
+var BIZ_API_PATHS = [
+  "/pipeline-components",
+  "/sys-files",
+  "/model-resources",
+  "/model-resource-items",
+  "/model-resource-directories",
+  "/pipelines",
+  "/tm01-assessments",
+  "/tm02-assessments",
+  "/tm05-assessments",
+  "/lof-ledger"
+];
+
+function withBizApiPrefix(url) {
+  if (!BIZ_API_PREFIX || !url) return url;
+  var qIndex = url.indexOf("?");
+  var path = qIndex === -1 ? url : url.slice(0, qIndex);
+  var query = qIndex === -1 ? "" : url.slice(qIndex);
+  if (path.indexOf(BIZ_API_PREFIX + "/") === 0 || path === BIZ_API_PREFIX) {
+    return url;
+  }
+  var matched = BIZ_API_PATHS.some(function(p) {
+    return path === p || path.indexOf(p + "/") === 0;
+  });
+  if (!matched) return url;
+  return BIZ_API_PREFIX + (path.charAt(0) === "/" ? path : "/" + path) + query;
+}
+
 let loadInstance = null;
 // 路由请求拦截
 // http request 拦截器
@@ -54,6 +84,7 @@ instance.interceptors.request.use(
     // loadInstance = Loading.service();
     //中英文
     let url = config.url;
+    url = withBizApiPrefix(url);
     // config.url = url.indexOf('?') == '-1' ? url + '?_=' + new Date().getTime() : url + '&_=' + new Date().getTime();
     let lang = getStore().state.i18n.language;
     var currentLocale = sessionStorage.getItem("locale");

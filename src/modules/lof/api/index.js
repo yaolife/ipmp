@@ -1,10 +1,10 @@
 import axios from '@/api/http';
 import draftsApi from '@/modules/drafts/api';
 
-const tm01BaseUrl = '/api/tm01-assessments';
-const tm02BaseUrl = '/api/tm02-assessments';
-const tm05BaseUrl = '/api/tm05-assessments';
-const lofLedgerBaseUrl = '/api/lof-ledger';
+const tm01BaseUrl = '/tm01-assessments';
+const tm02BaseUrl = '/tm02-assessments';
+const tm05BaseUrl = '/tm05-assessments';
+const lofLedgerBaseUrl = '/lof-ledger';
 
 function unwrap(res) {
     return res && res.data;
