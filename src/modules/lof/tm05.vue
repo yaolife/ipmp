@@ -1,6 +1,7 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
+      <breadcrumb :arrayName="brand" :hasIcon="hasIcon"></breadcrumb>
       <div class="lof-page" v-loading="pageLoading">
         <div class="card">
           <div class="card-header">
@@ -43,7 +44,7 @@
                 :loading="evaluating"
                 :disabled="!segmentId || saving"
                 @click="evaluateTm05"
-              >执行 TM05 振动校核</el-button>
+              >执行振动校核</el-button>
               <el-button
                 type="success"
                 size="small"
@@ -119,7 +120,7 @@
                 <div class="form-group">
                   <label>焊缝类型</label>
                   <select v-model="form.weldType" @change="scheduleCalc">
-                    <option value="BUTTERFLY_WELDING">对焊</option>
+                    <option value="BUTT_WELDING">对焊</option>
                     <option value="SOCKET_WELDING">承插焊</option>
                   </select>
                 </div>
@@ -504,6 +505,7 @@
 </template>
 
 <script>
+import breadcrumb from "@/components/common/breadcrumb";
 import LofTraceDrawer from "./components/LofTraceDrawer";
 import directoryMixin from "./directoryMixin";
 import api from "./api";
@@ -511,6 +513,9 @@ import { num, pickNum, fmt } from "./utils";
 import "./lof.css";
 
 const VPK_TO_RMS = 3.5;
+const DEFAULT_C5 = 1.0;
+const DEFAULT_C0 = 3.5;
+const DEFAULT_BETA = 13.42;
 
 const SMALL_PIPE_METRICS = {
   lp: { name: "有效长度 lp", meaning: "参与小支管振动计算的各有效管段长度之和。", formula: "lp = ΣLp,i（仅统计 Lp,i > 0 的管段）" },
@@ -526,7 +531,7 @@ const SMALL_PIPE_METRICS = {
 
 const RESULT_METRICS = {
   allowVp: { name: "许用峰值速度 V(allow,pk)", meaning: "当前管段在速度法下允许的峰值振动速度。", formula: "V(allow,pk) = (C1 × C4 / (C3 × C5)) × (β × Sel / C2K2)" },
-  allowVr: { name: "许用 RMS 速度 V(allow,rms)", meaning: "由许用峰值速度换算得到的许用均方根速度。", formula: "V(allow,rms) = V(allow,pk) / 3.5" },
+  allowVr: { name: "许用 RMS 速度 V(allow,rms)", meaning: "由许用峰值速度换算得到的许用均方根速度。", formula: "V(allow,rms) = V(allow,pk) / C0" },
   ratioPeak: { name: "峰值速度超标倍率 Ratio_pk", meaning: "实测峰值速度相对于许用峰值速度的倍率。", formula: "Ratio_pk = Vpk(test) / V(allow,pk)" },
   ratioRms: { name: "RMS 倍率 Ratio_rms", meaning: "实测RMS速度相对于许用RMS速度的倍率。", formula: "Ratio_rms = Vrms(test) / V(allow,rms)" },
   kInterp: { name: "插值 K 值", meaning: "根据结构构型和双跨跨比选取或插值得到的位移系数。", formula: "常规直管单跨0.003；纯悬臂直管0.027；悬臂弯头自由端0.030；导向端0.012；双跨弯头按跨比r分段插值。" },
@@ -553,20 +558,63 @@ function defaultForm() {
     endCondition: "",
     operatingTemp: null,
     Sa_T: null,
-    C5: null,
-    C0: null,
-    beta: null,
+    C5: DEFAULT_C5,
+    C0: DEFAULT_C0,
+    beta: DEFAULT_BETA,
     measuredPeak: null,
     measuredRms: null
   };
 }
 
+/**
+ * 将资源目录及历史数据中的焊缝类型统一为当前接口编码。
+ *
+ * @param {String} value 焊缝类型编码或中文名称
+ * @returns {String} 对焊、承插焊对应的接口编码；无法识别时返回空
+ */
+function normalizeWeldType(value) {
+  const text = String(value == null ? "" : value).trim();
+  if (text === "SOCKET_WELDING" || text.indexOf("承插") >= 0) {
+    return "SOCKET_WELDING";
+  }
+  if (text === "BUTT_WELDING"
+    || text === "BUTTERFLY_WELDING"
+    || text.indexOf("对焊") >= 0) {
+    return "BUTT_WELDING";
+  }
+  return "";
+}
+
+/**
+ * 将资源目录中可能存在的边界条件编码或中文名称转换为公式编码。
+ *
+ * @param {String} value 端部条件编码或中文名称
+ * @returns {String} TM05端部条件编码；无法识别时返回空
+ */
+function normalizeEndCondition(value) {
+  const text = String(value == null ? "" : value).trim();
+  if (["STRAIGHT", "CANTILEVER", "Z_BEND", "U_BEND"].indexOf(text) >= 0) {
+    return text;
+  }
+  if (text.indexOf("直管") >= 0 || text.indexOf("两端固定") >= 0) return "STRAIGHT";
+  if (text.indexOf("悬臂") >= 0 || text.indexOf("简支") >= 0) return "CANTILEVER";
+  if (text.toUpperCase().indexOf("Z型") >= 0 || text.toUpperCase().indexOf("Z 型") >= 0) return "Z_BEND";
+  if (text.toUpperCase().indexOf("U型") >= 0 || text.toUpperCase().indexOf("U 型") >= 0) return "U_BEND";
+  return "";
+}
+
 export default {
   mixins: [directoryMixin],
-  components: { LofTraceDrawer },
+  components: { breadcrumb, LofTraceDrawer },
   data() {
     const form = defaultForm();
     return {
+      hasIcon: false,
+      brand: [
+        { name: "lang.analysis_govern" },
+        { name: "lang.lof" },
+        { name: "lang.lof_tm05" }
+      ],
       smallTab: "input",
       pipeRows: [0, 1, 2],
       form: form,
@@ -665,15 +713,31 @@ export default {
       this.mainLofText = detail.mainLof != null ? String(detail.mainLof) : "-";
       this.form.Do.splice(0, 1, pickNum(detail.outerDiameter, this.form.Do[0]));
       this.form.tp.splice(0, 1, pickNum(detail.wallThickness, this.form.tp[0]));
-      const lengthM = pickNum(detail.pipeLength || detail.length, null);
+      const lengthM = pickNum(
+        detail.spanReference != null
+          ? detail.spanReference
+          : (detail.pipeLength != null ? detail.pipeLength : detail.length),
+        null
+      );
       if (lengthM != null) this.form.Lp.splice(0, 1, lengthM * 1000);
+      this.form.rho_p = pickNum(detail.materialDensity, this.form.rho_p);
       this.form.rho_f = pickNum(detail.fluidDensity, this.form.rho_f);
+      this.form.Sa_T = pickNum(detail.fatigueLimit, this.form.Sa_T);
       this.form.operatingTemp = pickNum(
-        detail.designTemperature || detail.operatingTemperature || detail.temperature,
+        detail.operatingTemperature != null
+          ? detail.operatingTemperature
+          : (detail.designTemperature != null ? detail.designTemperature : detail.temperature),
         this.form.operatingTemp
       );
+      this.form.weldType = normalizeWeldType(detail.weldType) || this.form.weldType;
+      this.form.endCondition = normalizeEndCondition(
+        detail.endCondition || detail.boundaryCondition || detail.gdBoundary
+      ) || this.form.endCondition;
       this.disp.fn = pickNum(detail.naturalFrequency || detail.fn, this.disp.fn);
-      this.disp.l1 = pickNum(detail.l1 || detail.crossing || detail.pipeLength || detail.length, this.disp.l1);
+      this.disp.l1 = pickNum(
+        detail.l1 || detail.crossing || detail.spanReference || detail.pipeLength || detail.length,
+        this.disp.l1
+      );
       this.disp.l2 = pickNum(detail.l2, null);
       this.disp.config = this.autoConfigFromSegment(detail);
     },
@@ -704,11 +768,12 @@ export default {
     autoFill(source) {
       const vp = parseFloat(this.measure.vp);
       const vr = parseFloat(this.measure.vr);
+      const conversion = Number(this.form.C0) > 0 ? Number(this.form.C0) : VPK_TO_RMS;
       if (source === "vp" && isFinite(vp) && !isFinite(vr)) {
-        this.measure.vr = Number((vp / VPK_TO_RMS).toFixed(3));
+        this.measure.vr = Number((vp / conversion).toFixed(3));
         this.form.measuredRms = this.measure.vr;
       } else if (source === "vr" && isFinite(vr) && !isFinite(vp)) {
-        this.measure.vp = Number((vr * VPK_TO_RMS).toFixed(3));
+        this.measure.vp = Number((vr * conversion).toFixed(3));
         this.form.measuredPeak = this.measure.vp;
       }
       this.resetEvaluationResult();
@@ -730,7 +795,7 @@ export default {
         ratioDispText: "-",
         ratioFinalText: "待评估",
         badgeClass: "badge-na",
-        badgeText: "请执行 TM05 振动校核"
+        badgeText: "请执行振动校核"
       };
       this.showStress = false;
       this.stress.result = "-";
@@ -879,14 +944,14 @@ export default {
       api.evaluateTm05(this.buildPayload()).then(res => {
         this.evaluating = false;
         if (!this.isSuccessCode(res && res.code)) {
-          this.$message.error((res && res.msg) || "TM05校核失败");
+          this.$message.error((res && res.msg) || "振动校核失败");
           return;
         }
         this.applyBackendResult(res.data);
-        this.$message.success((res && res.msg) || "TM05校核完成");
+        this.$message.success((res && res.msg) || "振动校核完成");
       }).catch(error => {
         this.evaluating = false;
-        this.$message.error(this.errorMessage(error, "TM05校核失败"));
+        this.$message.error(this.errorMessage(error, "振动校核失败"));
       });
     },
     saveTm05() {
@@ -894,7 +959,7 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
-      this.$confirm("保存后将生成新的 TM05 校核版本，是否继续？", "保存确认", {
+      this.$confirm("保存后将生成新的振动校核版本，是否继续？", "保存确认", {
         type: "warning"
       }).then(() => {
         this.saving = true;
@@ -978,13 +1043,13 @@ export default {
         rho_f: parameters.fluidDensity,
         rho_in: parameters.insulationDensity,
         tin: parameters.insulationThickness,
-        weldType: parameters.weldType,
+        weldType: normalizeWeldType(parameters.weldType),
         endCondition: parameters.endCondition,
         operatingTemp: parameters.operatingTemperature,
         Sa_T: parameters.fatigueLimit,
-        C5: parameters.c5,
-        C0: parameters.c0,
-        beta: parameters.beta
+        C5: parameters.c5 == null ? DEFAULT_C5 : parameters.c5,
+        C0: parameters.c0 == null ? DEFAULT_C0 : parameters.c0,
+        beta: parameters.beta == null ? DEFAULT_BETA : parameters.beta
       });
       Object.assign(this.measure, {
         position: measured.position,
@@ -1065,7 +1130,7 @@ export default {
           { label: "β", value: this.form.beta }, { label: "Sel", value: this.form.Sa_T },
           { label: "C2K2", value: result.C2K2 }
         ],
-        allowVr: [{ label: "许用峰值速度", value: this.grade.allowVpText }, { label: "换算系数", value: VPK_TO_RMS }],
+        allowVr: [{ label: "许用峰值速度", value: this.grade.allowVpText }, { label: "换算系数 C0", value: this.form.C0 }],
         ratioPeak: [{ label: "实测峰值速度", value: this.measure.vp }, { label: "许用峰值速度", value: this.grade.allowVpText }],
         ratioRms: [{ label: "实测RMS速度", value: this.measure.vr }, { label: "许用RMS速度", value: this.grade.allowVrText }],
         kInterp: [{ label: "结构构型", value: this.disp.config }, { label: "第一跨 L1", value: this.disp.l1 }, { label: "第二跨 L2", value: this.disp.l2 }, { label: "跨比 r", value: this.disp.rText }],

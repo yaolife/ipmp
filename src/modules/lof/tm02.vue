@@ -1,6 +1,7 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
+      <breadcrumb :arrayName="brand" :hasIcon="hasIcon"></breadcrumb>
       <div class="lof-page" v-loading="pageLoading">
         <div class="card">
           <div class="card-header">
@@ -43,7 +44,7 @@
                 :loading="evaluating"
                 :disabled="!segmentId || saving"
                 @click="evaluateTm02"
-              >执行 TM02 定量评估</el-button>
+              >执行定量评估</el-button>
               <el-button
                 type="success"
                 size="small"
@@ -537,8 +538,8 @@
           <div class="card-body">
             <div class="form-row form-row-2">
               <div class="form-group">
-                <label>关联 TM01 版本</label>
-                <input type="text" :value="tm01AssessmentId || '未保存TM01版本'" readonly>
+                <label>关联定性评估版本</label>
+                <input type="text" :value="tm01AssessmentId || '未保存定性评估版本'" readonly>
               </div>
               <div class="form-group">
                 <label>评估备注</label>
@@ -642,6 +643,7 @@
 </template>
 
 <script>
+import breadcrumb from "@/components/common/breadcrumb";
 import LofTraceDrawer from "./components/LofTraceDrawer";
 import directoryMixin from "./directoryMixin";
 import api from "./api";
@@ -823,9 +825,15 @@ function defaultParams() {
 
 export default {
   mixins: [directoryMixin],
-  components: { LofTraceDrawer },
+  components: { breadcrumb, LofTraceDrawer },
   data() {
     return {
+      hasIcon: false,
+      brand: [
+        { name: "lang.analysis_govern" },
+        { name: "lang.lof" },
+        { name: "lang.lof_tm02" }
+      ],
       paramTab: "pipe",
       params: defaultParams(),
       hfa: defaultHfa(),
@@ -874,7 +882,7 @@ export default {
       return this.thermoResult ? riskLevel(this.thermoResult.LOF) : "-";
     },
     advice() {
-      return this.hasEvaluationResult ? controlAdvice(this.mainLof) : "请先执行 TM02 定量评估";
+      return this.hasEvaluationResult ? controlAdvice(this.mainLof) : "请先执行定量评估";
     }
   },
   methods: {
@@ -1087,14 +1095,14 @@ export default {
       api.evaluateTm02(this.buildPayload()).then(res => {
         this.evaluating = false;
         if (!this.isSuccessCode(res && res.code)) {
-          this.$message.error((res && res.msg) || "TM02评估失败");
+          this.$message.error((res && res.msg) || "定量评估失败");
           return;
         }
         this.applyBackendResult(res.data);
-        this.$message.success((res && res.msg) || "TM02评估完成");
+        this.$message.success((res && res.msg) || "定量评估完成");
       }).catch(error => {
         this.evaluating = false;
-        this.$message.error(this.errorMessage(error, "TM02评估失败"));
+        this.$message.error(this.errorMessage(error, "定量评估失败"));
       });
     },
     saveTm02() {
@@ -1102,7 +1110,7 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
-      this.$confirm("保存后将生成新的 TM02 评估版本，是否继续？", "保存确认", {
+      this.$confirm("保存后将生成新的定量评估版本，是否继续？", "保存确认", {
         type: "warning"
       }).then(() => {
         this.saving = true;
@@ -1255,7 +1263,7 @@ export default {
         velocity: "流速", FVF: "流体粘度因子FVF", Fv: "振动修正系数Fv",
         Dint: "内径Dint", A: "流通面积A", Re: "雷诺数Re", fn: "固有频率fn",
         Fe: "涡流激励频率Fe", FeFn: "频率比Fe/fn", dcrit: "临界管径dcrit",
-        ratio: "计算倍率", excluded: "是否被TM01排除", tm01Key: "对应TM01激励",
+        ratio: "计算倍率", excluded: "是否被定性评估排除", tm01Key: "对应定性评估激励",
         note: "计算说明", level: "风险等级", typeFactor: "类型系数",
         base: "基础项", K: "修正系数K", FM: "母管壁厚修正系数FM"
       };
@@ -1334,7 +1342,7 @@ export default {
         sections: [
           {
             title: "综合规则",
-            text: "仅参与本次定量评估的激励进入比较，综合Main_LOF取各分项LOF的最大值。TM01评分为低的关联机理不参与计算。"
+            text: "仅参与本次定量评估的激励进入比较，综合Main_LOF取各分项LOF的最大值。定性评估评分为低的关联机理不参与计算。"
           },
           {
             title: "各分项结果",

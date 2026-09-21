@@ -52,7 +52,7 @@
                 :loading="evaluating"
                 :disabled="!segmentId || saving"
                 @click="evaluate"
-              >执行 TM01 评估</el-button>
+              >执行定性评估</el-button>
               <el-button
                 type="success"
                 size="small"
@@ -172,7 +172,7 @@
                   </div>
                 </div>
                 <div class="mt-12" v-if="result.quantitativeRequired">
-                  <router-link class="btn btn-primary" :to="tm02Route">执行 TM02 定量评估</router-link>
+                  <router-link class="btn btn-primary" :to="tm02Route">执行定量评估</router-link>
                 </div>
               </div>
             </div>
@@ -613,7 +613,7 @@ export default {
     loadSegments() {
       this.pageLoading = true;
       api
-        .getResourceDirectoryTree()
+        .getResourceDirectoryTree({ componentType: 0 })
         .then(res => {
           this.pageLoading = false;
           if (!this.isSuccessCode(res && res.code)) {
@@ -686,7 +686,7 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
-      this.$confirm("保存后将生成新的 TM01 评估版本，是否继续？", "保存确认", {
+      this.$confirm("保存后将生成新的定性评估版本，是否继续？", "保存确认", {
         type: "warning"
       }).then(() => {
         this.saving = true;
