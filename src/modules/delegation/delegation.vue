@@ -7,7 +7,7 @@
           :queryFields="queryFields"
           :loading="loading"
           :showMoreSetting="false"
-          labelWidth="120px"
+          labelWidth="80px"
           @resize="initMaxHeight"
           @submit="search"
           @reset="search"
@@ -208,5 +208,32 @@ export default delegation;
 }
 /deep/ .el-form-item__label {
   white-space: nowrap;
+}
+/deep/ .cud-commom-form-search .el-form-item {
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+}
+/deep/ .cud-commom-form-search .el-form-item__label {
+  width: auto !important;
+  float: none;
+  padding-right: 8px;
+  line-height: 32px;
+  flex-shrink: 0;
+}
+/deep/ .cud-commom-form-search .el-form-item__content {
+  margin-left: 0 !important;
+  flex: none;
+  float: none;
+  width: 50%;
+  max-width: 220px;
+  min-width: 0;
+}
+/deep/ .cud-commom-form-search .el-input {
+  width: 100%;
+}
+/deep/ .el-card:first-child .el-card__body {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 </style>

@@ -1,6 +1,6 @@
 /*
- * @Author: [P631038]杨旭
- * @LastEditors: [P631038]杨旭
+ * @Author: [P641842]田颖瑶
+ * @LastEditors: [P641842]田颖瑶
  * @Description: 
  */
 "use strict";
@@ -39,6 +39,13 @@ module.exports = {
                 }
             },
             "/server-api/api/pipeline-components": {
+                target: BACKEND_API_TARGET,
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
+            "/server-api/api/model-resources": {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {

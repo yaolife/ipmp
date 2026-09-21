@@ -7,6 +7,7 @@ import componentFormDialog from "../components/componentFormDialog.vue";
 import componentConfirmDialog from "../components/componentConfirmDialog.vue";
 
 export default {
+  name: "PipeComponentDatabase",
   components: {
     breadcrumb,
     queryForm,
@@ -182,11 +183,20 @@ export default {
             this.initMaxHeight();
           });
         })
-        .catch(() => {
+        .catch(err => {
           this.loading = false;
           this.tableData = [];
           this.total = 0;
+          this.$message.error(this.getRequestErrorMsg(err));
         });
+    },
+    getRequestErrorMsg(err) {
+      const res = err && err.response && err.response.data;
+      return (
+        (res && (res.msg || res.error || res.message)) ||
+        (err && err.msg) ||
+        this.$t("cm.fail")
+      );
     },
     openCreate() {
       this.$refs.componentFormDialog && this.$refs.componentFormDialog.open();
@@ -413,10 +423,14 @@ export default {
     }
   },
   mounted() {
+    this.getList();
     this.initMaxHeight();
     this.throttleFunc = throttle(this.initMaxHeight, 500);
     window.addEventListener("resize", this.throttleFunc);
+  },
+  activated() {
     this.getList();
+    this.initMaxHeight();
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.throttleFunc);

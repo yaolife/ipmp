@@ -6,8 +6,8 @@
           :queryFormId="'fupportInfoForm'"
           :queryFields="queryFields"
           :loading="tableLoading"
-          :showMoreSetting="true"
-          labelWidth="120px"
+          :showMoreSetting="false"
+          labelWidth="80px"
           @resize="initMaxHeight"
           @submit="search"
           ref="queryForm"
@@ -252,6 +252,28 @@ export default fupportInfo;
 }
 /deep/ .el-form-item__label {
   white-space: nowrap;
+}
+/deep/ .cud-commom-form-search .el-form-item {
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+}
+/deep/ .cud-commom-form-search .el-form-item__label {
+  width: auto !important;
+  float: none;
+  padding-right: 8px;
+  line-height: 32px;
+  flex-shrink: 0;
+}
+/deep/ .cud-commom-form-search .el-form-item__content {
+  margin-left: 0 !important;
+  flex: 1;
+  float: none;
+  min-width: 0;
+}
+/deep/ .el-card:first-child .el-card__body {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 // 加/deep/深度穿透，避免scoped样式不生效
 /deep/ .hanger-no-link {

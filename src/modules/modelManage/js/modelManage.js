@@ -16,6 +16,7 @@ function splitFileIds(value) {
 }
 
 export default {
+  name: "ModelManage",
   components: {
     breadcrumb,
     queryForm,
@@ -164,11 +165,20 @@ export default {
             this.initMaxHeight();
           });
         })
-        .catch(() => {
+        .catch(err => {
           this.loading = false;
           this.tableData = [];
           this.total = 0;
+          this.$message.error(this.getRequestErrorMsg(err));
         });
+    },
+    getRequestErrorMsg(err) {
+      const res = err && err.response && err.response.data;
+      return (
+        (res && (res.msg || res.error || res.message)) ||
+        (err && err.msg) ||
+        this.$t("cm.fail")
+      );
     },
     fetchDetail(id) {
       if (!id) return Promise.reject({ msg: this.$t("cm.fail") });
@@ -355,10 +365,14 @@ export default {
     }
   },
   mounted() {
+    this.getList();
     this.initMaxHeight();
     this.throttleFunc = throttle(this.initMaxHeight, 500);
     window.addEventListener("resize", this.throttleFunc);
+  },
+  activated() {
     this.getList();
+    this.initMaxHeight();
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.throttleFunc);
