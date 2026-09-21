@@ -146,6 +146,14 @@ export default {
       this.current = 1;
       this.getList();
     },
+    loadListOnEnter() {
+      if (this._enterListScheduled) return;
+      this._enterListScheduled = true;
+      this.$nextTick(() => {
+        this._enterListScheduled = false;
+        this.getList();
+      });
+    },
     getList() {
       this.loading = true;
       api
@@ -365,13 +373,13 @@ export default {
     }
   },
   mounted() {
-    this.getList();
     this.initMaxHeight();
     this.throttleFunc = throttle(this.initMaxHeight, 500);
     window.addEventListener("resize", this.throttleFunc);
+    this.loadListOnEnter();
   },
   activated() {
-    this.getList();
+    this.loadListOnEnter();
     this.initMaxHeight();
   },
   beforeDestroy() {

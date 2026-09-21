@@ -7,6 +7,7 @@ import { hasPermission } from "@/permission/btn";
 import api from "../api";
 
 export default {
+  name: "FupportInfo",
   components: {
     breadcrumb,
     queryForm
@@ -256,6 +257,14 @@ export default {
     search() {
       this.currentNo = 1;
       this.fetchData();
+    },
+    loadListOnEnter() {
+      if (this._enterListScheduled) return;
+      this._enterListScheduled = true;
+      this.$nextTick(() => {
+        this._enterListScheduled = false;
+        this.fetchData();
+      });
     },
     fetchData() {
       this.tableLoading = true;
@@ -546,7 +555,11 @@ export default {
       // 直接调用你原有的列表查询方法，自动刷新数据
       this.fetchData();
     })
-    this.fetchData();
+    this.loadListOnEnter();
+  },
+  activated() {
+    this.loadListOnEnter();
+    this.initMaxHeight();
   },
   // 页面销毁时注销事件监听，避免内存泄漏
   beforeDestroy() {
