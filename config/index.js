@@ -1,14 +1,15 @@
 /*
- * @Author: [P631038]杨旭
- * @LastEditors: [P631038]杨旭
+ * @Author: [P641842]田颖瑶
+ * @LastEditors: [P641842]田颖瑶
  * @Description: 
  */
 "use strict";
 const path = require("path");
 // 业务后端地址，联调时只改这一处
-const BACKEND_API_TARGET = "http://127.0.0.1:8000";//YJ-WIFI
-//const BACKEND_API_TARGET = "http://192.168.29.254:8000";//个人热点的
-//const BACKEND_API_TARGET = "http://localhost:8000";
+//const BACKEND_API_TARGET = "http://192.168.0.254:8000";//YJ-WIFI
+const BACKEND_API_TARGET = "http://192.168.184.254:8000";//局域网
+//const BACKEND_API_TARGET = "http://localhost";//本地直连
+// 业务接口 /api 前缀由 config/*.env.js 的 BIZ_API_PREFIX 控制：内网 ""，外网 "/api"
 module.exports = {
     dev: {
         assetsSubDirectory: "static",
@@ -24,28 +25,42 @@ module.exports = {
                 }
             },
             // 资源目录、管道等业务接口，避免被 PSC /server-api/api 规则抢走
-            "/server-api/api/model-resource-directories": {
+            "/server-api/model-resource-directories": {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
                 }
             },
-            "/server-api/api/pipelines": {
+            "/server-api/pipelines": {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
                 }
             },
-            "/server-api/api/pipeline-components": {
+            "/server-api/pipeline-components": {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
                     "^/server-api": ""
                 }
             },
-            "/server-api/api/sys-files": {
+            "/server-api/model-resources": {
+                target: BACKEND_API_TARGET,
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
+            "/server-api/model-resource-items": {
+                target: BACKEND_API_TARGET,
+                changeOrigin: true,
+                pathRewrite: {
+                    "^/server-api": ""
+                }
+            },
+            "/server-api/sys-files": {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
@@ -65,7 +80,8 @@ module.exports = {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": "" // 需要rewrite重写的,
+                    "^/server-api/api": "", // 外网前缀在本地打内网时剥掉
+                    "^/server-api": ""
                 }
             },
             // PSC接口代理
