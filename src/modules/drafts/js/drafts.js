@@ -2,7 +2,6 @@ import breadcrumb from "@/components/common/breadcrumb";
 import queryForm from "@/components/common/queryForm";
 import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
-import axios from "@/api/http";
 import api from "../api";
 import pipeDetail from "../components/pipeDetail.vue";
 import directoryDetail from "../components/directoryDetail.vue";
@@ -120,11 +119,8 @@ export default {
       const skipList = options && options.skipList;
       const prevId = keepCurrent && this.currentNode ? this.currentNode.id : "";
       this.treeLoading = true;
-      axios
-        .get("/api/model-resource-directories/tree/latest-enabled-model", {
-          apiTitle: "查询最新启用模型资源目录树"
-        })
-        .then(response => response.data)
+      api
+        .getLatestEnabledModelTree()
         .then(res => {
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {

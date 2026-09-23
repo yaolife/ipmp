@@ -15,8 +15,9 @@ module.exports = merge(prodEnv, {
     NODE_ENV: '"development"',
     // api地址
     API_ROOT: '"/server-api"',
-    // 本地联内网后端，不加 /api；若要对着外网联调改为 '"/api"'
+    // 管网业务接口请求前缀：内网 "/server-api"，外网 "/api"
     BIZ_API_PREFIX: '"/api"',
+    // BIZ_API_PREFIX: '"/server-api"',
     // 系统编码
     APP_CODE: '"CUDDEMO4"',
     // 中台选人选部门控件地址名前缀 aep-t测试环境  aep生产环境

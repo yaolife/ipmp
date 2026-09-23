@@ -10,7 +10,7 @@ module.exports = {
   LIGHT_AUTH: '"true"',
   // api地址
   API_ROOT: '"/server-api"',
-  // 外网业务接口前缀
+  // 管网业务接口请求前缀：内网 /server-api，外网 /api
   BIZ_API_PREFIX: '"/api"',
   // 系统编码
   APP_CODE: '"CUDDEMO4"',

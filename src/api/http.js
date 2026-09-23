@@ -30,7 +30,7 @@ instance.defaults.baseURL = process.env.API_ROOT;  // 默认地址
 instance.defaults.withCredentials = true;
 instance.defaults.crossDomain = true;
 
-// 管网业务接口前缀：内网为空，外网为 /api，见 config/*.env.js 的 BIZ_API_PREFIX
+// 管网业务接口完整前缀：内网 /server-api，外网 /api，见 config/*.env.js 的 BIZ_API_PREFIX
 var BIZ_API_PREFIX = process.env.BIZ_API_PREFIX || "";
 var BIZ_API_PATHS = [
   "/pipeline-components",
@@ -45,19 +45,34 @@ var BIZ_API_PATHS = [
   "/lof-ledger"
 ];
 
-function withBizApiPrefix(url) {
-  if (!BIZ_API_PREFIX || !url) return url;
+function getRequestPathname(url) {
+  if (!url) return "";
   var qIndex = url.indexOf("?");
   var path = qIndex === -1 ? url : url.slice(0, qIndex);
-  var query = qIndex === -1 ? "" : url.slice(qIndex);
-  if (path.indexOf(BIZ_API_PREFIX + "/") === 0 || path === BIZ_API_PREFIX) {
-    return url;
-  }
-  var matched = BIZ_API_PATHS.some(function(p) {
+  if (path.charAt(0) !== "/") path = "/" + path;
+  return path;
+}
+
+function isBizPath(path) {
+  return BIZ_API_PATHS.some(function(p) {
     return path === p || path.indexOf(p + "/") === 0;
   });
-  if (!matched) return url;
-  return BIZ_API_PREFIX + (path.charAt(0) === "/" ? path : "/" + path) + query;
+}
+
+function stripKnownPrefix(path) {
+  if (path.indexOf("/server-api/") === 0) {
+    return path.slice("/server-api".length);
+  }
+  if (path.indexOf("/api/") === 0) {
+    var rest = path.slice("/api".length);
+    if (isBizPath(rest)) return rest;
+  }
+  return path;
+}
+
+function isBizApiUrl(url) {
+  var path = getRequestPathname(url);
+  return isBizPath(path) || isBizPath(stripKnownPrefix(path));
 }
 
 let loadInstance = null;
@@ -67,6 +82,17 @@ instance.interceptors.request.use(
   config => {
     if (envConfig) {
       config.baseURL = envConfig.API_ROOT
+    }
+    // 业务接口单独走 BIZ_API_PREFIX，避免叠成 /server-api/api/xxx
+    if (isBizApiUrl(config.url) && BIZ_API_PREFIX) {
+      config.baseURL = BIZ_API_PREFIX;
+      var path = getRequestPathname(config.url);
+      var stripped = stripKnownPrefix(path);
+      if (stripped !== path) {
+        var qIndex = config.url.indexOf("?");
+        var query = qIndex === -1 ? "" : config.url.slice(qIndex);
+        config.url = stripped + query;
+      }
     }
     let locationHref = sessionStorage.getItem('locationHref');
     if (locationHref && getRouter().currentRoute.path === '/welcome') {
@@ -84,7 +110,6 @@ instance.interceptors.request.use(
     // loadInstance = Loading.service();
     //中英文
     let url = config.url;
-    url = withBizApiPrefix(url);
     // config.url = url.indexOf('?') == '-1' ? url + '?_=' + new Date().getTime() : url + '&_=' + new Date().getTime();
     let lang = getStore().state.i18n.language;
     var currentLocale = sessionStorage.getItem("locale");

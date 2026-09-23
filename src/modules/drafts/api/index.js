@@ -61,6 +61,11 @@ export default {
             apiTitle: 'LOF管段选择树查询'
         }).then(res => res.data);
     },
+    getLatestEnabledModelTree: function() {
+        return axios.get('/model-resource-directories/tree/latest-enabled-model', {
+            apiTitle: '查询最新启用模型资源目录树'
+        }).then(res => res.data);
+    },
     getResourceDirectoryChildren: function(id) {
         return axios.get('/model-resource-directories/children/' + id, {
             apiTitle: '查询资源目录子节点'
