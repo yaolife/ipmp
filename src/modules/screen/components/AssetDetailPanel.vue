@@ -57,6 +57,10 @@ export default {
       type: [String, Number],
       default: ""
     },
+    nodeName: {
+      type: String,
+      default: ""
+    },
     directoryPath: {
       type: Array,
       default() {
@@ -86,6 +90,8 @@ export default {
       return (
         this.detail.pipelineName ||
         this.detail.pipelineNo ||
+        this.detail.nodeName ||
+        this.nodeName ||
         this.$t("lang.pipe_detail")
       );
     },
@@ -109,7 +115,7 @@ export default {
             { labelKey: "lang.screen_diameter", value: this.formatDiameter(this.detail.nominalDiameter) },
             { labelKey: "lang.material", value: this.displayVal(this.detail.material) },
             { labelKey: "lang.screen_model", value: this.displayVal(this.detail.specCode) },
-            { labelKey: "lang.screen_standard", value: this.displayVal("") }
+            { labelKey: "lang.screen_standard", value: this.displayVal(this.detail.manufacturingStandard) }
           ]
         },
         {
@@ -163,7 +169,7 @@ export default {
     }
   },
   watch: {
-    pipelineId: {
+    nodeName: {
       immediate: true,
       handler(val) {
         if (val) {
@@ -218,10 +224,12 @@ export default {
       return label || "--";
     },
     loadDetail() {
-      if (!this.pipelineId) return;
+      if (!this.nodeName) return;
       this.loading = true;
       api
-        .getPipelineDetail(this.pipelineId)
+        .getDirectoryDetailByNodeName({
+          nodeName: this.nodeName
+        })
         .then(res => {
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {

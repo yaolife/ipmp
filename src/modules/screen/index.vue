@@ -39,7 +39,7 @@
       <asset-detail-panel
         ref="detailPanel"
         :visible="detailVisible"
-        :pipeline-id="pipelineId"
+        :node-name="detailNodeName"
         :directory-path="directoryPath"
         @close="detailVisible = false"
       ></asset-detail-panel>
@@ -67,6 +67,7 @@ export default {
       currentNode: null,
       directoryPath: [],
       pipelineId: "",
+      detailNodeName: "",
       detailVisible: false,
       treeVisible: false,
       showcaseIconVisible: false,
@@ -429,7 +430,6 @@ export default {
       }
       this.currentMeshId = id;
       this.$pixelStream.sendSelectMesh(id);
-      this.loadPipelineByDirectory(node, id);
     },
     onTreeUnselect(node, meshId) {
       const id = this.getMeshId(node, meshId) || this.currentMeshId;
@@ -482,6 +482,7 @@ export default {
     openDetailPanel(meshId, tab) {
       const id = this.$pixelStream.normalizeMeshId(meshId) || this.currentMeshId;
       this.detailVisible = true;
+      this.detailNodeName = id || "";
       this.$nextTick(() => {
         this.$refs.detailPanel && this.$refs.detailPanel.setActiveTab(tab || "basic");
       });
@@ -492,8 +493,7 @@ export default {
         const node = this.syncTreeByMeshId(id);
         this.currentNode = node;
         this.syncingFromUe = false;
-        if (node) this.loadPipelineByDirectory(node, id);
-        else this.loadPipelineByMeshId(id);
+        if (node && node.id) this.updateDirectoryPath(node.id);
       }
     },
     bootstrapPipeline() {
