@@ -7,7 +7,7 @@
 const path = require("path");
 // 业务后端地址，联调时只改这一处
 //const BACKEND_API_TARGET = "http://192.168.0.254:8000";//YJ-WIFI
-const BACKEND_API_TARGET = "http://192.168.184.254:8000";//局域网
+const BACKEND_API_TARGET = "http://192.168.0.5:8000";//外网局域网
 //const BACKEND_API_TARGET = "http://localhost";//本地直连
 // 业务接口 /api 前缀由 config/*.env.js 的 BIZ_API_PREFIX 控制：内网 ""，外网 "/api"
 module.exports = {
