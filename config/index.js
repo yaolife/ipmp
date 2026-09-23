@@ -20,7 +20,8 @@ module.exports = {
         proxyTable: {
             // 像素流信令（参考 YJ3DVP/web，按实际信令地址调整 target）
             "/pixelStream": {
-                target: "ws://127.0.0.1:11180",
+                target: "ws://127.0.0.1:11180",//振威电脑
+               //target: "ws://10.43.100.77:11180",  //内网像素流实际访问地址：10.43.100.77 端口 11180 项目标识 YJ3DVP
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {
