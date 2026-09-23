@@ -9,6 +9,9 @@ const path = require("path");
 //const BACKEND_API_TARGET = "http://192.168.0.254:8000";//YJ-WIFI
 const BACKEND_API_TARGET = "http://192.168.0.5:8000";//外网局域网
 //const BACKEND_API_TARGET = "http://localhost";//本地直连
+// 前端请求前缀，联调时代理到 BACKEND_API_TARGET
+const SERVER_API_PREFIX = "/server-api";
+const SERVER_API_REWRITE = "^" + SERVER_API_PREFIX;
 // 业务接口 /api 前缀由 config/*.env.js 的 BIZ_API_PREFIX 控制：内网 ""，外网 "/api"
 module.exports = {
     dev: {
@@ -25,73 +28,73 @@ module.exports = {
                 }
             },
             // 资源目录、管道等业务接口，避免被 PSC /server-api/api 规则抢走
-            "/server-api/model-resource-directories": {
+            [SERVER_API_PREFIX + "/model-resource-directories"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
-            "/server-api/pipelines": {
+            [SERVER_API_PREFIX + "/pipelines"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
-            "/server-api/pipeline-components": {
+            [SERVER_API_PREFIX + "/pipeline-components"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
-            "/server-api/model-resources": {
+            [SERVER_API_PREFIX + "/model-resources"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
-            "/server-api/model-resource-items": {
+            [SERVER_API_PREFIX + "/model-resource-items"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
-            "/server-api/sys-files": {
+            [SERVER_API_PREFIX + "/sys-files"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
-            "/server-api/tm01-assessments": {
+            [SERVER_API_PREFIX + "/tm01-assessments"]: {
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE]: ""
                 }
             },
             // 本地代理
-            "/server-api": {
+            [SERVER_API_PREFIX]: {
                 // 联调后端
                 target: BACKEND_API_TARGET,
                 changeOrigin: true,
                 pathRewrite: {
-                    "^/server-api/api": "", // 外网前缀在本地打内网时剥掉
-                    "^/server-api": ""
+                    [SERVER_API_REWRITE + "/api"]: "", // 外网前缀在本地打内网时剥掉
+                    [SERVER_API_REWRITE]: ""
                 }
             },
             // PSC接口代理
-            "/server-api/api": {
+            [SERVER_API_PREFIX + "/api"]: {
                 target: "http://psc2-t/psc-process",
                 //解耦PSC地址
                 // target: "http://bfpsc-t:9000/psc-process",
                 changeOrigin: true, // 是否跨域
                 pathRewrite: {
-                    "^/server-api/api": ""
+                    [SERVER_API_REWRITE + "/api"]: ""
                 }
             },
             // PSC接口代理
@@ -102,14 +105,6 @@ module.exports = {
                 changeOrigin: true,
                 pathRewrite: {
                     "^/api": ""
-                }
-            },
-            // 精细化报表系统代理
-            "/serverapi": {
-                target: "http://10.100.216.79:8080/ereport",
-                changeOrigin: true,
-                pathRewrite: {
-                    "^/serverapi": "",
                 }
             },
             // kkFIleView预览地址
