@@ -124,6 +124,7 @@ export default {
         .get("/api/model-resource-directories/tree/latest-enabled-model", {
           apiTitle: "查询最新启用模型资源目录树"
         })
+        .then(response => response.data)
         .then(res => {
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {
