@@ -77,14 +77,10 @@ export default {
         }).then(res => res.data);
     },
     getDirectoryDetailByNodeName: function(params) {
-        var payload = {};
-        if (params && params.nodeName != null && params.nodeName !== "") {
-            payload.nodeName = params.nodeName;
-        }
-        if (params && params.moduleType) {
-            payload.moduleType = params.moduleType;
-        }
-        return axios.post('/model-resource-directories/getDetail', payload, {
+        return axios.post('/model-resource-directories/getDetail', {
+            nodeName: params && params.nodeName,
+            moduleType: 0
+        }, {
             apiTitle: '按节点名称查询资源目录详情'
         }).then(res => res.data);
     },

@@ -19,7 +19,7 @@ module.exports = merge(prodEnv, {
     BIZ_API_PREFIX: '"/api"',
     // BIZ_API_PREFIX: '"/server-api"',
     // 系统编码
-    APP_CODE: '"CUDDEMO4"',
+    APP_CODE: '"pims"',
     // 中台选人选部门控件地址名前缀 aep-t测试环境  aep生产环境
     ASC_ROOT: '"https://aep-t/SelectPersonandDept"',
     // 中台的地址

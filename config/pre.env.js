@@ -13,7 +13,7 @@ module.exports = {
   // 管网业务接口请求前缀：内网 /server-api，外网 /api
   BIZ_API_PREFIX: '"/api"',
   // 系统编码
-  APP_CODE: '"CUDDEMO4"',
+  APP_CODE: '"pims"',
   // 中台选人选部门控件地址名前缀 aep-t测试环境  aep生产环境
   ASC_ROOT: '"https://aep-p/SelectPersonandDept"',
   // 中台的地址
