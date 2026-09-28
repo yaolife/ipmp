@@ -58,7 +58,7 @@ export default {
     loadSegments() {
       this.pageLoading = true;
       api
-        .getResourceDirectoryTree({ componentType: 0 })
+        .getLatestEnabledModelTree()
         .then(res => {
           this.pageLoading = false;
           if (!this.isSuccessCode(res && res.code)) {

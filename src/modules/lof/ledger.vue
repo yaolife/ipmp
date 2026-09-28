@@ -34,7 +34,13 @@
                   @click="startBatchAnalysis"
                 >一键自动分析</el-button>
                 <el-button size="small" @click="syncLedger">批量同步</el-button>
-                <el-button type="primary" size="small" @click="exportLedger">批量导出</el-button>
+                <el-button
+                  type="primary"
+                  size="small"
+                  :disabled="!selectedRows.length || exporting"
+                  :loading="exporting"
+                  @click="exportLedger"
+                >批量导出报告</el-button>
               </div>
               <div class="ledger-filters">
                 <el-input
@@ -70,8 +76,10 @@
                 height="100%"
                 border
                 stripe
+                @selection-change="onSelectionChange"
                 @sort-change="onSortChange"
               >
+                <el-table-column type="selection" width="45"></el-table-column>
                 <el-table-column label="KKS" min-width="150">
                   <template slot-scope="scope">{{ kksText(scope.row) }}</template>
                 </el-table-column>
@@ -117,7 +125,7 @@
                 <el-table-column label="分析状态" min-width="125">
                   <template slot-scope="scope">{{ analysisStatusText(scope.row.analysisStatus) }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="355">
+                <el-table-column label="操作" width="430">
                   <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="openDetail(scope.row)">查看</el-button>
                     <el-button type="text" size="mini" @click="openEdit(scope.row)">编辑参数</el-button>
@@ -125,6 +133,7 @@
                     <el-button type="text" size="mini" @click="goAssessment('tm01', scope.row)">定性评估</el-button>
                     <el-button type="text" size="mini" @click="goAssessment('tm02', scope.row)">定量评估</el-button>
                     <el-button type="text" size="mini" @click="goAssessment('tm05', scope.row)">振动校核</el-button>
+                    <el-button type="text" size="mini" @click="exportSingleReport(scope.row)">导出报告</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -297,9 +306,11 @@ export default {
     return {
       pageLoading: false,
       batchAnalyzing: false,
+      exporting: false,
       directoryTree: [],
       treeProps: { children: "children", label: "nodeName" },
       selectedNode: null,
+      selectedRows: [],
       records: [],
       total: 0,
       query: {
@@ -366,7 +377,8 @@ export default {
     isSuccessCode: isSuccessCode,
     unwrapList: unwrapList,
     loadTree() {
-      api.getResourceDirectoryTree({ moduleType: 0 }).then(res => {
+      // 三维台账列表只查询最新启用模型，因此筛选树必须使用同一模型树的节点主键。
+      api.getLatestEnabledModelTree().then(res => {
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "系统筛选树加载失败");
           return;
@@ -410,6 +422,9 @@ export default {
         ? "asc"
         : (sort.order === "descending" ? "desc" : "");
       this.search();
+    },
+    onSelectionChange(rows) {
+      this.selectedRows = rows || [];
     },
     onTreeNodeClick(node) {
       this.selectedNode = node;
@@ -536,7 +551,53 @@ export default {
       this.$message.success("台账数据已重新同步");
     },
     exportLedger() {
-      this.$message.info("批量导出接口待接入统一报表服务");
+      if (!this.selectedRows.length) {
+        this.$message.warning("请先选择要导出的管段");
+        return;
+      }
+      this.exporting = true;
+      api.exportBatchLedgerReport({
+        segmentIds: this.selectedRows.map(row => row.id)
+      }).then(response => {
+        this.downloadBlob(response, "LOF-批量评估报告.docx");
+      }).catch(error => {
+        this.$message.error(this.errorMessage(error, "批量报告导出失败"));
+      }).finally(() => {
+        this.exporting = false;
+      });
+    },
+    exportSingleReport(row) {
+      if (!row || !row.id) {
+        this.$message.warning("当前管段缺少主键，无法导出");
+        return;
+      }
+      this.exporting = true;
+      api.exportSingleLedgerReport({ segmentId: row.id }).then(response => {
+        const name = "LOF-单管段-" + (row.nodeName || row.pipelineNo || row.id) + ".docx";
+        this.downloadBlob(response, name);
+      }).catch(error => {
+        this.$message.error(this.errorMessage(error, "单管段报告导出失败"));
+      }).finally(() => {
+        this.exporting = false;
+      });
+    },
+    downloadBlob(response, fileName) {
+      const blob = response && response.data instanceof Blob
+        ? response.data
+        : new Blob([response && response.data ? response.data : response]);
+      if (blob.type && blob.type.indexOf("application/json") !== -1) {
+        this.$message.error("报告导出失败，请检查后端返回信息");
+        return;
+      }
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.style.display = "none";
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     },
     openHistory(row) {
       this.historyVisible = true;

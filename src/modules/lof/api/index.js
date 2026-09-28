@@ -23,12 +23,27 @@ export default {
             apiTitle: '一键自动分析 LOF 三维台账'
         }).then(unwrap);
     },
+    exportSingleLedgerReport: function(params) {
+        return axios.post(lofLedgerBaseUrl + '/export-single-report', params, {
+            responseType: 'blob',
+            apiTitle: '导出单管段 LOF 报告'
+        });
+    },
+    exportBatchLedgerReport: function(params) {
+        return axios.post(lofLedgerBaseUrl + '/export-batch-report', params, {
+            responseType: 'blob',
+            apiTitle: '批量导出 LOF 报告'
+        });
+    },
     getResourceDirectoryTree: function(params) {
         return draftsApi.getLofSegmentTree(
             Object.assign({
                 moduleType: PIPE_DIRECTORY_TYPE
             }, params || {})
         );
+    },
+    getLatestEnabledModelTree: function() {
+        return draftsApi.getLatestEnabledModelTree();
     },
     getResourceDirectoryDetail: draftsApi.getResourceDirectoryDetail,
     evaluate: function(params) {

@@ -1,16 +1,15 @@
 export const INCENTIVES = [
   { id: 's1', name: '流动湍流' },
-  { id: 's2', name: '高频声学激励' },
-  { id: 's3', name: '机械激励' },
-  { id: 's4', name: '往复流体脉动' },
-  { id: 's5', name: '离心旋转失速' },
-  { id: 's6', name: '空化闪蒸' },
-  { id: 's7', name: '阀门水锤冲击' },
-  { id: 's8', name: '侵入元件涡激' },
-  { id: 's9', name: '段塞两相冲击' },
+  { id: 's2', name: '机械激励' },
+  { id: 's3', name: '往复式/正排量泵或压缩机脉动' },
+  { id: 's4', name: '离心压缩机旋转失速' },
+  { id: 's5', name: '高频声激励' },
+  { id: 's6', name: '浪涌/动量变化（水锤）' },
+  { id: 's7', name: '空化和闪蒸' },
+  { id: 's8', name: '段塞流' },
+  { id: 's9', name: '侵入性元件涡激' },
   { id: 's10', name: '历史振动失效' }
 ];
-
 export const CONDITIONS = [
   { id: 'c1', name: '施工制造标准等级', source: '管道台账' },
   { id: 'c2', name: '腐蚀/介质侵蚀管控', source: '腐蚀管理台账' },
@@ -43,3 +42,4 @@ export function riskMeta(level) {
   if (level === 2 || level === '2') return RISK_MAP[2];
   return { text: '-', cls: 'badge-na' };
 }
+

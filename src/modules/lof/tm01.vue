@@ -67,7 +67,6 @@
             </div>
           </div>
         </div>
-
         <div class="grid lof-grid-2">
           <div class="card">
             <div class="card-header">
@@ -312,14 +311,14 @@ function emptyResult() {
 
 const INCENTIVE_RULES = {
   s1: "ρv²＜5000为低，5000≤ρv²＜20000为中，ρv²≥20000为高。",
-  s2: "存在阻塞或音速流为高；仅存在节流件为中；两者均不存在为低。",
-  s3: "配套往复泵、压缩机、柴油机等往复设备为高，否则为低。",
-  s4: "配套往复设备时存在往复流体脉动激励，判定为高，否则为低。",
-  s5: "配套离心设备且低流量运行占比大于30%为中，否则为低。",
-  s6: "存在空化或闪蒸可能为高，否则为低。",
-  s7: "存在快开或快关阀门为高，否则为低。",
-  s8: "存在热电偶套管或取样探头等侵入元件为高，否则为低。",
-  s9: "存在段塞两相流为高，否则为低。",
+  s2: "存在旋转或往复机械为高，否则为低。",
+  s3: "存在正排量泵或压缩机为高，否则为低。",
+  s4: "存在可能发生旋转失速的离心压缩机为高，否则为低。",
+  s5: "存在阻塞流或音速流为高；仅存在节流件为中；两者均不存在为低。",
+  s6: "存在快速开启或快速关闭的阀门为高，否则为低。",
+  s7: "存在空化或闪蒸可能为高，否则为低。",
+  s8: "存在段塞两相流为高，否则为低。",
+  s9: "存在热电偶套管、取样探头等侵入元件为高，否则为低。",
   s10: "无历史记录为低；轻微异响为中；疲劳、泄漏或剧烈振动为高。"
 };
 
@@ -543,18 +542,18 @@ export default {
       const yes = code => Number(code) === 1;
       const reasons = {
         s1: "介质密度 × 最大流速²决定流动湍流等级",
-        s2: yes(segment.isChokedFlow)
+        s2: yes(segment.hasReciprocatingEquipment) || yes(segment.hasCentrifugalEquipment)
+          ? "存在旋转或往复机械" : "未识别旋转或往复机械",
+        s3: yes(segment.hasReciprocatingEquipment) ? "存在往复式/正排量设备" : "未识别正排量设备",
+        s4: yes(segment.hasCentrifugalEquipment)
+          ? "存在离心设备，结合低流量运行占比判断" : "未识别离心压缩机旋转失速",
+        s5: yes(segment.isChokedFlow)
           ? "存在阻塞或音速流"
           : (yes(segment.hasThrottlingElement) ? "存在节流件" : "未识别阻塞流或节流件"),
-        s3: yes(segment.hasReciprocatingEquipment) ? "配套往复设备" : "未配套往复设备",
-        s4: yes(segment.hasReciprocatingEquipment) ? "配套往复设备，存在流体脉动激励" : "未配套往复设备",
-        s5: yes(segment.hasCentrifugalEquipment)
-          ? "配套离心设备，结合低流量运行占比判断"
-          : "未配套离心设备",
-        s6: yes(segment.hasFlashingCavitation) ? "存在闪蒸或空化" : "未识别闪蒸或空化",
-        s7: Number(segment.fastActingValveType) > 0 ? "存在快动阀" : "未识别快动阀",
-        s8: yes(segment.hasThermowellProbe) ? "存在热电偶或取样探头" : "未识别侵入元件",
-        s9: yes(segment.hasSlugFlow) ? "存在段塞两相流" : "未识别段塞两相流",
+        s6: Number(segment.fastActingValveType) > 0 ? "存在快动阀" : "未识别快动阀",
+        s7: yes(segment.hasFlashingCavitation) ? "存在闪蒸或空化" : "未识别闪蒸或空化",
+        s8: yes(segment.hasSlugFlow) ? "存在段塞两相流" : "未识别段塞流",
+        s9: yes(segment.hasThermowellProbe) ? "存在热电偶或取样探头" : "未识别侵入元件",
         s10: "根据历史振动失效等级判断"
       };
       return (reasons[id] || "后端规则自动判定") + "，自动评分 " + value;
@@ -613,7 +612,7 @@ export default {
     loadSegments() {
       this.pageLoading = true;
       api
-        .getResourceDirectoryTree({ componentType: 0 })
+        .getLatestEnabledModelTree()
         .then(res => {
           this.pageLoading = false;
           if (!this.isSuccessCode(res && res.code)) {
@@ -828,19 +827,22 @@ export default {
             : "-" }
         ],
         s2: [
-          { label: "是否含节流件", value: yesNo(segment.hasThrottlingElement) },
-          { label: "是否阻塞或音速流", value: yesNo(segment.isChokedFlow) }
+          { label: "是否配套往复设备", value: yesNo(segment.hasReciprocatingEquipment) },
+          { label: "是否配套离心设备", value: yesNo(segment.hasCentrifugalEquipment) }
         ],
-        s3: [{ label: "是否配套往复设备", value: yesNo(segment.hasReciprocatingEquipment) }],
-        s4: [{ label: "是否配套往复设备", value: yesNo(segment.hasReciprocatingEquipment) }],
-        s5: [
+        s3: [{ label: "是否配套往复/正排量设备", value: yesNo(segment.hasReciprocatingEquipment) }],
+        s4: [
           { label: "是否配套离心设备", value: yesNo(segment.hasCentrifugalEquipment) },
           { label: "低流量运行占比", value: segment.lowFlowRatio == null ? "-" : segment.lowFlowRatio + "%" }
         ],
-        s6: [{ label: "是否存在闪蒸或空化", value: yesNo(segment.hasFlashingCavitation) }],
-        s7: [{ label: "快动阀类型编码", value: segment.fastActingValveType }],
-        s8: [{ label: "是否存在热电偶或取样探头", value: yesNo(segment.hasThermowellProbe) }],
-        s9: [{ label: "是否存在段塞两相流", value: yesNo(segment.hasSlugFlow) }],
+        s5: [
+          { label: "是否含节流件", value: yesNo(segment.hasThrottlingElement) },
+          { label: "是否阻塞或音速流", value: yesNo(segment.isChokedFlow) }
+        ],
+        s6: [{ label: "快动阀类型编码", value: segment.fastActingValveType }],
+        s7: [{ label: "是否存在闪蒸或空化", value: yesNo(segment.hasFlashingCavitation) }],
+        s8: [{ label: "是否存在段塞两相流", value: yesNo(segment.hasSlugFlow) }],
+        s9: [{ label: "是否存在热电偶或取样探头", value: yesNo(segment.hasThermowellProbe) }],
         s10: [{ label: "历史振动失效等级", value: segment.vibrationFailureHistory }]
       };
       return rows[id] || [];
@@ -931,3 +933,4 @@ export default {
   }
 };
 </script>
+
