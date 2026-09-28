@@ -50,8 +50,6 @@ import api from "@/modules/drafts/api";
 import { getNodeMeshId, normalizeMeshId } from "@/utils/pixelStream";
 import showcaseIcon from "@/assets/img/showcase-icon.png";
 
-const PIPE_DIRECTORY_TYPE = 0;
-
 function getNodeLabel(item) {
   return (item && (item.nodeName || item.name)) || "";
 }
@@ -178,11 +176,13 @@ export default {
     loadTree() {
       this.loading = true;
       api
-        .getResourceDirectoryTree({ moduleType: PIPE_DIRECTORY_TYPE })
+        .getLatestEnabledModelTree()
         .then(res => {
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {
-            this.treeData = normalizeTree(res.data);
+            this.treeData = normalizeTree(
+              Array.isArray(res.data) ? res.data : []
+            );
           } else {
             this.treeData = [];
           }
