@@ -27,6 +27,6 @@ module.exports = {
   AUTH_TYPE: '"AEP"',
   // PSC地址前缀，用于前端请求PSC相关服务
   PSC_ROOT: '"/api"',
-  // 像素流路径，最终拼接为 ws(s)://{host}/pixelStream
-  PIXEL_STREAM_PATH: '"/pixelStream"',
+  // 信令靠 urlPrefix 选择 UE 工程标识 YJ3DVP
+  PIXEL_STREAM_PATH: '"/pixelStream?urlPrefix=YJ3DVP"',
 }

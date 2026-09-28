@@ -16,8 +16,8 @@ module.exports = merge(prodEnv, {
     // api地址
     API_ROOT: '"/server-api"',
     // 管网业务接口请求前缀：内网 "/server-api"，外网 "/api"
-    BIZ_API_PREFIX: '"/api"',
-    // BIZ_API_PREFIX: '"/server-api"',
+     BIZ_API_PREFIX: '"/api"',
+    // BIZ_API_PREFIX: '"/api"',
     // 系统编码
     APP_CODE: '"pims"',
     // 中台选人选部门控件地址名前缀 aep-t测试环境  aep生产环境
@@ -32,6 +32,6 @@ module.exports = merge(prodEnv, {
     PSC_ROOT: '"/api"',
     //kkFileView应用地址
     kkFileViewUrl:'"http://10.100.139.139:8012"',
-    // 像素流路径，最终拼接为 ws(s)://{host}/pixelStream
-    PIXEL_STREAM_PATH: '"/pixelStream"',
+    // 信令靠 urlPrefix 选择 UE 工程标识 YJ3DVP
+    PIXEL_STREAM_PATH: '"/pixelStream?urlPrefix=YJ3DVP"',
 })

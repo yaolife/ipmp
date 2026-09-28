@@ -177,6 +177,31 @@ class PeerStream extends HTMLVideoElement {
     return true
   }
 
+  getSignalUrl() {
+    const STREAM_ID = 'YJ3DVP'
+    const idAttr = String(this.id || this.getAttribute('id') || '').trim()
+    const dataUrl = String(
+      this.getAttribute('data-url') || this.getAttribute('data-signal') || ''
+    ).trim()
+    const originWs = location.origin.replace(/^http/, 'ws')
+    let candidate = ''
+    if (/^wss?:\/\//i.test(idAttr)) candidate = idAttr
+    else if (/^wss?:\/\//i.test(dataUrl)) candidate = dataUrl
+    else if (dataUrl.charAt(0) === '/' || idAttr.charAt(0) === '/') {
+      candidate = originWs + (dataUrl.charAt(0) === '/' ? dataUrl : idAttr)
+    } else {
+      candidate = originWs + '/pixelStream'
+    }
+    candidate = candidate.replace(/\/+$/, '').replace(/\/YJ3DVP(?=\?|$)/i, '')
+    if (!/\/pixelStream(?=\?|$)/i.test(candidate)) {
+      candidate = originWs + '/pixelStream'
+    }
+    if (!/[?&]urlPrefix=/i.test(candidate)) {
+      candidate += (candidate.indexOf('?') >= 0 ? '&' : '?') + 'urlPrefix=' + STREAM_ID
+    }
+    return candidate
+  }
+
   // setupWebsocket
   async connectedCallback() {
     if (false == this.checkWebRTCSupport()) {
@@ -207,18 +232,17 @@ class PeerStream extends HTMLVideoElement {
     // await new Promise((res) => setTimeout(res, 1000));
     this.ws.onclose = null
     this.ws.close(1000)
+    const signalUrl = this.getSignalUrl()
     try {
-      this.ws = new WebSocket(
-        this.id || location.href.replace(/^http/, 'ws'),
-        'peer-stream'
-      )
+      console.info('[peer-stream] WebSocket', signalUrl, 'html id=', this.id)
+      this.ws = new WebSocket(signalUrl, 'peer-stream')
     } catch (err) {
-      console.error('[peer-stream] WebSocket construct failed', this.id, err)
+      console.error('[peer-stream] WebSocket construct failed', signalUrl, err)
       return
     }
 
     this.ws.onerror = (e) => {
-      console.error('[peer-stream] websocket error', this.id, e)
+      console.error('[peer-stream] websocket error', this.getSignalUrl(), e)
     }
 
     this.ws.onopen = () => {

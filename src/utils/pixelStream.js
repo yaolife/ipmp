@@ -32,7 +32,12 @@ function parseUeMessage(detail) {
   let msg = detail;
   if (typeof msg === "string") {
     try {
-      msg = JSON.parse(String(msg).replace(/\0/g, "").trim());
+      msg = JSON.parse(
+        String(msg)
+          .replace(/^\uFEFF/, "")
+          .replace(/\0/g, "")
+          .trim()
+      );
     } catch (e) {
       return { event: "raw", data: detail };
     }
@@ -87,17 +92,30 @@ function getNodeMeshId(node) {
   );
 }
 
+const PIXEL_STREAM_ID = "YJ3DVP";
+
+function wsOrigin() {
+  if (typeof window === "undefined") return "";
+  return window.location.origin.replace(/^http/, "ws");
+}
+
+function ensureStreamQuery(url) {
+  let raw = String(url || "").trim().replace(/\/+$/, "");
+  if (!raw) raw = "/pixelStream";
+  raw = raw.replace(/\/YJ3DVP(?=\?|$)/i, "");
+  if (!raw || raw === "/") raw = "/pixelStream";
+  if (/[?&]urlPrefix=/i.test(raw)) return raw;
+  return raw + (raw.indexOf("?") >= 0 ? "&" : "?") + "urlPrefix=" + PIXEL_STREAM_ID;
+}
+
 function getPixelStreamUrl() {
-  const configured =
-    process.env.PIXEL_STREAM_URL || process.env.PIXEL_STREAM_PATH || "/pixelStream";
-  if (/^wss?:\/\//.test(configured)) return configured;
-  const prefix = (typeof window !== "undefined"
-    ? window.location.origin
-    : ""
-  ).replace("http", "ws").replace("https", "wss");
-  const path = configured.charAt(0) === "/" ? configured : "/" + configured;
-  if (/YJ3DVP/i.test(path)) return prefix + path;
-  return prefix + path + "/YJ3DVP";
+  const configured = unwrapQuoted(
+    process.env.PIXEL_STREAM_URL || process.env.PIXEL_STREAM_PATH || "/pixelStream"
+  );
+  const withQuery = ensureStreamQuery(configured);
+  if (/^wss?:\/\//i.test(withQuery)) return withQuery;
+  const path = withQuery.charAt(0) === "/" ? withQuery : "/" + withQuery;
+  return wsOrigin() + path;
 }
 
 class PixelStreamClient {
@@ -111,6 +129,7 @@ class PixelStreamClient {
     this.owned = false;
     this.selectedMeshId = "";
     this.pendingDetail = null;
+    this.lastMenu = "";
     this.EVENTS = PIXEL_STREAM_EVENT;
     this.MENUS = PIXEL_STREAM_MENU;
   }
@@ -151,6 +170,16 @@ class PixelStreamClient {
     if (!this.listeners[event]) this.listeners[event] = [];
     if (this.listeners[event].indexOf(handler) === -1) {
       this.listeners[event].push(handler);
+    }
+    if (event === PIXEL_STREAM_EVENT.SET_MENU && this.lastMenu) {
+      const menu = this.lastMenu;
+      setTimeout(function() {
+        try {
+          handler(menu);
+        } catch (e) {
+          console.error("[pixelStream] listener error:", e);
+        }
+      }, 0);
     }
     return this;
   }
@@ -228,6 +257,7 @@ class PixelStreamClient {
     }
     if (msg.event === PIXEL_STREAM_EVENT.SET_MENU) {
       msg.data = normalizeMenuKey(msg.data);
+      this.lastMenu = msg.data;
     } else if (
       msg.event === PIXEL_STREAM_EVENT.SELECT_MESH ||
       msg.event === PIXEL_STREAM_EVENT.CANCEL_SELECTED_MESH ||
@@ -332,7 +362,11 @@ class PixelStreamClient {
     if (!container) return null;
     this.container = container;
     const video = document.createElement("video", { is: "peer-stream" });
-    video.id = url || this.getUrl();
+    const signalUrl = url || this.getUrl();
+    video.id = signalUrl;
+    video.setAttribute("id", signalUrl);
+    video.setAttribute("data-url", signalUrl);
+    video.setAttribute("data-signal", signalUrl);
     video.setAttribute("idaudio", "");
     video.className = "pixel-stream";
     video.style.cssText =
@@ -436,5 +470,11 @@ class PixelStreamClient {
 
 const pixelStream = new PixelStreamClient();
 
-export { normalizeMenuKey, normalizeMeshId, getNodeMeshId, getPixelStreamUrl };
+export {
+  PIXEL_STREAM_ID,
+  normalizeMenuKey,
+  normalizeMeshId,
+  getNodeMeshId,
+  getPixelStreamUrl
+};
 export default pixelStream;

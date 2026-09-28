@@ -9,17 +9,6 @@
     <div class="screen-scene">
       <div class="videoWrapper" ref="videoWrapper"></div>
     </div>
-    <div class="screen-left" v-show="loaded && treeVisible">
-      <model-tree-panel
-        ref="treePanel"
-        :icon-visible="showcaseIconVisible"
-        @loaded="onTreeLoaded"
-        @select="onTreeSelect"
-        @unselect="onTreeUnselect"
-        @showcase="onTreeShowcase"
-        @close="onTreeClose"
-      ></model-tree-panel>
-    </div>
     <button
       v-if="loaded && treeVisible"
       type="button"
@@ -49,7 +38,6 @@
 
 <script>
 import api from "@/modules/drafts/api";
-import ModelTreePanel from "./components/ModelTreePanel.vue";
 import AssetDetailPanel from "./components/AssetDetailPanel.vue";
 import PixelStreamLoading from "./components/Loading.vue";
 import adminEntryIcon from "@/assets/img/admin-entry.png";
@@ -57,7 +45,6 @@ import adminEntryIcon from "@/assets/img/admin-entry.png";
 export default {
   name: "DigitalTwinScreen",
   components: {
-    ModelTreePanel,
     AssetDetailPanel,
     PixelStreamLoading
   },
@@ -83,7 +70,9 @@ export default {
   },
   computed: {
     pixelStreamUrl() {
-      return this.$pixelStream.getUrl();
+      const metaUrl =
+        this.$route && this.$route.meta && this.$route.meta.pixelStreamUrl;
+      return metaUrl || this.$pixelStream.getUrl();
     },
     loadingTitle() {
       const meta = this.$route.meta;
@@ -122,6 +111,9 @@ export default {
     this.$nextTick(function() {
       self.applyPendingDetail();
       self.ensurePeerStreamVideo();
+      if (self.$pixelStream.lastMenu) {
+        self.onSetMenu(self.$pixelStream.lastMenu);
+      }
     });
     this._loadingHintTimer = setTimeout(function() {
       if (!self.loaded) {
@@ -148,17 +140,47 @@ export default {
     window.removeEventListener("ipmp-showcase", this.onDomShowCase);
   },
   methods: {
+    applyPixelStreamId(el) {
+      const url = this.pixelStreamUrl;
+      if (!el || !url) return url;
+      el.id = url;
+      el.setAttribute("id", url);
+      el.setAttribute("data-url", url);
+      el.setAttribute("data-signal", url);
+      console.info("[pixelStream] urlPrefix=YJ3DVP", url);
+      return url;
+    },
+    isCorrectStream(el) {
+      const wsUrl = (el && el.ws && el.ws.url) || "";
+      const idUrl = (el && (el.id || (el.getAttribute && el.getAttribute("id")))) || "";
+      const current = wsUrl || idUrl;
+      return /[?&]urlPrefix=YJ3DVP(?:&|$)/i.test(current);
+    },
     ensurePeerStreamVideo() {
       const wrap = this.$refs.videoWrapper;
       if (!wrap || !this.pixelStreamUrl) return;
       if (this.pixelStreamRef && this.pixelStreamRef.isConnected) {
+        if (this.isCorrectStream(this.pixelStreamRef)) return;
+        this.applyPixelStreamId(this.pixelStreamRef);
+        try {
+          this.pixelStreamRef.ws.close(1000);
+        } catch (e) {}
+        if (typeof this.pixelStreamRef.connectedCallback === "function") {
+          this.pixelStreamRef.connectedCallback();
+        }
         return;
       }
       let el = wrap.querySelector("video.pixelStream");
       if (el && typeof el.emitMessage === "function") {
-        if (!el.id) el.id = this.pixelStreamUrl;
+        this.applyPixelStreamId(el);
         this.applyPeerStreamLayout(el, wrap);
         if (this.pixelStreamRef !== el) this.pixelStreamRef = el;
+        if (el.ws && el.ws.url && !/[?&]urlPrefix=YJ3DVP(?:&|$)/i.test(el.ws.url) && typeof el.connectedCallback === "function") {
+          try {
+            el.ws.close(1000);
+          } catch (e) {}
+          el.connectedCallback();
+        }
         return;
       }
       el = document.createElement("video", { is: "peer-stream" });
@@ -167,7 +189,7 @@ export default {
       el.setAttribute("autoplay", "");
       el.setAttribute("playsinline", "");
       el.muted = true;
-      el.id = this.pixelStreamUrl;
+      this.applyPixelStreamId(el);
       el.className = "pixelStream";
       this.applyPeerStreamLayout(el, wrap);
       wrap.appendChild(el);
@@ -239,10 +261,7 @@ export default {
       }
     },
     onPeerStreamPlaying() {
-      const el = this.pixelStreamRef;
-      if (el && el.videoWidth > 0) {
-        this.markPixelStreamLoaded();
-      }
+      this.markPixelStreamLoaded();
     },
     markPixelStreamLoaded() {
       this.loaded = true;
@@ -367,6 +386,7 @@ export default {
       this.treeVisible = showPlant;
       if (showPlant) {
         this.showcaseIconVisible = true;
+        this.markPixelStreamLoaded();
       } else {
         this.detailVisible = false;
         this.$refs.treePanel && this.$refs.treePanel.clearCurrent();

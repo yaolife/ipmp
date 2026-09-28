@@ -26,6 +26,6 @@ module.exports = {
   PSC_ROOT: '"/api"',
   //kkFileView应用地址
   kkFileViewUrl: '"http://10.100.139.139:8012"',
-  // 像素流路径，最终拼接为 ws(s)://{host}/pixelStream
-  PIXEL_STREAM_PATH: '"/pixelStream"'
+  // 信令靠 urlPrefix 选择 UE 工程标识 YJ3DVP
+  PIXEL_STREAM_PATH: '"/pixelStream?urlPrefix=YJ3DVP"'
 }

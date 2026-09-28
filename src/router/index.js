@@ -42,8 +42,6 @@ import { getPixelStreamUrl } from "@/utils/pixelStream";
 
 Vue.use(Router);
 
-const pixelStreamUrl = getPixelStreamUrl();
-
 function redirectToYj3dvp(to) {
   let path = "/YJ3DVP";
   if (to.params.modelId) path += "/" + to.params.modelId;
@@ -65,7 +63,7 @@ const _router = new Router({
       meta: {
         title: "阳江核电融合定位可视化平台",
         menuCode: "digitalTwin",
-        pixelStreamUrl: pixelStreamUrl
+        pixelStreamUrl: getPixelStreamUrl()
       },
       props: route => ({ key: route.path })
     },

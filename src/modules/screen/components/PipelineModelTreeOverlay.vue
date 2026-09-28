@@ -43,7 +43,7 @@ export default {
       );
     },
     overlayVisible() {
-      return this.visible && !this.isDigitalTwinPage;
+      return this.visible;
     }
   },
   created() {
@@ -54,6 +54,7 @@ export default {
     ps.on(ps.EVENTS.CANCEL_SELECTED_MESH, this.onUeCancelSelectedMesh);
     ps.on(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
     ps.on(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
+    if (ps.lastMenu) this.onSetMenu(ps.lastMenu);
   },
   mounted() {
     this.$pixelStream.bindWhenReady();
@@ -181,7 +182,7 @@ export default {
   top: 8.33%;
   bottom: 7.41%;
   width: 16.56%;
-  z-index: 4000;
+  z-index: 2147483640;
   pointer-events: auto;
 }
 </style>

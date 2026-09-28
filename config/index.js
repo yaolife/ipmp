@@ -48,10 +48,10 @@ module.exports = {
         assetsPublicPath: "/",
         proxyTable: Object.assign(
             {
-                // 像素流信令（参考 YJ3DVP/web，按实际信令地址调整 target）
+                // 像素流信令：浏览器连 /pixelStream?urlPrefix=YJ3DVP，剥掉前缀后转到信令
                 "/pixelStream": {
-                    target: "ws://127.0.0.1:11180",//振威电脑
-                   //target: "ws://10.43.100.77:11180",  //内网像素流实际访问地址：10.43.100.77 端口 11180 项目标识 YJ3DVP
+                    //target: "ws://127.0.0.1:11180",//振威电脑
+                   target: "ws://10.43.100.77:11180",  //内网像素流：10.43.100.77:11180 ，工程标识用 urlPrefix=YJ3DVP
                     ws: true,
                     changeOrigin: true,
                     pathRewrite: {
@@ -59,7 +59,8 @@ module.exports = {
                     }
                 }
             },
-            createBizProxies(SERVER_API_PREFIX, true),
+            // 内网测试网关 http://10.43.100.205:8013 本身带 /server-api，不能剥
+            createBizProxies(SERVER_API_PREFIX, false),
             createBizProxies(EXTERNAL_API_PREFIX, false),
             {
             // PSC接口代理，需写在 /server-api 兜底之前
@@ -72,14 +73,10 @@ module.exports = {
                     [SERVER_API_REWRITE + "/api"]: ""
                 }
             },
-            // 本地代理
+            // 本地代理：内网测试网关保留 /server-api
             [SERVER_API_PREFIX]: {
-                // 联调后端
                 target: BACKEND_API_TARGET,
-                changeOrigin: true,
-                pathRewrite: {
-                    [SERVER_API_REWRITE]: ""
-                }
+                changeOrigin: true
             },
             // PSC接口代理（具体业务路径已在上面优先匹配到后端）
             [EXTERNAL_API_PREFIX]: {
