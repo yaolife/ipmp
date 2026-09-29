@@ -308,7 +308,7 @@ export const lang = {
     status_abnormal: "异常",
     status_to_confirm: "待确认",
     component_type: "元件类型",
-    component_type_pipe: "无缝钢管（直管段）",
+    component_type_pipe: "管道",
     component_type_elbow: "弯头",
     component_type_tee: "三通",
     component_type_reducer: "异径",
