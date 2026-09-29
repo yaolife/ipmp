@@ -27,7 +27,8 @@ export const COMPONENT_TYPES = [
   { code: 21, key: "BOILER_PART", i18nKey: "lang.component_type_boiler_part" }, // 锅炉受压部件
   { code: 22, key: "SMALL_BRANCH_PIPE", i18nKey: "lang.component_type_small_branch_pipe" }, // 小支管
   { code: 23, key: "SMALL_BRANCH_PIPE_SEAT", i18nKey: "lang.component_type_small_branch_pipe_seat" }, // 小支管座
-  { code: 24, key: "ELECTRIC_GATE_VALVE", i18nKey: "lang.component_type_electric_gate_valve" } // 电动闸阀
+  { code: 24, key: "ELECTRIC_GATE_VALVE", i18nKey: "lang.component_type_electric_gate_valve" }, // 电动闸阀
+  { code: 25, key: "MP_PRESSURE_POINT", i18nKey: "lang.component_type_mp_pressure_point" } // MP压力测点
 ];
 
 export const COMPONENT_TYPE = COMPONENT_TYPES.reduce((map, item) => {

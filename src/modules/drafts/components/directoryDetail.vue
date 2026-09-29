@@ -848,8 +848,214 @@ import api from "../api";
 import { debounce } from "@/utils/funcUtil";
 import {
   getComponentTypeItem,
+  getComponentTypeLabel,
   getComponentTypeOptions
 } from "@/constant/componentType";
+
+const PIPE_LOF_TYPES = [0, 1, 2, 3];
+const RIGID_LOF_TYPES = [5, 6, 7, 8, 9, 10, 11, 12];
+const WELD_LOF_TYPE = 4;
+const THERMOWELL_LOF_TYPE = 13;
+
+function resolveLofLayout(componentType) {
+  if (componentType === null || componentType === undefined || componentType === "") {
+    return "default";
+  }
+  const code = Number(componentType);
+  if (!Number.isFinite(code)) return "default";
+  if (PIPE_LOF_TYPES.indexOf(code) !== -1) return "pipe";
+  if (RIGID_LOF_TYPES.indexOf(code) !== -1) return "rigid";
+  if (code === WELD_LOF_TYPE) return "weld";
+  if (code === THERMOWELL_LOF_TYPE) return "thermowell";
+  return "default";
+}
+
+function getDefaultLofSections() {
+  return [
+    {
+      title: "lang.lof_pipe_params",
+      fields: [
+        {
+          key: "pipeStandardKks",
+          label: "lang.pipe_standard_kks",
+          placeholder: "如 P-273-12.5-316LN"
+        },
+        { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm", type: "number" },
+        { key: "wallThickness", label: "lang.pipe_wall_thickness_mm", type: "number" },
+        { key: "material", label: "lang.standard_material", placeholder: "如 316LN / 碳钢" },
+        { key: "designTemperature", label: "lang.design_temperature_c", type: "number" },
+        { key: "designPressure", label: "lang.design_pressure_mpa", type: "number" },
+        { key: "mediumType", label: "lang.medium_type", type: "select", options: "mediumType" },
+        { key: "fluidDensity", label: "lang.fluid_density", type: "number" },
+        { key: "equipmentType", label: "lang.equipment_type", placeholder: "如 主蒸汽隔离阀 / 给水泵" },
+        { key: "spanReference", label: "lang.span_reference", type: "number" }
+      ]
+    },
+    {
+      title: "lang.lof_material_info",
+      fields: [
+        { key: "materialGrade", label: "lang.material_grade", placeholder: "如 316LN" },
+        { key: "elasticModulus", label: "lang.elastic_modulus", type: "number" },
+        { key: "poissonRatio", label: "lang.poisson_ratio", type: "number" },
+        { key: "materialDensity", label: "lang.material_density", type: "number" },
+        { key: "yieldStrength", label: "lang.yield_strength", type: "number" },
+        { key: "fatigueLimit", label: "lang.fatigue_limit", type: "number" },
+        {
+          key: "naturalFrequencyParams",
+          label: "lang.natural_frequency_params",
+          placeholder: "如 C1=1.0, C2=0.85",
+          span: 16
+        }
+      ]
+    },
+    {
+      title: "lang.lof_operate_condition",
+      fields: [
+        { key: "annualUnplannedStops", label: "lang.annual_unplanned_stops", type: "number" },
+        { key: "annualStartStops", label: "lang.annual_start_stops", type: "number" },
+        { key: "annualFastValveActions", label: "lang.annual_fast_valve_actions", type: "number" },
+        { key: "periodicOperation", label: "lang.periodic_operation", placeholder: "如 频繁间歇 / 长期稳态" },
+        { key: "c1Level", label: "lang.c1_level", type: "select", options: "level" },
+        { key: "c2Level", label: "lang.c2_level", type: "select", options: "level" },
+        { key: "c3Level", label: "lang.c3_level", type: "select", options: "level" },
+        { key: "c4Level", label: "lang.c4_level", type: "select", options: "level" }
+      ]
+    },
+    {
+      title: "lang.lof_incentive_flags",
+      fields: [
+        { key: "maxVelocity", label: "lang.max_velocity", type: "number", span: 6 },
+        { key: "hasThrottlingElement", label: "lang.has_throttling", type: "select", options: "yesNo", span: 6 },
+        { key: "isChokedFlow", label: "lang.is_choked_flow", type: "select", options: "yesNo", span: 6 },
+        { key: "hasReciprocatingEquipment", label: "lang.has_reciprocating", type: "select", options: "yesNo", span: 6 },
+        { key: "hasCentrifugalEquipment", label: "lang.has_centrifugal", type: "select", options: "yesNo", span: 6 },
+        { key: "lowFlowRatio", label: "lang.low_flow_ratio", type: "number", span: 6 },
+        { key: "fastActingValveType", label: "lang.fast_acting_valve", type: "select", options: "fastValve", span: 6 },
+        { key: "hasFlashingCavitation", label: "lang.has_flashing_cavitation", type: "select", options: "yesNo", span: 6 },
+        { key: "hasThermowellProbe", label: "lang.has_thermowell_probe", type: "select", options: "yesNo", span: 6 },
+        { key: "hasDeadBranch", label: "lang.has_dead_branch", type: "select", options: "yesNo", span: 6 },
+        { key: "hasSlugFlow", label: "lang.has_slug_flow", type: "select", options: "yesNo", span: 6 },
+        { key: "vibrationFailureHistory", label: "lang.vibration_failure_history", type: "select", options: "vibration", span: 6 }
+      ]
+    },
+    {
+      title: "lang.lof_weld_info",
+      fields: [
+        { key: "manufacturingStandard", label: "lang.manufacturing_standard" },
+        { key: "weldCode", label: "lang.weld_code" },
+        { key: "weldType", label: "lang.weld_type" },
+        { key: "weldCategory", label: "lang.weld_category" },
+        { key: "stressConcentrationFactor", label: "lang.stress_concentration_factor", type: "number" },
+        { key: "fatigueLevel", label: "lang.fatigue_level" },
+        { key: "visualDefectStandard", label: "lang.visual_defect_standard" },
+        { key: "lofRemark", label: "lang.lof_remark", type: "textarea", span: 24 }
+      ]
+    }
+  ];
+}
+
+function getPipeLofSections() {
+  const sections = getDefaultLofSections();
+  const first = sections[0];
+  if (first && first.fields) {
+    const extras = [
+      { key: "length", label: "lang.lof_length", type: "number" },
+      {
+        key: "drawingNo",
+        label: "lang.lof_drawing_code",
+        placeholder: "如 ISO-XXXX-REV-A"
+      }
+    ];
+    const idx = first.fields.findIndex(item => item.key === "wallThickness");
+    if (idx >= 0) {
+      first.fields.splice(idx + 1, 0, extras[0], extras[1]);
+    } else {
+      first.fields.push(extras[0], extras[1]);
+    }
+  }
+  return sections;
+}
+
+function getRigidLofSections() {
+  return [
+    {
+      title: "lang.lof_rigid_params",
+      fields: [
+        { key: "functionLocation", label: "lang.lof_function_location" },
+        {
+          key: "typeName",
+          label: "lang.lof_type",
+          placeholder: "如 闸阀 / 法兰 / 孔板"
+        },
+        {
+          key: "modelNo",
+          label: "lang.lof_model",
+          placeholder: "如 DN100 PN16"
+        },
+        { key: "length", label: "lang.lof_length", type: "number" },
+        { key: "mass", label: "lang.lof_mass", type: "number" },
+        {
+          key: "drawingNo",
+          label: "lang.lof_drawing_code",
+          placeholder: "如 ISO-XXXX-REV-A"
+        }
+      ]
+    }
+  ];
+}
+
+function getWeldLofSections() {
+  return [
+    {
+      title: "lang.lof_weld_params",
+      fields: [
+        {
+          key: "weldCode",
+          label: "lang.lof_weld_no",
+          placeholder: "如 W-001"
+        },
+        {
+          key: "weldType",
+          label: "lang.weld_type",
+          type: "select",
+          options: "weldTypeLof"
+        }
+      ]
+    }
+  ];
+}
+
+function getThermowellLofSections() {
+  return [
+    {
+      title: "lang.lof_thermowell_params",
+      fields: [
+        {
+          key: "twType",
+          label: "lang.tw_type",
+          type: "select",
+          options: "thermowellType"
+        },
+        { key: "outerDiameter", label: "lang.tw_outer_diameter", type: "number" },
+        { key: "dtw", label: "lang.tw_bore_diameter", type: "number" },
+        { key: "Ltw", label: "lang.tw_ltw", type: "number" },
+        { key: "material", label: "lang.tw_material", placeholder: "如 316SS" },
+        { key: "elasticModulus", label: "lang.elastic_modulus", type: "number" },
+        { key: "materialDensity", label: "lang.tw_material_density", type: "number" },
+        { key: "fluidDensity", label: "lang.fluid_density", type: "number" },
+        { key: "fluidViscosity", label: "lang.tw_fluid_viscosity", type: "number" },
+        { key: "maxVelocity", label: "lang.max_velocity", type: "number" },
+        { key: "schedule", label: "lang.tw_parent_sch", type: "number" },
+        {
+          key: "has90Reinforcement",
+          label: "lang.tw_has_90_reinforcement",
+          type: "select",
+          options: "yesNo"
+        }
+      ]
+    }
+  ];
+}
 
 const TAB_ICONS = {
   "file-text":
@@ -981,7 +1187,18 @@ function emptyForm() {
     weldCategory: "",
     stressConcentrationFactor: "",
     fatigueLevel: "",
-    visualDefectStandard: ""
+    visualDefectStandard: "",
+    length: "",
+    mass: "",
+    functionLocation: "",
+    typeName: "",
+    modelNo: "",
+    twType: "",
+    dtw: "",
+    Ltw: "",
+    fluidViscosity: "",
+    schedule: "",
+    has90Reinforcement: ""
   };
 }
 
@@ -1119,91 +1336,21 @@ export default {
         { key: "workingMedium", label: "lang.fluid_medium" },
         { key: "maxVelocity", label: "lang.flow_velocity" },
         { key: "thermalDisplacement", label: "lang.thermal_displacement" }
-      ],
-      lofSections: [
-        {
-          title: "lang.lof_pipe_params",
-          fields: [
-            {
-              key: "pipeStandardKks",
-              label: "lang.pipe_standard_kks",
-              placeholder: "如 P-273-12.5-316LN"
-            },
-            { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm", type: "number" },
-            { key: "wallThickness", label: "lang.pipe_wall_thickness_mm", type: "number" },
-            { key: "material", label: "lang.standard_material", placeholder: "如 316LN / 碳钢" },
-            { key: "designTemperature", label: "lang.design_temperature_c", type: "number" },
-            { key: "designPressure", label: "lang.design_pressure_mpa", type: "number" },
-            { key: "mediumType", label: "lang.medium_type", type: "select", options: "mediumType" },
-            { key: "fluidDensity", label: "lang.fluid_density", type: "number" },
-            { key: "equipmentType", label: "lang.equipment_type", placeholder: "如 主蒸汽隔离阀 / 给水泵" },
-            { key: "spanReference", label: "lang.span_reference", type: "number" }
-          ]
-        },
-        {
-          title: "lang.lof_material_info",
-          fields: [
-            { key: "materialGrade", label: "lang.material_grade", placeholder: "如 316LN" },
-            { key: "elasticModulus", label: "lang.elastic_modulus", type: "number" },
-            { key: "poissonRatio", label: "lang.poisson_ratio", type: "number" },
-            { key: "materialDensity", label: "lang.material_density", type: "number" },
-            { key: "yieldStrength", label: "lang.yield_strength", type: "number" },
-            { key: "fatigueLimit", label: "lang.fatigue_limit", type: "number" },
-            {
-              key: "naturalFrequencyParams",
-              label: "lang.natural_frequency_params",
-              placeholder: "如 C1=1.0, C2=0.85",
-              span: 16
-            }
-          ]
-        },
-        {
-          title: "lang.lof_operate_condition",
-          fields: [
-            { key: "annualUnplannedStops", label: "lang.annual_unplanned_stops", type: "number" },
-            { key: "annualStartStops", label: "lang.annual_start_stops", type: "number" },
-            { key: "annualFastValveActions", label: "lang.annual_fast_valve_actions", type: "number" },
-            { key: "periodicOperation", label: "lang.periodic_operation", placeholder: "如 频繁间歇 / 长期稳态" },
-            { key: "c1Level", label: "lang.c1_level", type: "select", options: "level" },
-            { key: "c2Level", label: "lang.c2_level", type: "select", options: "level" },
-            { key: "c3Level", label: "lang.c3_level", type: "select", options: "level" },
-            { key: "c4Level", label: "lang.c4_level", type: "select", options: "level" }
-          ]
-        },
-        {
-          title: "lang.lof_incentive_flags",
-          fields: [
-            { key: "maxVelocity", label: "lang.max_velocity", type: "number", span: 6 },
-            { key: "hasThrottlingElement", label: "lang.has_throttling", type: "select", options: "yesNo", span: 6 },
-            { key: "isChokedFlow", label: "lang.is_choked_flow", type: "select", options: "yesNo", span: 6 },
-            { key: "hasReciprocatingEquipment", label: "lang.has_reciprocating", type: "select", options: "yesNo", span: 6 },
-            { key: "hasCentrifugalEquipment", label: "lang.has_centrifugal", type: "select", options: "yesNo", span: 6 },
-            { key: "lowFlowRatio", label: "lang.low_flow_ratio", type: "number", span: 6 },
-            { key: "fastActingValveType", label: "lang.fast_acting_valve", type: "select", options: "fastValve", span: 6 },
-            { key: "hasFlashingCavitation", label: "lang.has_flashing_cavitation", type: "select", options: "yesNo", span: 6 },
-            { key: "hasThermowellProbe", label: "lang.has_thermowell_probe", type: "select", options: "yesNo", span: 6 },
-            { key: "hasDeadBranch", label: "lang.has_dead_branch", type: "select", options: "yesNo", span: 6 },
-            { key: "hasSlugFlow", label: "lang.has_slug_flow", type: "select", options: "yesNo", span: 6 },
-            { key: "vibrationFailureHistory", label: "lang.vibration_failure_history", type: "select", options: "vibration", span: 6 }
-          ]
-        },
-        {
-          title: "lang.lof_weld_info",
-          fields: [
-            { key: "manufacturingStandard", label: "lang.manufacturing_standard" },
-            { key: "weldCode", label: "lang.weld_code" },
-            { key: "weldType", label: "lang.weld_type" },
-            { key: "weldCategory", label: "lang.weld_category" },
-            { key: "stressConcentrationFactor", label: "lang.stress_concentration_factor", type: "number" },
-            { key: "fatigueLevel", label: "lang.fatigue_level" },
-            { key: "visualDefectStandard", label: "lang.visual_defect_standard" },
-            { key: "lofRemark", label: "lang.lof_remark", type: "textarea", span: 24 }
-          ]
-        }
       ]
     };
   },
   computed: {
+    lofLayout() {
+      return resolveLofLayout(this.form && this.form.componentType);
+    },
+    lofSections() {
+      const layout = this.lofLayout;
+      if (layout === "pipe") return getPipeLofSections();
+      if (layout === "rigid") return getRigidLofSections();
+      if (layout === "weld") return getWeldLofSections();
+      if (layout === "thermowell") return getThermowellLofSections();
+      return getDefaultLofSections();
+    },
     islandOptions() {
       return [
         { label: this.$t("lang.conventional_island"), value: "常规岛" },
@@ -1247,6 +1394,22 @@ export default {
     },
     componentTypeOptions() {
       return getComponentTypeOptions(this.$t.bind(this));
+    },
+    thermowellTypeOptions() {
+      return [
+        { label: this.$t("lang.tw_straight"), value: "直型" },
+        { label: this.$t("lang.tw_tapered"), value: "锥型" },
+        { label: this.$t("lang.tw_stepped"), value: "台阶型" }
+      ];
+    },
+    weldTypeLofOptions() {
+      return [
+        { label: this.$t("lang.weld_butt"), value: "对接焊缝" },
+        { label: this.$t("lang.weld_fillet"), value: "角焊缝" },
+        { label: this.$t("lang.weld_socket"), value: "承插焊" },
+        { label: this.$t("lang.weld_flange"), value: "法兰焊" },
+        { label: this.$t("lang.weld_other"), value: "其他" }
+      ];
     },
     dataStatusOptions() {
       return [
@@ -1372,6 +1535,8 @@ export default {
       if (item.options === "mediumType") return this.mediumTypeOptions;
       if (item.options === "fastValve") return this.fastValveOptions;
       if (item.options === "vibration") return this.vibrationOptions;
+      if (item.options === "thermowellType") return this.thermowellTypeOptions;
+      if (item.options === "weldTypeLof") return this.weldTypeLofOptions;
       return [];
     },
     normalizeText(val) {
@@ -1403,6 +1568,61 @@ export default {
       }
       const typeItem = getComponentTypeItem(detail.componentType);
       form.componentType = typeItem ? typeItem.code : "";
+      if (form.functionLocation === "" || form.functionLocation == null) {
+        form.functionLocation = this.normalizeText(
+          detail.functionLocation || detail.locationNo || detail.locationName
+        );
+      }
+      if (form.typeName === "" || form.typeName == null) {
+        form.typeName = this.normalizeText(
+          detail.typeName ||
+            (typeItem
+              ? getComponentTypeLabel(typeItem.code, this.$t.bind(this))
+              : "")
+        );
+      }
+      if (form.modelNo === "" || form.modelNo == null) {
+        form.modelNo = this.normalizeText(detail.modelNo || detail.specCode);
+      }
+      if (form.length === "" || form.length == null) {
+        form.length = this.normalizeText(detail.length);
+      }
+      if (form.mass === "" || form.mass == null) {
+        form.mass = this.normalizeText(detail.mass);
+      }
+      if (form.twType === "" || form.twType == null) {
+        form.twType = this.normalizeText(detail.twType || detail.thermowellType);
+      }
+      const twTypeMap = {
+        straight: "直型",
+        tapered: "锥型",
+        stepped: "台阶型"
+      };
+      if (twTypeMap[form.twType]) {
+        form.twType = twTypeMap[form.twType];
+      }
+      if (form.dtw === "" || form.dtw == null) {
+        form.dtw = this.normalizeText(detail.dtw || detail.boreDiameter);
+      }
+      if (form.Ltw === "" || form.Ltw == null) {
+        form.Ltw = this.normalizeText(detail.Ltw || detail.ltw);
+      }
+      if (form.fluidViscosity === "" || form.fluidViscosity == null) {
+        form.fluidViscosity = this.normalizeText(
+          detail.fluidViscosity || detail.viscosity
+        );
+      }
+      if (form.schedule === "" || form.schedule == null) {
+        form.schedule = this.normalizeText(detail.schedule || detail.Sch);
+      }
+      if (
+        (form.has90Reinforcement === "" || form.has90Reinforcement == null) &&
+        detail.reinforcement != null &&
+        detail.reinforcement !== ""
+      ) {
+        const text = String(detail.reinforcement);
+        form.has90Reinforcement = /补强|是/.test(text) ? 1 : 0;
+      }
       this.form = form;
     },
     normalizeAttrs(list) {
@@ -1776,6 +1996,18 @@ export default {
         stressConcentrationFactor: this.toNumber(form.stressConcentrationFactor),
         fatigueLevel: this.toText(form.fatigueLevel),
         visualDefectStandard: this.toText(form.visualDefectStandard),
+        length: this.toNumber(form.length),
+        drawingNo: this.toText(form.drawingNo),
+        functionLocation: this.toText(form.functionLocation),
+        typeName: this.toText(form.typeName),
+        modelNo: this.toText(form.modelNo),
+        mass: this.toNumber(form.mass),
+        twType: this.toText(form.twType),
+        dtw: this.toNumber(form.dtw),
+        Ltw: this.toNumber(form.Ltw),
+        fluidViscosity: this.toNumber(form.fluidViscosity),
+        schedule: this.toNumber(form.schedule),
+        has90Reinforcement: this.toInteger(form.has90Reinforcement),
         privateAttributes: this.buildPrivateAttributes(),
         attachmentIds: this.buildAttachmentIds()
       };
