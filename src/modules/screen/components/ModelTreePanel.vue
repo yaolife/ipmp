@@ -264,10 +264,10 @@ export default {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 12px 12px 10px;
+  padding: 0;
   box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #49eafc;
   -webkit-backdrop-filter: blur(5.5px);
   backdrop-filter: blur(5.5px);
   color: #ffffff;
@@ -277,13 +277,28 @@ export default {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  height: 36px;
-  line-height: 36px;
-  padding: 0 4px 8px;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 34px;
+  line-height: 34px;
+  padding: 0 12px;
+  margin: 0;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 1px;
   color: #ffffff;
+  text-align: center;
+  border-bottom: 0;
+  position: relative;
+}
+.panel-header::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 0;
+  height: 1px;
+  background: #49eafc;
 }
 .panel-header-title {
   min-width: 0;
@@ -293,7 +308,7 @@ export default {
 }
 .panel-search {
   flex-shrink: 0;
-  margin-bottom: 10px;
+  margin: 10px 12px;
   /deep/ .el-input__inner {
     height: 32px;
     line-height: 32px;
@@ -313,7 +328,10 @@ export default {
 .panel-tree {
   flex: 1;
   min-height: 0;
+  padding: 0 0 0 12px;
   overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff rgba(255, 255, 255, 0.16);
   /deep/ .el-loading-mask {
     background: rgba(0, 0, 0, 0.35);
   }
@@ -350,12 +368,20 @@ export default {
 }
 .panel-tree::-webkit-scrollbar,
 .panel-tree /deep/ .el-tree::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
+}
+.panel-tree::-webkit-scrollbar-track,
+.panel-tree /deep/ .el-tree::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.16);
 }
 .panel-tree::-webkit-scrollbar-thumb,
 .panel-tree /deep/ .el-tree::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.28);
+  background: #ffffff;
   border-radius: 3px;
+}
+.panel-tree::-webkit-scrollbar-thumb:hover,
+.panel-tree /deep/ .el-tree::-webkit-scrollbar-thumb:hover {
+  background: #f2f2f2;
 }
 .tree-node {
   display: flex;
