@@ -10,8 +10,8 @@ module.exports = {
   LIGHT_AUTH: '"true"',
   // api地址
   API_ROOT: '"/server-api"',
-  // 管网业务接口请求前缀：内网 /server-api，外网 /api
-  BIZ_API_PREFIX: '"/api"',
+  // 管网业务接口前缀：内网测试 /server-api，外网和内网本地为空
+  BIZ_API_PREFIX: '""',
   // 系统编码
   APP_CODE: '"pims"',
   // 中台选人选部门控件地址名前缀 aep-t测试环境  aep生产环境

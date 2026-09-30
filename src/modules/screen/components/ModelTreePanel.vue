@@ -368,7 +368,8 @@ export default {
 }
 .panel-tree::-webkit-scrollbar,
 .panel-tree /deep/ .el-tree::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
+  height: 20px;
 }
 .panel-tree::-webkit-scrollbar-track,
 .panel-tree /deep/ .el-tree::-webkit-scrollbar-track {
@@ -378,6 +379,7 @@ export default {
 .panel-tree /deep/ .el-tree::-webkit-scrollbar-thumb {
   background: #ffffff;
   border-radius: 3px;
+  min-height: 20px;
 }
 .panel-tree::-webkit-scrollbar-thumb:hover,
 .panel-tree /deep/ .el-tree::-webkit-scrollbar-thumb:hover {

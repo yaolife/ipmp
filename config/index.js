@@ -6,10 +6,10 @@
 "use strict";
 const path = require("path");
 // 业务后端地址，联调时只改这一处
-//const BACKEND_API_TARGET = "http://10.43.100.205:8013";//内网 测试环境
-const BACKEND_API_TARGET = "http://192.168.0.5:8000";//外网局域网公司wifi
-//const BACKEND_API_TARGET = "http://localhost:8086";//内网本地直连
-// 前端请求前缀：内网 /server-api，外网 /api，与 config/*.env.js 的 BIZ_API_PREFIX 对应
+//const BACKEND_API_TARGET = "http://10.43.100.205:8013";//内网测试环境（配合 BIZ_API_PREFIX=/server-api）
+const BACKEND_API_TARGET = "http://192.168.0.5:8000";//外网局域网公司wifi（不带 /server-api、/api）
+//const BACKEND_API_TARGET = "http://localhost:8086";//内网本地直连（不带 /server-api、/api）
+// 前端业务前缀：内网测试 /server-api，外网和内网本地为空，见 config/*.env.js 的 BIZ_API_PREFIX
 const SERVER_API_PREFIX = "/server-api";
 const EXTERNAL_API_PREFIX = "/api";
 const SERVER_API_REWRITE = "^" + SERVER_API_PREFIX;
@@ -59,9 +59,10 @@ module.exports = {
                     }
                 }
             },
+            // 外网、内网本地：业务接口不带 /server-api、/api
+            createBizProxies("", false),
             // 内网测试网关 http://10.43.100.205:8013 本身带 /server-api，不能剥
             createBizProxies(SERVER_API_PREFIX, false),
-            createBizProxies(EXTERNAL_API_PREFIX, false),
             {
             // PSC接口代理，需写在 /server-api 兜底之前
             [SERVER_API_PREFIX + "/api"]: {

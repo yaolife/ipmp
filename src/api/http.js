@@ -30,7 +30,7 @@ instance.defaults.baseURL = process.env.API_ROOT;  // 默认地址
 instance.defaults.withCredentials = true;
 instance.defaults.crossDomain = true;
 
-// 管网业务接口完整前缀：内网 /server-api，外网 /api，见 config/*.env.js 的 BIZ_API_PREFIX
+// 管网业务接口前缀：内网测试 /server-api，外网和内网本地为空（不带 /server-api、/api）
 var BIZ_API_PREFIX = process.env.BIZ_API_PREFIX || "";
 var BIZ_API_PATHS = [
   "/pipeline-components",
@@ -83,9 +83,9 @@ instance.interceptors.request.use(
     if (envConfig) {
       config.baseURL = envConfig.API_ROOT
     }
-    // 业务接口单独走 BIZ_API_PREFIX，避免叠成 /server-api/api/xxx
-    if (isBizApiUrl(config.url) && BIZ_API_PREFIX) {
-      config.baseURL = BIZ_API_PREFIX;
+    // 业务接口走 BIZ_API_PREFIX：内网测试 /server-api，外网和内网本地为空，避免落到 API_ROOT
+    if (isBizApiUrl(config.url)) {
+      config.baseURL = BIZ_API_PREFIX || "";
       var path = getRequestPathname(config.url);
       var stripped = stripKnownPrefix(path);
       if (stripped !== path) {
