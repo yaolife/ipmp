@@ -33,6 +33,11 @@
         @close="detailVisible = false"
       ></asset-detail-panel>
     </div>
+    <video-monitor-dialog
+      :visible="videoMonitorVisible"
+      :video-url="videoMonitorUrl"
+      @close="closeVideoMonitor"
+    ></video-monitor-dialog>
   </div>
 </template>
 
@@ -40,13 +45,15 @@
 import api from "@/modules/drafts/api";
 import AssetDetailPanel from "./components/AssetDetailPanel.vue";
 import PixelStreamLoading from "./components/Loading.vue";
+import VideoMonitorDialog from "./components/VideoMonitorDialog.vue";
 import adminEntryIcon from "@/assets/img/admin-entry.png";
 
 export default {
   name: "DigitalTwinScreen",
   components: {
     AssetDetailPanel,
-    PixelStreamLoading
+    PixelStreamLoading,
+    VideoMonitorDialog
   },
   data() {
     return {
@@ -65,7 +72,9 @@ export default {
       progress: 0,
       pixelStreamRef: null,
       loadingHint: "",
-      adminEntryIcon: adminEntryIcon
+      adminEntryIcon: adminEntryIcon,
+      videoMonitorVisible: false,
+      videoMonitorUrl: ""
     };
   },
   computed: {
@@ -294,6 +303,8 @@ export default {
       ps.on(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
       ps.on(ps.EVENTS.SET_MENU, this.onSetMenu);
       ps.on(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
+      ps.on(ps.EVENTS.OPEN_VIDEO_MONITOR, this.onOpenVideoMonitor);
+      ps.on("OpenVideoMonitor", this.onOpenVideoMonitor);
       ps.on(ps.EVENTS.PROGRESS, this.onUeProgress);
       ps.on(ps.EVENTS.USER_INFO, this.onUeUserInfo);
     },
@@ -305,6 +316,8 @@ export default {
       ps.off(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
       ps.off(ps.EVENTS.SET_MENU, this.onSetMenu);
       ps.off(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
+      ps.off(ps.EVENTS.OPEN_VIDEO_MONITOR, this.onOpenVideoMonitor);
+      ps.off("OpenVideoMonitor", this.onOpenVideoMonitor);
       ps.off(ps.EVENTS.PROGRESS, this.onUeProgress);
       ps.off(ps.EVENTS.USER_INFO, this.onUeUserInfo);
     },
@@ -375,6 +388,24 @@ export default {
         if (matched) return matched;
       }
       return list[0];
+    },
+    resolveVideoMonitorUrl(data) {
+      if (data == null || data === "") return "";
+      if (typeof data === "string") {
+        return data.replace(/^["']+|["']+$/g, "").trim();
+      }
+      var url = data.url || data.URL || data.playURL || data.playUrl || data.data || "";
+      return String(url).replace(/^["']+|["']+$/g, "").trim();
+    },
+    onOpenVideoMonitor(data) {
+      var url = this.resolveVideoMonitorUrl(data);
+      if (!url) return;
+      this.videoMonitorUrl = url;
+      this.videoMonitorVisible = true;
+    },
+    closeVideoMonitor() {
+      this.videoMonitorVisible = false;
+      this.videoMonitorUrl = "";
     },
     onSetMenu(data) {
       const menu = String(data == null ? "" : data)

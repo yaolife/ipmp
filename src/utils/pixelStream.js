@@ -19,7 +19,8 @@ export const PIXEL_STREAM_EVENT = {
   SHOW_DETAILS: "ShowDetails",
   SHOW_ONLINE_MONITORING: "ShowOnlineMonitoring",
   SHOW_CASE: "ShowCase",
-  EXIT_SHOW_CASE: "ExitShowCase"
+  EXIT_SHOW_CASE: "ExitShowCase",
+  OPEN_VIDEO_MONITOR: "openVideoMonitor"
 };
 
 export const PIXEL_STREAM_MENU = {
