@@ -286,37 +286,84 @@
             <div v-show="paramTab === 'sbc'" class="tab-panel">
               <div class="form-row form-row-2">
                 <div class="form-group">
-                  <label>小管类型</label>
+                  <label>SBC 结构类型</label>
                   <select v-model.number="sbc.type" @change="scheduleRecalc">
                     <option :value="null" disabled>请选择</option>
-                    <option :value="1">Type 1：仪表引压管</option>
-                    <option :value="2">Type 2：放空/排液管</option>
-                    <option :value="3">Type 3：较短支管</option>
-                    <option :value="4">Type 4：阀门执行机构连接管</option>
+                    <option :value="1">Type 1：悬臂支管</option>
+                    <option :value="2">Type 2：同主管连续支管</option>
+                    <option :value="3">Type 3：带中间支撑连续支管</option>
+                    <option :value="4">Type 4：跨不同主管连续支管</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>接头型式</label>
+                  <select v-model="sbc.fitting" @change="scheduleRecalc">
+                    <option value="" disabled>请选择</option>
+                    <option v-for="item in sbcFittings" :key="item.value" :value="item.value">{{ item.label }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row form-row-equal-4">
+                <div class="form-group">
+                  <label>支管外径 d (mm)</label>
+                  <input type="number" v-model.number="sbc.od" @input="scheduleRecalc">
+                </div>
+                <div class="form-group">
+                  <label>支管壁厚等级 Sch</label>
+                  <select v-model="sbc.sbcSchedule" @change="scheduleRecalc"><option value="" disabled>请选择</option><option v-for="value in sbcSchedules" :key="value" :value="value">{{ value }}</option></select>
+                </div>
+                <div class="form-group">
+                  <label>支管总长度 L (mm)</label>
+                  <input type="number" v-model.number="sbc.l" @input="scheduleRecalc">
+                </div>
+                <div class="form-group">
+                  <label>阀门数量</label>
+                  <input type="number" min="0" step="1" v-model.number="sbc.valveCount" @input="scheduleRecalc">
+                </div>
+              </div>
+              <div class="form-row form-row-equal-4">
+                <div class="form-group">
+                  <label>主管外径 Dext (mm)</label>
+                  <input type="number" v-model.number="sbc.mainOd" @input="scheduleRecalc">
+                </div>
+                <div class="form-group">
+                  <label>主管壁厚等级 Sch</label>
+                  <select v-model="sbc.mainSchedule" @change="scheduleRecalc"><option value="" disabled>请选择</option><option v-for="value in sbcSchedules" :key="value" :value="value">{{ value }}</option></select>
+                </div>
+                <div class="form-group">
+                  <label>主管 LOF</label>
+                  <input type="number" min="0" max="1" step="0.01" v-model.number="sbc.mainLof" @input="scheduleRecalc">
+                </div>
+                <div class="form-group">
+                  <label>支管在主管上的位置</label>
+                  <select v-model="sbc.location" @change="scheduleRecalc">
+                    <option value="" disabled>请选择</option><option value="valve">阀门/变径/弯头/三通附近 ±10D</option><option value="mid_span">跨中</option><option value="partial_support">部分限位支撑 ±2D</option><option value="fixed_support">固定支撑 ±2D</option>
                   </select>
                 </div>
               </div>
               <div class="form-row form-row-2">
-                <div class="form-group">
-                  <label>外径 d (mm)</label>
-                  <input type="number" v-model.number="sbc.od" @input="scheduleRecalc">
-                </div>
-                <div class="form-group">
-                  <label>壁厚 t (mm)</label>
-                  <input type="number" v-model.number="sbc.t" @input="scheduleRecalc">
-                </div>
+                <div class="form-group"><label>ANSI 900 及以上阀门</label><select v-model="sbc.ansi900plus" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="false">否</option><option :value="true">是</option></select></div>
               </div>
-              <div class="form-row form-row-2">
-                <div class="form-group">
-                  <label>悬臂长度 L (mm)</label>
-                  <input type="number" v-model.number="sbc.l" @input="scheduleRecalc">
-                </div>
-                <div class="form-group">
-                  <label>支撑间距 S (mm)</label>
-                  <input type="number" v-model.number="sbc.s" @input="scheduleRecalc">
-                </div>
+              <div v-if="sbc.type === 2 || sbc.type === 3" class="form-row form-row-equal-4">
+                <div class="form-group"><label>第一侧/第一跨长度 (mm)</label><input type="number" v-model.number="sbc.firstSpanLength" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>第二侧/后续跨长度 (mm)</label><input type="number" v-model.number="sbc.subSpanLength" @input="scheduleRecalc"></div>
+                <div v-if="sbc.type === 2" class="form-group"><label>第二侧阀门数</label><input type="number" min="0" step="1" v-model.number="sbc.sideBValveCount" @input="scheduleRecalc"></div>
+                <template v-if="sbc.type === 3">
+                  <div class="form-group"><label>第一跨有未支撑质量</label><select v-model="sbc.hasMass" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+                  <div class="form-group"><label>后续跨有未支撑质量</label><select v-model="sbc.hasMassSub" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+                </template>
+              </div>
+              <div v-if="sbc.type === 4" class="form-row form-row-2">
+                <div class="form-group"><label>端部 A 长度 (mm)</label><input type="number" v-model.number="sbc.endALength" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>端部 B 长度 (mm)</label><input type="number" v-model.number="sbc.endBLength" @input="scheduleRecalc"></div>
               </div>
               <div class="result-box mt-12">
+                <div class="result-item" @click="openSbcMetric('lofGeom')"><div class="label">LOF_GEOM</div><div class="value">{{ fmt(sbcResult.lofGeom, 3) }}</div></div>
+                <div class="result-item" @click="openSbcMetric('lofLoc')"><div class="label">LOF_LOC</div><div class="value">{{ fmt(sbcResult.lofLoc, 3) }}</div></div>
+                <div v-if="sbc.type === 3" class="result-item" @click="openSbcMetric('modifierFirst')"><div class="label">第一跨 Modifier</div><div class="value">{{ fmt(sbcResult.modifierFirst, 3) }}</div></div>
+                <div v-if="sbc.type === 3" class="result-item" @click="openSbcMetric('modifierSub')"><div class="label">后续跨 Modifier</div><div class="value">{{ fmt(sbcResult.modifierSub, 3) }}</div></div>
+                <div class="result-item" @click="openSbcMetric('modifier')"><div class="label">SBC Modifier</div><div class="value">{{ fmt(sbcResult.modifier, 3) }}</div></div>
+                <div class="result-item" @click="openSbcMetric('mainLof')"><div class="label">主管 LOF</div><div class="value">{{ fmt(sbcResult.mainLof, 3) }}</div></div>
                 <div class="result-item" @click="openSbcMetric('LOF')">
                   <div class="label">SBC_LOF</div>
                   <div class="value">{{ fmt(sbcResult.lof, 3) }}</div>
@@ -474,6 +521,42 @@
                 </div>
               </div>
             </div>
+            <div v-show="paramTab === 'other'" class="tab-panel">
+              <div class="section-title">往复脉动</div>
+              <div class="form-row form-row-equal-4">
+                <div class="form-group"><label>设备功率 (kW)</label><input type="number" v-model.number="other.reciprocating.power" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>排放压力 (bar)</label><input type="number" v-model.number="other.reciprocating.pressure" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>具有脉动分析报告</label><select v-model="other.reciprocating.hasReport" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+                <div class="form-group"><label>通过 API 618 分析</label><select v-model="other.reciprocating.passApi618" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+              </div>
+              <div class="section-title">离心旋转失速</div>
+              <div class="form-row form-row-3">
+                <div class="form-group"><label>失速特性已知</label><select v-model="other.rotatingStall.known" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+                <div class="form-group"><label>存在失速特性</label><select v-model="other.rotatingStall.hasStall" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+                <div class="form-group"><label>处于低流量工况</label><select v-model="other.rotatingStall.lowFlow" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+              </div>
+              <div class="section-title">死支管涡激</div>
+              <div class="form-row form-row-equal-4">
+                <div class="form-group"><label>死支管外径 (mm)</label><input type="number" v-model.number="other.deadBranch.branchDiameter" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>雷诺数 Re</label><input type="number" v-model.number="other.deadBranch.reynolds" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>临界管径 dcrit (mm)</label><input type="number" v-model.number="other.deadBranch.criticalDiameter" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>频率比 Fe/Fs</label><input type="number" step="0.001" v-model.number="other.deadBranch.frequencyRatio" @input="scheduleRecalc"></div>
+              </div>
+              <div class="section-title">阀门水锤</div>
+              <div class="form-row form-row-equal-4">
+                <div class="form-group"><label>工况类型</label><select v-model="other.waterHammer.type" @change="scheduleRecalc"><option value="">请选择</option><option value="干气阀门快速打开">干气阀门快速打开</option><option value="液体或多相阀打开">液体或多相阀打开</option><option value="液体或多相阀关闭">液体或多相阀关闭</option></select></div>
+                <div class="form-group"><label>最大冲击力 Fmax</label><input type="number" v-model.number="other.waterHammer.maxImpactForce" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>公称壁厚 (mm)</label><input type="number" v-model.number="other.waterHammer.nominalThickness" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>允许荷载 Flim</label><input type="number" v-model.number="other.waterHammer.loadLimit" @input="scheduleRecalc"></div>
+              </div>
+              <div class="section-title">空化闪蒸</div>
+              <div class="form-row form-row-equal-4">
+                <div class="form-group"><label>上游压力 P1 (Pa)</label><input type="number" v-model.number="other.cavitation.upstreamPressure" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>下游压力 P2 (Pa)</label><input type="number" v-model.number="other.cavitation.downstreamPressure" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>饱和蒸汽压 Pv (Pa)</label><input type="number" v-model.number="other.cavitation.vaporPressure" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>压力恢复系数 FL</label><input type="number" step="0.001" v-model.number="other.cavitation.pressureRecoveryFactor" @input="scheduleRecalc"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -547,42 +630,6 @@
               </div>
             </div>
 
-            <div v-show="paramTab === 'other'" class="tab-panel">
-              <div class="section-title">往复脉动</div>
-              <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>设备功率 (kW)</label><input type="number" v-model.number="other.reciprocating.power" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>排放压力 (bar)</label><input type="number" v-model.number="other.reciprocating.pressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>具有脉动分析报告</label><select v-model="other.reciprocating.hasReport" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
-                <div class="form-group"><label>通过 API 618 分析</label><select v-model="other.reciprocating.passApi618" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
-              </div>
-              <div class="section-title">离心旋转失速</div>
-              <div class="form-row form-row-3">
-                <div class="form-group"><label>失速特性已知</label><select v-model="other.rotatingStall.known" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
-                <div class="form-group"><label>存在失速特性</label><select v-model="other.rotatingStall.hasStall" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
-                <div class="form-group"><label>处于低流量工况</label><select v-model="other.rotatingStall.lowFlow" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
-              </div>
-              <div class="section-title">死支管涡激</div>
-              <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>死支管外径 (mm)</label><input type="number" v-model.number="other.deadBranch.branchDiameter" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>雷诺数 Re</label><input type="number" v-model.number="other.deadBranch.reynolds" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>临界管径 dcrit (mm)</label><input type="number" v-model.number="other.deadBranch.criticalDiameter" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>频率比 Fe/Fs</label><input type="number" step="0.001" v-model.number="other.deadBranch.frequencyRatio" @input="scheduleRecalc"></div>
-              </div>
-              <div class="section-title">阀门水锤</div>
-              <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>工况类型</label><input type="text" v-model="other.waterHammer.type" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>最大冲击力 Fmax</label><input type="number" v-model.number="other.waterHammer.maxImpactForce" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>动态放大系数 Ψ</label><input type="number" step="0.001" v-model.number="other.waterHammer.dynamicFactor" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>允许荷载 Flim</label><input type="number" v-model.number="other.waterHammer.loadLimit" @input="scheduleRecalc"></div>
-              </div>
-              <div class="section-title">空化闪蒸</div>
-              <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>上游压力 P1 (Pa)</label><input type="number" v-model.number="other.cavitation.upstreamPressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>下游压力 P2 (Pa)</label><input type="number" v-model.number="other.cavitation.downstreamPressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>饱和蒸汽压 Pv (Pa)</label><input type="number" v-model.number="other.cavitation.vaporPressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>机理类型</label><select v-model="other.cavitation.mechanism" @change="scheduleRecalc"><option value="" disabled>请选择</option><option value="闪蒸">闪蒸</option><option value="空化">空化</option></select></div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -665,9 +712,9 @@ const FACTOR_DEFINITIONS = [
   { id: "f3", name: "机械激励", note: "按配套设备类型查表" },
   { id: "f4", name: "往复脉动", note: "按功率、压力、脉动报告和 API 618 结论计算" },
   { id: "f5", name: "离心旋转失速", note: "按失速特性和低流量工况计算" },
-  { id: "f6", name: "死支管涡激", note: "按 Fe/Fs 频率比计算" },
-  { id: "f7", name: "阀门水锤", note: "按 Fmax × Ψ / Flim 计算" },
-  { id: "f8", name: "空化闪蒸", note: "闪蒸取 1.0，空化取 0.7" }
+  { id: "f6", name: "死支管涡激", note: "先比较支管直径与临界管径，再判断 Fe/Fs" },
+  { id: "f7", name: "阀门水锤", note: "按工况判断，通常取 Fmax / Flim" },
+  { id: "f8", name: "空化闪蒸", note: "由压降和蒸汽压判断是否发生及机理" }
 ];
 
 const FACTOR_TRACE = {
@@ -675,10 +722,10 @@ const FACTOR_TRACE = {
   f2: { meaning: "节流、压降和音速流形成的高频声学能量对不连续点的影响。", formula: "按各声源PWL、沿程衰减、不连续点修正和材料修正计算LOF。" },
   f3: { meaning: "配套旋转或往复设备传递到管道的机械振动风险。", formula: "根据设备类型对应的机械激励LOF表取值。" },
   f4: { meaning: "往复泵或压缩机产生的压力脉动风险。", formula: "根据设备功率、排放压力、脉动报告及API 618/674符合性分级。" },
-  f5: { meaning: "离心设备在低流量或失速工况下产生的激励风险。", formula: "根据参数是否已知、是否存在失速特性及低流量状态分级。" },
-  f6: { meaning: "封闭死支管内声学驻波与主管激励耦合产生的风险。", formula: "根据Fe/Fs频率比、雷诺数和临界管径判定LOF。" },
-  f7: { meaning: "快动阀动作造成瞬态压力冲击的风险。", formula: "LOF = Fmax × Ψ / Flim" },
-  f8: { meaning: "阀后压力低于饱和蒸汽压时产生空化或闪蒸的风险。", formula: "闪蒸LOF=1.0；空化LOF=0.7；未发生时LOF=0。" }
+  f5: { meaning: "离心设备在低流量或失速工况下产生的激励风险。", formula: "特性未知取1.0；已知且无失速取0.2；已知有失速时，低流量取1.0，否则取0.4。" },
+  f6: { meaning: "封闭死支管内声学驻波与主管激励耦合产生的风险。", formula: "支管直径小于临界管径取0.2；否则Fe/Fs≥1取1.0，低于1取0.29。" },
+  f7: { meaning: "快动阀动作造成瞬态压力冲击的风险。", formula: "通常LOF=Fmax/Flim；液体或多相阀关闭且由原始参数计算时，另按关阀工况条件判定。Ψ已用于Flim，不再重复相乘。" },
+  f8: { meaning: "阀后压力低于饱和蒸汽压时产生空化或闪蒸的风险。", formula: "压降/判定阈值＜1取0；否则下游压力≥饱和蒸汽压为空化取0.7，低于饱和蒸汽压为闪蒸取1.0。" }
 };
 
 const HFA_METRICS = {
@@ -691,9 +738,34 @@ const HFA_METRICS = {
 };
 
 const SBC_METRICS = {
-  LOF: { name: "SBC_LOF", meaning: "小管连接在流致振动下的失效可能性。", formula: "LOF = min((L/d) × 0.18 × Ktype × (300/S) × (3/t), 1.0)" },
+  lofGeom: { name: "LOF_GEOM", meaning: "按结构类型及接头、壁厚、跨距等求得的几何风险。", formula: "Type 1 五项评分均值；Type 2 两侧取较大值；Type 3/4 按跨距曲线和端部评分取较大值。" },
+  lofLoc: { name: "LOF_LOC", meaning: "主管位置与壁厚对应的位置风险。", formula: "主管 LOF 达到 1 时取 1，否则取位置评分和主管 Sch 评分的平均值。" },
+  modifier: { name: "SBC Modifier", meaning: "用于修正主管 LOF 的小管系数。", formula: "min(LOF_GEOM, LOF_LOC)" },
+  modifierFirst: { name: "第一跨 SBC Modifier", meaning: "Type 3 第一跨的独立修正因子。", formula: "min(LOF_GEOM(first span), LOF_LOC)" },
+  modifierSub: { name: "后续跨 SBC Modifier", meaning: "Type 3 后续跨的独立修正因子。", formula: "min(LOF_GEOM(subsequent spans), LOF_LOC)" },
+  mainLof: { name: "主管 LOF", meaning: "本次 SBC 评估输入的主管失效可能性。", formula: "由主管评估结果填写；不得使用包含 SBC 的综合结果循环代入。" },
+  LOF: { name: "SBC_LOF", meaning: "小管连接的失效可能性。", formula: "SBC_LOF = min(1, 主管 LOF × SBC Modifier)" },
   level: { name: "SBC风险等级", meaning: "根据SBC_LOF映射得到的风险等级。", formula: "LOF≥0.8为High；0.5≤LOF＜0.8为Medium；LOF＜0.5为Low。" }
 };
+
+const SBC_FITTINGS = [
+  ["short_contoured_body", "短轮廓体三通"], ["contoured_body", "标准轮廓体三通"],
+  ["forged_reducing_tee", "锻制异径三通"], ["welded_tee", "对焊三通"],
+  ["weldolet", "对焊支管台"], ["threadolet_fbw", "螺纹支管台（全背焊）"],
+  ["screwed_fbw", "螺纹接头（全背焊）"], ["threadolet", "螺纹支管台"],
+  ["screwed", "螺纹接头"], ["sockolet", "承插支管台"],
+  ["threadolet_pbw", "螺纹支管台（部分背焊）"], ["screwed_pbw", "螺纹接头（部分背焊）"],
+  ["set_on", "安置式支管台"], ["set_in", "嵌入式支管台"], ["set_thru", "贯穿式支管台"]
+].map(([value, label]) => ({ value, label }));
+
+function defaultSbc() {
+  return {
+    type: null, od: null, l: null, fitting: "", sbcSchedule: "", valveCount: null,
+    mainOd: null, mainSchedule: "", mainLof: null, location: "", ansi900plus: null,
+    firstSpanLength: null, subSpanLength: null, sideBValveCount: null,
+    hasMass: null, hasMassSub: null, endALength: null, endBLength: null
+  };
+}
 
 const THERMO_METRICS = {
   Dint: { name: "内径 Dint", meaning: "热电偶套管安装位置处的主管流通内径。", formula: "Dint = Dext - 2 × T" },
@@ -764,7 +836,7 @@ function defaultOtherMechanisms() {
     waterHammer: {
       type: "",
       maxImpactForce: null,
-      dynamicFactor: null,
+      nominalThickness: null,
       loadLimit: null
     },
     cavitation: {
@@ -839,11 +911,13 @@ export default {
       hfa: defaultHfa(),
       other: defaultOtherMechanisms(),
       thermo: defaultThermo(),
-      sbc: { type: null, od: null, t: null, l: null, s: null },
+      sbc: defaultSbc(),
+      sbcFittings: SBC_FITTINGS,
+      sbcSchedules: ["10S", "20", "30", "40", "60", "80", "120", "160", ">160", "STD", "XS", "XXS"],
       factors: [],
       hfaResult: null,
       thermoResult: null,
-      sbcResult: { lof: 0, level: "-" },
+      sbcResult: { lof: null, level: "-" },
       mainLof: 0,
       hasEvaluationResult: false,
       drawerVisible: false,
@@ -898,10 +972,10 @@ export default {
       this.hfa = defaultHfa();
       this.other = defaultOtherMechanisms();
       this.thermo = defaultThermo();
-      this.sbc = { type: null, od: null, t: null, l: null, s: null };
+      this.sbc = defaultSbc();
       this.hfaResult = null;
       this.thermoResult = null;
-      this.sbcResult = { lof: 0, level: "-" };
+      this.sbcResult = { lof: null, level: "-" };
       this.mainLof = 0;
       this.hasEvaluationResult = false;
       this.loadSegmentDetail(id);
@@ -951,7 +1025,7 @@ export default {
       this.factors = [];
       this.hfaResult = null;
       this.thermoResult = null;
-      this.sbcResult = { lof: 0, level: "-" };
+      this.sbcResult = { lof: null, level: "-" };
       this.mainLof = 0;
       this.hasEvaluationResult = false;
     },
@@ -1020,9 +1094,22 @@ export default {
         sbc: {
           type: this.sbc.type,
           outerDiameter: this.sbc.od,
-          thickness: this.sbc.t,
           cantileverLength: this.sbc.l,
-          supportSpacing: this.sbc.s
+          fitting: this.sbc.fitting,
+          sbcSchedule: this.sbc.sbcSchedule,
+          valveCount: this.sbc.valveCount,
+          mainOuterDiameter: this.sbc.mainOd,
+          mainSchedule: this.sbc.mainSchedule,
+          mainLof: this.sbc.mainLof,
+          location: this.sbc.location,
+          ansi900plus: this.sbc.ansi900plus,
+          firstSpanLength: this.sbc.firstSpanLength,
+          subSpanLength: this.sbc.subSpanLength,
+          sideBValveCount: this.sbc.sideBValveCount,
+          hasMass: this.sbc.hasMass,
+          hasMassSub: this.sbc.hasMassSub,
+          endALength: this.sbc.endALength,
+          endBLength: this.sbc.endBLength
         },
         thermowell: {
           pressure: this.thermo.P,
@@ -1078,6 +1165,12 @@ export default {
           : null;
         this.sbcResult = {
           lof: lof,
+          lofGeom: factorResults.tm03.lofGeom,
+          lofLoc: factorResults.tm03.lofLoc,
+          modifierFirst: factorResults.tm03.modifierFirst,
+          modifierSub: factorResults.tm03.modifierSub,
+          modifier: factorResults.tm03.modifier,
+          mainLof: factorResults.tm03.mainLof,
           level: lof != null ? riskLevel(lof) : "-"
         };
       }
@@ -1220,9 +1313,22 @@ export default {
       Object.assign(this.sbc, {
         type: sbc.type,
         od: sbc.outerDiameter,
-        t: sbc.thickness,
         l: sbc.cantileverLength,
-        s: sbc.supportSpacing
+        fitting: sbc.fitting || "",
+        sbcSchedule: sbc.sbcSchedule || "",
+        valveCount: sbc.valveCount,
+        mainOd: sbc.mainOuterDiameter,
+        mainSchedule: sbc.mainSchedule || "",
+        mainLof: sbc.mainLof,
+        location: sbc.location || "",
+        ansi900plus: sbc.ansi900plus,
+        firstSpanLength: sbc.firstSpanLength,
+        subSpanLength: sbc.subSpanLength,
+        sideBValveCount: sbc.sideBValveCount,
+        hasMass: sbc.hasMass,
+        hasMassSub: sbc.hasMassSub,
+        endALength: sbc.endALength,
+        endBLength: sbc.endBLength
       });
       Object.assign(this.thermo, {
         P: thermo.pressure,
