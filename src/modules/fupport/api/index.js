@@ -49,5 +49,10 @@ export default {
       url: '/fupportInfo/downloadTemplate',
       responseType: 'blob',
     })
-  }
+  },
+
+  // sdims系统-获取检修记录列表（支持分页查询）
+  getMaintenRecordListApi: params => {
+    return axios.post("/sdims/getMaintenRecordList", params);
+  },
 };

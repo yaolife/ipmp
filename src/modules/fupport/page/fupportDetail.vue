@@ -20,7 +20,11 @@
 
     <!-- 标签页切换 -->
 
-    <el-tabs v-model="activeTab" class="detail-tabs">
+    <el-tabs
+      v-model="activeTab"
+      class="detail-tabs"
+      @tab-click="handleTabClick"
+    >
       <el-tab-pane label="基本信息" name="baseInfo">
         <el-form
           ref="detailForm"
@@ -516,66 +520,147 @@
         </el-form>
       </el-tab-pane>
 
-      <el-tab-pane label="检修记录" name="maintainRecord">
+      <el-tab-pane label="检修记录" name="maintainRecordJh">
         <div class="maintain-record-container">
           <!-- 纯展示无操作栏，直接表格+分页 -->
 
-          <el-table :data="pageMaintainList" border stripe style="width: 100%">
+          <el-table
+            :data="pageMaintainList"
+            border
+            stripe
+            style="width: 100%"
+            v-loading="pageMaintainLoading"
+          >
             <el-table-column
-              prop="planNo"
-              label="计划编号"
+              prop="hangerNo"
+              label="支吊架编号"
               width="220"
               align="center"
             ></el-table-column>
 
-            <el-table-column
-              prop="maintainStatus"
-              label="检修状态"
-              width="120"
-              align="center"
-            >
-              <template slot-scope="scope">
-                <el-tag
-                  :type="getStatusType(scope.row.maintainStatus)"
-                  size="small"
-                >
-                  {{ scope.row.maintainStatus }}
-                </el-tag>
-              </template>
-            </el-table-column>
+            <!--            <el-table-column-->
+
+            <!--              prop="maintainStatus"-->
+
+            <!--              label="检修状态"-->
+
+            <!--              width="120"-->
+
+            <!--              align="center"-->
+
+            <!--            >-->
+
+            <!--              <template slot-scope="scope">-->
+
+            <!--                <el-tag-->
+
+            <!--                  :type="getStatusType(scope.row.maintainStatus)"-->
+
+            <!--                  size="small"-->
+
+            <!--                >-->
+
+            <!--                  {{ scope.row.maintainStatus }}-->
+
+            <!--                </el-tag>-->
+
+            <!--              </template>-->
+
+            <!--            </el-table-column>-->
 
             <el-table-column
-              prop="checkItem"
-              label="检查项目"
-              min-width="180"
+              prop="unitNumber"
+              label="机组号"
+              min-width="80"
+            ></el-table-column>
+
+            <el-table-column
+              prop="systemNumber"
+              label="系统号"
+              min-width="120"
+            ></el-table-column>
+
+            <el-table-column
+              prop="supportHangerClassification"
+              label="支吊架分类"
+              min-width="120"
+            ></el-table-column>
+
+            <el-table-column
+              prop="hangerType"
+              label="支吊架类型"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="recordDate"
+              label="记录时间"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="nuclearIslandConventionalIsland"
+              label="核岛/常规岛"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="defectDescribe"
+              label="缺陷描述"
+              width="170"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="treatmentMeasure"
+              label="处理措施"
+              width="270"
+              align="center"
               show-overflow-tooltip
             ></el-table-column>
 
             <el-table-column
-              prop="maintainResult"
+              prop="maintenanceType"
+              label="检修类型"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="planNumber"
+              label="计划编号"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="inspectionResult"
               label="检修结果"
               width="120"
               align="center"
             ></el-table-column>
 
             <el-table-column
-              prop="maintainer"
+              prop="approvalStatus"
+              label="检修状态"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="overhauler"
               label="检修员"
               width="120"
               align="center"
             ></el-table-column>
 
             <el-table-column
-              prop="recordTime"
-              label="记录时间"
-              width="170"
-              align="center"
-            ></el-table-column>
-
-            <el-table-column
               prop="updateTime"
               label="更新时间"
-              width="170"
+              width="180"
               align="center"
             ></el-table-column>
           </el-table>
@@ -589,7 +674,160 @@
             :page-sizes="[10, 20, 50]"
             :page-size="pagination.size"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="maintainFullList.length"
+            :total="maintainTotal"
+            style="margin-top: 20px; text-align: right"
+          />
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane label="日常巡检" name="maintainRecordRc">
+        <div class="maintain-record-container">
+          <!-- 纯展示无操作栏，直接表格+分页 -->
+
+          <el-table
+            :data="pageMaintainRcList"
+            border
+            stripe
+            style="width: 100%"
+            v-loading="pageMaintainRcLoading"
+          >
+            <el-table-column
+              prop="hangerNo"
+              label="支吊架编号"
+              width="220"
+              align="center"
+            ></el-table-column>
+
+            <!--            <el-table-column-->
+
+            <!--              prop="maintainStatus"-->
+
+            <!--              label="检修状态"-->
+
+            <!--              width="120"-->
+
+            <!--              align="center"-->
+
+            <!--            >-->
+
+            <!--              <template slot-scope="scope">-->
+
+            <!--                <el-tag-->
+
+            <!--                  :type="getStatusType(scope.row.maintainStatus)"-->
+
+            <!--                  size="small"-->
+
+            <!--                >-->
+
+            <!--                  {{ scope.row.maintainStatus }}-->
+
+            <!--                </el-tag>-->
+
+            <!--              </template>-->
+
+            <!--            </el-table-column>-->
+
+            <el-table-column
+              prop="unitNumber"
+              label="机组号"
+              min-width="80"
+            ></el-table-column>
+
+            <el-table-column
+              prop="systemNumber"
+              label="系统号"
+              min-width="120"
+            ></el-table-column>
+
+            <el-table-column
+              prop="supportHangerClassification"
+              label="支吊架分类"
+              min-width="120"
+            ></el-table-column>
+
+            <el-table-column
+              prop="hangerType"
+              label="支吊架类型"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="recordDate"
+              label="记录时间"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="nuclearIslandConventionalIsland"
+              label="核岛/常规岛"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="defectDescribe"
+              label="缺陷描述"
+              width="170"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="treatmentMeasure"
+              label="处理措施"
+              width="270"
+              align="center"
+              show-overflow-tooltip
+            ></el-table-column>
+
+            <el-table-column
+              prop="maintenanceType"
+              label="检修类型"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="inspectionResult"
+              label="检修结果"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="approvalStatus"
+              label="检修状态"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="overhauler"
+              label="检修员"
+              width="120"
+              align="center"
+            ></el-table-column>
+
+            <el-table-column
+              prop="updateTime"
+              label="更新时间"
+              width="180"
+              align="center"
+            ></el-table-column>
+          </el-table>
+
+          <!-- 分页组件，纯只读翻页 -->
+
+          <el-pagination
+            @size-change="handleSizeChangeRc"
+            @current-change="handleCurrentChangeRc"
+            :current-page="paginationRc.current"
+            :page-sizes="[10, 20, 50]"
+            :page-size="paginationRc.size"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="maintainRcTotal"
             style="margin-top: 20px; text-align: right"
           />
         </div>
@@ -628,6 +866,18 @@ export default {
       activeTab: "baseInfo",
 
       submitLoading: false,
+
+      maintainTotal: 0,
+
+      maintainRcTotal: 0,
+
+      pageMaintainList: [],
+
+      pageMaintainRcList: [],
+
+      pageMaintainLoading: false,
+
+      pageMaintainRcLoading: false,
 
       // 原有基础信息字段完全保留
 
@@ -745,11 +995,13 @@ export default {
         ]
       },
 
-      // 仅展示模式最小化配置
-
-      maintainFullList: [],
-
       pagination: {
+        current: 1,
+
+        size: 10
+      },
+
+      paginationRc: {
         current: 1,
 
         size: 10
@@ -768,16 +1020,6 @@ export default {
       };
 
       return titleMap[this.pageType];
-    },
-
-    // 自动计算当前页展示数据
-
-    pageMaintainList() {
-      const start = (this.pagination.current - 1) * this.pagination.size;
-
-      const end = start + this.pagination.size;
-
-      return this.maintainFullList.slice(start, end);
     }
   },
 
@@ -790,130 +1032,112 @@ export default {
       this.detailInfo.id = this.$route.query.id;
 
       this.loadFupportDetail();
-
-      this.initMockMaintainData();
-    } else {
-      this.maintainFullList = [];
     }
   },
 
   methods: {
-    // 纯展示用模拟检修数据，7个字段完全匹配需求
+    handleTabClick(tab) {
+      if (tab.name === "maintainRecordJh") {
+        this.loadingmaintainRecordJh();
+      } else if (tab.name === "maintainRecordRc") {
+        this.loadingmaintainRecordRc();
+      }
+    },
 
-    initMockMaintainData() {
-      this.maintainFullList = [
-        {
-          planNo: "JX-PLAN-20260903-001",
+    loadingmaintainRecordJh() {
+      //获取检修记录(计划巡检)
 
-          maintainStatus: "已完成",
+      let params = {
+        hangerNo: this.detailInfo.hangerNo, //支吊架编号
 
-          checkItem: "支吊架外观检查、螺栓紧固度校验",
+        unitNumber: "", //机组号
 
-          maintainResult: "合格",
+        systemNumber: "", //系统号
 
-          maintainer: "张工",
+        supportHangerClassification: "",
 
-          recordTime: "2026-09-03 09:15:00",
+        hangerType: "",
 
-          updateTime: "2026-09-03 09:30:00"
-        },
+        nuclearIslandConventionalIsland: "",
 
-        {
-          planNo: "JX-PLAN-20260828-007",
+        planNumber: "",
 
-          maintainStatus: "已完成",
+        planStatus: "",
 
-          checkItem: "弹簧支吊架载荷位移校验",
+        inspectionResult: "",
 
-          maintainResult: "待复检",
+        overhauler: "",
 
-          maintainer: "李工",
+        iwerk: "5060",
 
-          recordTime: "2026-08-28 14:20:00",
+        maintenanceType: "JXJH", //检修记录
 
-          updateTime: "2026-08-28 16:05:00"
-        },
+        pageIndex: this.pagination.current,
 
-        {
-          planNo: "JX-PLAN-20260820-012",
+        pageSize: this.pagination.size
+      };
 
-          maintainStatus: "进行中",
+      this.pageMaintainLoading = true;
 
-          checkItem: "阻尼器行程校验、密封件检查",
+      api.getMaintenRecordListApi(params).then(res => {
+        this.pageMaintainLoading = false;
 
-          maintainResult: "",
+        let data = res.data;
 
-          maintainer: "王工",
+        if (data.code === "0" && data.data.code === "0") {
+          this.pageMaintainList = data.data.data.records;
 
-          recordTime: "2026-08-20 10:30:00",
-
-          updateTime: "2026-08-21 15:40:00"
-        },
-
-        {
-          planNo: "JX-PLAN-20260815-003",
-
-          maintainStatus: "已完成",
-
-          checkItem: "管道支吊架荷载测试",
-
-          maintainResult: "合格",
-
-          maintainer: "赵工",
-
-          recordTime: "2026-08-15 08:50:00",
-
-          updateTime: "2026-08-15 11:20:00"
-        },
-
-        {
-          planNo: "JX-PLAN-20260730-009",
-
-          maintainStatus: "待开始",
-
-          checkItem: "支吊架RCCM等级符合性复核",
-
-          maintainResult: "",
-
-          maintainer: "刘工",
-
-          recordTime: "",
-
-          updateTime: "2026-07-25 09:00:00"
-        },
-
-        {
-          planNo: "JX-PLAN-20260712-006",
-
-          maintainStatus: "已完成",
-
-          checkItem: "支吊架焊缝探伤检测",
-
-          maintainResult: "合格",
-
-          maintainer: "陈工",
-
-          recordTime: "2026-07-12 13:30:00",
-
-          updateTime: "2026-07-13 10:15:00"
-        },
-
-        {
-          planNo: "JX-PLAN-20260625-015",
-
-          maintainStatus: "已完成",
-
-          checkItem: "热位移校准、刻度标记检查",
-
-          maintainResult: "不合格",
-
-          maintainer: "周工",
-
-          recordTime: "2026-06-25 11:10:00",
-
-          updateTime: "2026-06-26 14:40:00"
+          this.maintainTotal = data.data.data.total;
         }
-      ];
+      });
+    },
+
+    loadingmaintainRecordRc() {
+      //获取检修记录(日常巡检)
+
+      let params = {
+        hangerNo: this.detailInfo.hangerNo, //支吊架编号
+
+        unitNumber: "", //机组号
+
+        systemNumber: "", //系统号
+
+        supportHangerClassification: "",
+
+        hangerType: "",
+
+        nuclearIslandConventionalIsland: "",
+
+        planNumber: "",
+
+        planStatus: "",
+
+        inspectionResult: "",
+
+        overhauler: "",
+
+        iwerk: "5060",
+
+        maintenanceType: "RCXJ", //检修记录
+
+        pageIndex: this.paginationRc.current,
+
+        pageSize: this.paginationRc.size
+      };
+
+      this.pageMaintainRcLoading = true;
+
+      api.getMaintenRecordListApi(params).then(res => {
+        this.pageMaintainRcLoading = false;
+
+        let data = res.data;
+
+        if (data.code === "0" && data.data.code === "0") {
+          this.pageMaintainRcList = data.data.data.records;
+
+          this.maintainRcTotal = data.data.data.total;
+        }
+      });
     },
 
     // 状态颜色适配，纯展示无交互
@@ -936,10 +1160,34 @@ export default {
       this.pagination.size = val;
 
       this.pagination.current = 1;
+
+      //重新查询数据
+
+      this.loadingmaintainRecordJh();
+    },
+
+    // 分页纯只读翻页，无任何数据修改逻辑
+
+    handleSizeChangeRc(val) {
+      this.paginationRc.size = val;
+
+      this.paginationRc.current = 1;
+
+      //重新查询数据
+
+      this.loadingmaintainRecordRc();
     },
 
     handleCurrentChange(val) {
       this.pagination.current; //基础方法完全保留无改动
+
+      this.loadingmaintainRecordJh();
+    },
+
+    handleCurrentChangeRc(val) {
+      this.paginationRc.current; //基础方法完全保留无改动
+
+      this.loadingmaintainRecordRc();
     },
 
     async loadDictData() {},
@@ -949,10 +1197,6 @@ export default {
 
       if (res.data.code === "0") {
         this.detailInfo = res.data.data;
-
-        // 实际对接后端时，替换成从接口返回的检修记录数据
-
-        // this.maintainFullList = res.data.maintainRecordList || []
       }
     },
 
@@ -962,7 +1206,9 @@ export default {
           this.submitLoading = true;
 
           api
+
             .saveModifyFupportApi(this.detailInfo)
+
             .then(res => {
               if (res.data.code === "0") {
                 this.$message.success(
@@ -974,6 +1220,7 @@ export default {
                 this.$message.error(res.data.msg || "操作失败");
               }
             })
+
             .finally(() => {
               this.submitLoading = false;
             });
