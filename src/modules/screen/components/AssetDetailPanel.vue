@@ -221,7 +221,7 @@ function getDefaultLofSections() {
         { key: "materialDensity", label: "lang.material_density" },
         { key: "yieldStrength", label: "lang.yield_strength" },
         { key: "fatigueLimit", label: "lang.fatigue_limit" },
-        { key: "naturalFrequencyParams", label: "lang.natural_frequency_params", full: true }
+        { key: "naturalFrequencyParams", label: "lang.natural_frequency_params" }
       ]
     },
     {
@@ -1014,7 +1014,7 @@ export default {
   padding: 12px 16px 12px;
   border-radius: 6px;
   border: 1px solid rgba(104, 190, 254, 0.35);
-  background: rgba(8, 36, 59, 0.94);
+  background: rgba(8, 36, 59, 0.74);
 }
 .info-section.is-fill {
   flex: 1;
