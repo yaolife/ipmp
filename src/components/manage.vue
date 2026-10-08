@@ -227,10 +227,11 @@ function normalizeLocalMenus(raw) {
   const source = Array.isArray(raw)
     ? raw
     : (raw && (raw.default || raw.menus)) || [];
-  return source.map((item) => {
-    const children = (item.children || []).map((child) => {
+  const visible = item => item && item.hidden !== true;
+  return source.filter(visible).map((item) => {
+    const children = (item.children || []).filter(visible).map((child) => {
       return Object.assign({}, child, {
-        children: child.children || []
+        children: (child.children || []).filter(visible)
       });
     });
     return Object.assign({}, item, { children: children });

@@ -28,7 +28,8 @@
       {
         "name": "lang.digital_twin",
         "url": "/YJ3DVP",
-        "resource": "digitalTwin"
+        "resource": "digitalTwin",
+        "hidden": true
       }
     ]
   },
