@@ -61,7 +61,7 @@ export default {
       currentNode: null,
       directoryPath: [],
       pipelineId: "",
-      detailNodeName: "5AHP-008-P23-SRP",
+      detailNodeName: "5AHP-038-W003-SRP",//5AHP-008-P23-SRP
       detailVisible: true,
       treeVisible: false,
       showcaseIconVisible: false,
