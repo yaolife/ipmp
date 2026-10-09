@@ -44,9 +44,9 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div v-if="!relatedSegments.length" class="viewport-empty">
-            {{ $t("cm.nodata") }}
+            <div v-if="!relatedSegments.length" class="viewport-empty">
+              {{ $t("cm.nodata") }}
+            </div>
           </div>
         </div>
       </template>
@@ -110,9 +110,9 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div v-if="!maintenanceRecords.length" class="viewport-empty">
-            {{ $t("cm.nodata") }}
+            <div v-if="!maintenanceRecords.length" class="viewport-empty">
+              {{ $t("cm.nodata") }}
+            </div>
           </div>
         </div>
       </template>
@@ -123,17 +123,19 @@
           class="info-section"
         >
           <div class="section-title">{{ $t(section.titleKey) }}</div>
-          <div v-if="section.kind === 'attrs'" class="info-grid">
-            <div v-if="!visiblePrivateAttrs.length" class="info-item is-full">
-              <span class="info-value">{{ $t("cm.nodata") }}</span>
+          <div v-if="section.kind === 'attrs'">
+            <div v-if="!visiblePrivateAttrs.length" class="section-empty">
+              {{ $t("cm.nodata") }}
             </div>
-            <div
-              v-for="(attr, index) in visiblePrivateAttrs"
-              :key="attr.name + '-' + index"
-              class="info-item"
-            >
-              <span class="info-label">{{ displayVal(attr.name) }}</span>
-              <span class="info-value">{{ displayVal(attr.value) }}</span>
+            <div v-else class="info-grid">
+              <div
+                v-for="(attr, index) in visiblePrivateAttrs"
+                :key="attr.name + '-' + index"
+                class="info-item"
+              >
+                <span class="info-label">{{ displayVal(attr.name) }}</span>
+                <span class="info-value">{{ displayVal(attr.value) }}</span>
+              </div>
             </div>
           </div>
           <div v-else-if="section.kind === 'images'" class="image-row">
@@ -1116,7 +1118,20 @@ export default {
 }
 .table-scroll {
   width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
+}
+.info-section.is-fill .table-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.info-section.is-fill .data-table {
+  flex: none;
+  width: max-content;
+  min-width: 100%;
 }
 .table-scroll::-webkit-scrollbar {
   height: 6px;
@@ -1141,6 +1156,14 @@ export default {
 .data-table th {
   color: rgba(255, 255, 255, 0.55);
   font-weight: 500;
+}
+.section-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 14px;
 }
 .viewport-empty {
   flex: 1;

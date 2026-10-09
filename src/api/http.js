@@ -42,7 +42,8 @@ var BIZ_API_PATHS = [
   "/tm01-assessments",
   "/tm02-assessments",
   "/tm05-assessments",
-  "/lof-ledger"
+  "/lof-ledger",
+  "/fupportInfo"
 ];
 
 function getRequestPathname(url) {

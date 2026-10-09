@@ -23,7 +23,8 @@ const BIZ_PROXY_PATHS = [
     "/tm01-assessments",
     "/tm02-assessments",
     "/tm05-assessments",
-    "/lof-ledger"
+    "/lof-ledger",
+    "/fupportInfo"
 ];
 function createBizProxies(prefix, stripPrefix) {
     const table = {};
