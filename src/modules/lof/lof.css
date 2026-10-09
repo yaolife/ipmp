@@ -387,6 +387,33 @@
   margin: 18px 0 10px;
 }
 
+.lof-page .hfa-count-row {
+  max-width: 520px;
+  margin-top: 14px;
+}
+
+.lof-page .parameter-block {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fafbfc;
+}
+
+.lof-page .parameter-block-title {
+  margin-bottom: 10px;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lof-page .parameter-subtitle {
+  margin: 4px 0 8px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .lof-page .drawer-pre {
   margin: 0;
   padding: 12px;

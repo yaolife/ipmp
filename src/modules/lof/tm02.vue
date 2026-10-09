@@ -162,9 +162,24 @@
                   <input type="number" step="0.01" v-model.number="hfa.rho" @input="scheduleRecalc">
                 </div>
               </div>
+              <div class="form-row form-row-2 hfa-count-row">
+                <div class="form-group">
+                  <label>声源数</label>
+                  <select v-model.number="hfa.sourceCount" @change="syncHfaSourceCount">
+                    <option v-for="count in hfaCountOptions" :key="'source-count-' + count" :value="count">{{ count }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>不连续点数</label>
+                  <select v-model.number="hfa.discontinuityCount" @change="syncHfaDiscontinuityCount">
+                    <option v-for="count in hfaCountOptions" :key="'point-count-' + count" :value="count">{{ count }}</option>
+                  </select>
+                </div>
+              </div>
               <div class="divider"></div>
               <div class="section-title">声源配置</div>
               <div v-for="(source, index) in hfa.sources" :key="'source-' + index" class="parameter-block">
+                <div class="parameter-block-title">声源 {{ index + 1 }}</div>
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>声源名称</label>
@@ -204,16 +219,13 @@
                     <label>上游温度 Te (K)</label>
                     <input type="number" step="0.1" v-model.number="source.upstreamTemperature" @input="scheduleRecalc">
                   </div>
-                  <div class="form-group" style="justify-content:flex-end">
-                    <el-button v-if="hfa.sources.length > 1" type="danger" size="mini" @click="removeHfaSource(index)">删除声源</el-button>
-                  </div>
                 </div>
               </div>
-              <el-button size="mini" @click="addHfaSource">新增声源</el-button>
 
               <div class="divider"></div>
               <div class="section-title">焊接不连续点配置</div>
               <div v-for="(point, index) in hfa.discontinuities" :key="'point-' + index" class="parameter-block">
+                <div class="parameter-block-title">不连续点 {{ index + 1 }}</div>
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>不连续点名称</label>
@@ -227,9 +239,12 @@
                     <label>支管壁厚 t (mm)</label>
                     <input type="number" v-model.number="point.branchThickness" @input="scheduleRecalc">
                   </div>
-                  <div class="form-group">
-                    <label>距离 Ldis (m)</label>
-                    <input type="number" step="0.001" v-model.number="point.distance" @input="scheduleRecalc">
+                </div>
+                <div class="parameter-subtitle">各声源到当前不连续点的距离</div>
+                <div class="form-row form-row-equal-4">
+                  <div v-for="(source, sourceIndex) in hfa.sources" :key="'distance-' + index + '-' + sourceIndex" class="form-group">
+                    <label>{{ source.name || ('声源 ' + (sourceIndex + 1)) }} 距离 Ldis (m)</label>
+                    <input type="number" min="0" step="0.001" v-model.number="point.sourceDistances[sourceIndex]" @input="scheduleRecalc">
                   </div>
                 </div>
                 <div class="form-row form-row-3">
@@ -249,12 +264,8 @@
                       <option :value="true">是</option>
                     </select>
                   </div>
-                  <div class="form-group" style="justify-content:flex-end">
-                    <el-button v-if="hfa.discontinuities.length > 1" type="danger" size="mini" @click="removeHfaDiscontinuity(index)">删除不连续点</el-button>
-                  </div>
                 </div>
               </div>
-              <el-button size="mini" @click="addHfaDiscontinuity">新增不连续点</el-button>
               <div class="result-box mt-12" v-if="hfaResult">
                 <div class="result-item" @click="openMetric('Dint', hfaResult.Dint)">
                   <div class="label">内径 Dint (mm)</div>
@@ -538,23 +549,24 @@
               <div class="section-title">死支管涡激</div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group"><label>死支管外径 (mm)</label><input type="number" v-model.number="other.deadBranch.branchDiameter" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>雷诺数 Re</label><input type="number" v-model.number="other.deadBranch.reynolds" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>临界管径 dcrit (mm)</label><input type="number" v-model.number="other.deadBranch.criticalDiameter" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>频率比 Fe/Fs</label><input type="number" step="0.001" v-model.number="other.deadBranch.frequencyRatio" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>死支管长度 (m)</label><input type="number" v-model.number="other.deadBranch.branchLength" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>雷诺数 Re（自动）</label><input type="number" :value="other.deadBranch.reynolds" readonly></div>
+                <div class="form-group"><label>临界管径 dcrit (mm)（自动）</label><input type="number" :value="other.deadBranch.criticalDiameter" readonly></div>
+                <div class="form-group"><label>频率比 Fe/Fs（自动）</label><input type="number" step="0.001" :value="other.deadBranch.frequencyRatio" readonly></div>
               </div>
               <div class="section-title">阀门水锤</div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group"><label>工况类型</label><select v-model="other.waterHammer.type" @change="scheduleRecalc"><option value="">请选择</option><option value="干气阀门快速打开">干气阀门快速打开</option><option value="液体或多相阀打开">液体或多相阀打开</option><option value="液体或多相阀关闭">液体或多相阀关闭</option></select></div>
-                <div class="form-group"><label>最大冲击力 Fmax</label><input type="number" v-model.number="other.waterHammer.maxImpactForce" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>最大冲击力 Fmax（自动）</label><input type="number" :value="other.waterHammer.maxImpactForce" readonly></div>
                 <div class="form-group"><label>公称壁厚 (mm)</label><input type="number" v-model.number="other.waterHammer.nominalThickness" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>允许荷载 Flim</label><input type="number" v-model.number="other.waterHammer.loadLimit" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>允许荷载 Flim（自动）</label><input type="number" :value="other.waterHammer.loadLimit" readonly></div>
               </div>
               <div class="section-title">空化闪蒸</div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group"><label>上游压力 P1 (Pa)</label><input type="number" v-model.number="other.cavitation.upstreamPressure" @input="scheduleRecalc"></div>
                 <div class="form-group"><label>下游压力 P2 (Pa)</label><input type="number" v-model.number="other.cavitation.downstreamPressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>饱和蒸汽压 Pv (Pa)</label><input type="number" v-model.number="other.cavitation.vaporPressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>压力恢复系数 FL</label><input type="number" step="0.001" v-model.number="other.cavitation.pressureRecoveryFactor" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>饱和蒸汽压 Pv (Pa)（按温度自动）</label><input type="number" :value="other.cavitation.vaporPressure" readonly></div>
+                <div class="form-group"><label>压力恢复系数 FL（按阀门类型自动）</label><input type="number" step="0.001" :value="other.cavitation.pressureRecoveryFactor" readonly></div>
               </div>
             </div>
           </div>
@@ -737,6 +749,9 @@ const HFA_METRICS = {
   LOF: { name: "高频声学 LOF", meaning: "多声源在管道不连续点形成的高频声学失效可能性。", formula: "由PWL、距离衰减、几何与材料修正后的最大不连续点结果确定。" }
 };
 
+/** 高频声学配置数量上限，避免一次生成过多表单和距离组合。 */
+const HFA_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 const SBC_METRICS = {
   lofGeom: { name: "LOF_GEOM", meaning: "按结构类型及接头、壁厚、跨距等求得的几何风险。", formula: "Type 1 五项评分均值；Type 2 两侧取较大值；Type 3/4 按跨距曲线和端部评分取较大值。" },
   lofLoc: { name: "LOF_LOC", meaning: "主管位置与壁厚对应的位置风险。", formula: "主管 LOF 达到 1 时取 1，否则取位置评分和主管 Sch 评分的平均值。" },
@@ -786,8 +801,10 @@ function defaultHfa() {
     T: null,
     Q: null,
     rho: null,
+    sourceCount: 1,
+    discontinuityCount: 1,
     sources: [defaultHfaSource()],
-    discontinuities: [defaultHfaDiscontinuity()]
+    discontinuities: [defaultHfaDiscontinuity(1)]
   };
 }
 
@@ -803,12 +820,13 @@ function defaultHfaSource() {
   };
 }
 
-function defaultHfaDiscontinuity() {
+function defaultHfaDiscontinuity(sourceCount) {
   return {
     name: "",
     branchOuterDiameter: null,
     branchThickness: null,
     distance: null,
+    sourceDistances: Array(Number(sourceCount) || 1).fill(null),
     weldedBoss: null,
     duplexSteel: null
   };
@@ -829,6 +847,7 @@ function defaultOtherMechanisms() {
     },
     deadBranch: {
       branchDiameter: null,
+      branchLength: null,
       reynolds: null,
       criticalDiameter: null,
       frequencyRatio: null
@@ -912,6 +931,7 @@ export default {
       other: defaultOtherMechanisms(),
       thermo: defaultThermo(),
       sbc: defaultSbc(),
+      hfaCountOptions: HFA_COUNT_OPTIONS,
       sbcFittings: SBC_FITTINGS,
       sbcSchedules: ["10S", "20", "30", "40", "60", "80", "120", "160", ">160", "STD", "XS", "XXS"],
       factors: [],
@@ -1036,20 +1056,40 @@ export default {
     refreshSupportType() {
       this.params.support = calculateSupportType(this.params.span, this.params.od);
     },
-    addHfaSource() {
-      this.hfa.sources.push(defaultHfaSource());
+    /**
+     * 按声源数调整声源表单和每个不连续点的距离数组，缩减时保留前面的已填数据。
+     */
+    syncHfaSourceCount() {
+      const targetCount = Number(this.hfa.sourceCount) || 1;
+      while (this.hfa.sources.length < targetCount) {
+        this.hfa.sources.push(defaultHfaSource());
+      }
+      if (this.hfa.sources.length > targetCount) {
+        this.hfa.sources.splice(targetCount);
+      }
+      this.hfa.discontinuities.forEach(point => {
+        const legacyDistance = point.distance;
+        const distances = Array.isArray(point.sourceDistances)
+          ? point.sourceDistances.slice(0, targetCount)
+          : [];
+        while (distances.length < targetCount) {
+          distances.push(legacyDistance == null ? null : legacyDistance);
+        }
+        this.$set(point, "sourceDistances", distances);
+      });
       this.scheduleRecalc();
     },
-    removeHfaSource(index) {
-      this.hfa.sources.splice(index, 1);
-      this.scheduleRecalc();
-    },
-    addHfaDiscontinuity() {
-      this.hfa.discontinuities.push(defaultHfaDiscontinuity());
-      this.scheduleRecalc();
-    },
-    removeHfaDiscontinuity(index) {
-      this.hfa.discontinuities.splice(index, 1);
+    /**
+     * 按不连续点数调整配置块，新增点同时创建与当前声源数一致的距离数组。
+     */
+    syncHfaDiscontinuityCount() {
+      const targetCount = Number(this.hfa.discontinuityCount) || 1;
+      while (this.hfa.discontinuities.length < targetCount) {
+        this.hfa.discontinuities.push(defaultHfaDiscontinuity(this.hfa.sourceCount));
+      }
+      if (this.hfa.discontinuities.length > targetCount) {
+        this.hfa.discontinuities.splice(targetCount);
+      }
       this.scheduleRecalc();
     },
     errorMessage(error, fallback) {
@@ -1089,7 +1129,12 @@ export default {
           massFlow: this.hfa.Q,
           fluidDensity: this.hfa.rho,
           sources: this.hfa.sources,
-          discontinuities: this.hfa.discontinuities
+          discontinuities: this.hfa.discontinuities.map(point => Object.assign({}, point, {
+            // 旧版后端和历史快照仍可读取首个距离；新算法使用完整距离数组。
+            distance: point.sourceDistances && point.sourceDistances.length
+              ? point.sourceDistances[0]
+              : point.distance
+          }))
         },
         sbc: {
           type: this.sbc.type,
@@ -1134,7 +1179,15 @@ export default {
         },
         reciprocating: Object.assign({}, this.other.reciprocating),
         rotatingStall: Object.assign({}, this.other.rotatingStall),
-        deadBranch: Object.assign({}, this.other.deadBranch),
+        deadBranch: Object.assign({}, this.other.deadBranch, {
+          soundSpeed: this.hfa.c,
+          mainInnerDiameter: this.params.od != null && this.params.thickness != null
+            ? Number(this.params.od) - 2 * Number(this.params.thickness)
+            : null,
+          velocity: this.params.v,
+          fluidDensity: this.params.rho,
+          viscosity: this.params.viscosity
+        }),
         waterHammer: Object.assign({}, this.other.waterHammer, {
           fluidDensity: this.params.rho,
           velocity: this.params.v,
@@ -1142,7 +1195,9 @@ export default {
           thickness: this.params.thickness,
           span: this.params.span
         }),
-        cavitation: Object.assign({}, this.other.cavitation),
+        cavitation: Object.assign({}, this.other.cavitation, {
+          temperature: this.params.temperature
+        }),
         remarks: this.remarks || null
       };
     },
@@ -1175,6 +1230,25 @@ export default {
         };
       }
       if (factorResults.tm04) this.thermoResult = factorResults.tm04;
+      const f6 = factorResults.f6 || {};
+      Object.assign(this.other.deadBranch, {
+        reynolds: f6.reynolds,
+        criticalDiameter: f6.criticalDiameter,
+        frequencyRatio: f6.frequencyRatio
+      });
+      const f7 = factorResults.f7 || {};
+      Object.assign(this.other.waterHammer, {
+        maxImpactForce: f7.maxImpactForce,
+        loadLimit: f7.loadLimit
+      });
+      const f8 = factorResults.f8 || {};
+      Object.assign(this.other.cavitation, {
+        pressureDrop: f8.pressureDrop,
+        vaporPressure: f8.vaporPressure,
+        pressureRecoveryFactor: f8.pressureRecoveryFactor,
+        delta: f8.delta,
+        mechanism: f8.mechanism
+      });
       this.mainLof = maxLof;
       this.hasEvaluationResult = true;
       this.remarks = data.remarks || "";
@@ -1277,11 +1351,21 @@ export default {
       const sbc = inputs.sbc || {};
       const thermo = inputs.thermowell || {};
       const sourceList = Array.isArray(hfa.sources) && hfa.sources.length
-        ? hfa.sources
+        ? hfa.sources.map(source => Object.assign(defaultHfaSource(), source))
         : [defaultHfaSource()];
       const discontinuityList = Array.isArray(hfa.discontinuities) && hfa.discontinuities.length
-        ? hfa.discontinuities
-        : [defaultHfaDiscontinuity()];
+        ? hfa.discontinuities.map(point => {
+          const normalized = Object.assign(defaultHfaDiscontinuity(sourceList.length), point);
+          const configuredDistances = Array.isArray(point.sourceDistances)
+            ? point.sourceDistances.slice(0, sourceList.length)
+            : [];
+          while (configuredDistances.length < sourceList.length) {
+            configuredDistances.push(point.distance == null ? null : point.distance);
+          }
+          normalized.sourceDistances = configuredDistances;
+          return normalized;
+        })
+        : [defaultHfaDiscontinuity(sourceList.length)];
       Object.assign(this.params, {
         span: segment.span,
         fn: segment.naturalFrequency,
@@ -1307,6 +1391,8 @@ export default {
         T: hfa.thickness,
         Q: hfa.massFlow,
         rho: hfa.fluidDensity,
+        sourceCount: sourceList.length,
+        discontinuityCount: discontinuityList.length,
         sources: sourceList,
         discontinuities: discontinuityList
       });
