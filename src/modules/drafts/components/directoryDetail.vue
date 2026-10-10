@@ -845,6 +845,7 @@
 
 <script>
 import api from "../api";
+import { frequencySupportOptions, readFrequencyParams, writeFrequencyParams } from "../naturalFrequency";
 import { debounce } from "@/utils/funcUtil";
 import {
   getComponentTypeItem,
@@ -901,11 +902,12 @@ function getDefaultLofSections() {
         { key: "yieldStrength", label: "lang.yield_strength", type: "number" },
         { key: "fatigueLimit", label: "lang.fatigue_limit", type: "number" },
         {
-          key: "naturalFrequencyParams",
-          label: "lang.natural_frequency_params",
-          placeholder: "如 C1=1.0, C2=0.85",
-          span: 16
-        }
+          key: "naturalFrequency",
+          label: "lang.natural_frequency_hz",
+          type: "number",
+          placeholder: "请输入固有频率"
+        },
+        { key: "frequencySupportType", label: "lang.frequency_support_type", type: "select", options: "frequencySupport" }
       ]
     },
     {
@@ -1164,6 +1166,8 @@ function emptyForm() {
     yieldStrength: "",
     fatigueLimit: "",
     naturalFrequencyParams: "",
+    naturalFrequency: "",
+    frequencySupportType: "",
     annualUnplannedStops: "",
     annualStartStops: "",
     annualFastValveActions: "",
@@ -1528,6 +1532,7 @@ export default {
       return code === 0 || code === "0";
     },
     getFieldOptions(item) {
+      if (item.options === "frequencySupport") return frequencySupportOptions;
       if (item.key === "islandType") return this.islandOptions;
       if (item.key === "componentType") return this.componentTypeOptions;
       if (item.options === "yesNo") return this.yesNoOptions;
@@ -1623,6 +1628,7 @@ export default {
         const text = String(detail.reinforcement);
         form.has90Reinforcement = /补强|是/.test(text) ? 1 : 0;
       }
+      Object.assign(form, readFrequencyParams(detail));
       this.form = form;
     },
     normalizeAttrs(list) {
@@ -1971,7 +1977,7 @@ export default {
         materialDensity: this.toNumber(form.materialDensity),
         yieldStrength: this.toNumber(form.yieldStrength),
         fatigueLimit: this.toNumber(form.fatigueLimit),
-        naturalFrequencyParams: this.toText(form.naturalFrequencyParams),
+        naturalFrequencyParams: writeFrequencyParams(form),
         annualUnplannedStops: this.toInteger(form.annualUnplannedStops),
         annualStartStops: this.toInteger(form.annualStartStops),
         annualFastValveActions: this.toInteger(form.annualFastValveActions),
@@ -2018,7 +2024,13 @@ export default {
         this.$message.warning(this.$t("lang.file_uploading"));
         return;
       }
-      const payload = this.buildUpdatePayload();
+      let payload;
+      try {
+        payload = this.buildUpdatePayload();
+      } catch (error) {
+        this.$message.warning(error.message);
+        return;
+      }
       if (!payload.id) return;
       this.saving = true;
       api

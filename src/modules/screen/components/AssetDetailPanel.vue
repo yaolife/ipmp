@@ -173,6 +173,7 @@
 
 <script>
 import api from "@/modules/drafts/api";
+import { readFrequencyParams } from "@/modules/drafts/naturalFrequency";
 import {
   getComponentTypeItem,
   getComponentTypeLabel,
@@ -223,7 +224,8 @@ function getDefaultLofSections() {
         { key: "materialDensity", label: "lang.material_density" },
         { key: "yieldStrength", label: "lang.yield_strength" },
         { key: "fatigueLimit", label: "lang.fatigue_limit" },
-        { key: "naturalFrequencyParams", label: "lang.natural_frequency_params" }
+        { key: "naturalFrequency", label: "lang.natural_frequency_hz" },
+        { key: "frequencySupportType", label: "lang.frequency_support_type" }
       ]
     },
     {
@@ -404,6 +406,8 @@ function emptyForm() {
     yieldStrength: "",
     fatigueLimit: "",
     naturalFrequencyParams: "",
+    naturalFrequency: "",
+    frequencySupportType: "",
     annualUnplannedStops: "",
     annualStartStops: "",
     annualFastValveActions: "",
@@ -808,6 +812,7 @@ export default {
         const text = String(detail.reinforcement);
         form.has90Reinforcement = /补强|是/.test(text) ? 1 : 0;
       }
+      Object.assign(form, readFrequencyParams(detail));
       this.form = form;
     },
     normalizeAttrs(list) {

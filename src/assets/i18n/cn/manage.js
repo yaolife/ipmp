@@ -388,6 +388,8 @@ export const lang = {
     yield_strength: "屈服强度 (MPa)",
     fatigue_limit: "疲劳极限 (MPa)",
     natural_frequency_params: "固有频率力学参数",
+    natural_frequency_hz: "固有频率（Hz）",
+    frequency_support_type: "支撑类型",
     annual_unplanned_stops: "年非计划停运",
     annual_start_stops: "年启停次数",
     annual_fast_valve_actions: "年快阀动作次数",
