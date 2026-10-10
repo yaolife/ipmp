@@ -1,25 +1,34 @@
 <template>
   <div class="hanger-detail-page">
-    <!-- 面包屑导航 -->
-
-    <div class="page-breadcrumb-wrap">
-      <i class="el-icon-location-outline breadcrumb-icon"></i>
-
-      <el-breadcrumb class="page-breadcrumb" separator="/">
-        <el-breadcrumb-item>资产管理</el-breadcrumb-item>
-
-        <el-breadcrumb-item>支吊架数据库</el-breadcrumb-item>
-
-        <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
-      </el-breadcrumb>
-
-      <!-- 页面标题 -->
-
-      <div class="page-title">支吊架编号：{{ detailInfo.hangerNo || "-" }}</div>
+    <div class="detail-topbar">
+      <div class="detail-crumb">
+        <span>资产管理</span>
+        <i class="el-icon-arrow-right crumb-sep"></i>
+        <span>支吊架数据库</span>
+        <i class="el-icon-arrow-right crumb-sep"></i>
+        <span class="crumb-current">{{ pageTitle }}</span>
+      </div>
     </div>
 
-    <!-- 标签页切换 -->
+    <div class="detail-head-card">
+      <div class="detail-head-title-row">
+        <h2>支吊架详情</h2>
+        <div class="detail-top-actions">
+          <el-button size="small" @click="goBack">返回</el-button>
+          <el-button
+            v-if="pageType !== 'view'"
+            type="primary"
+            size="small"
+            :loading="submitLoading"
+            @click="submitForm"
+            >保存</el-button
+          >
+        </div>
+      </div>
+      <p>支吊架编号：{{ detailInfo.hangerNo || "-" }}</p>
+    </div>
 
+    <div class="detail-body-card">
     <el-tabs
       v-model="activeTab"
       class="detail-tabs"
@@ -34,7 +43,7 @@
           label-position="left"
           class="detail-form"
         >
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <!-- 第一行剩余3列 -->
 
             <el-col :span="6" class="my-el-col-ind">
@@ -81,7 +90,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="安全区域:" prop="installationArea">
                 <el-input
@@ -133,7 +142,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="功能件型号:" prop="functionalModel">
                 <el-input
@@ -178,7 +187,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="等轴图号:" prop="isometricNumber">
                 <el-input
@@ -228,7 +237,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="流程图号:" prop="flowChartNumber">
                 <el-input
@@ -276,7 +285,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="管道外径(mm):" prop="pipeDiameter">
                 <el-input
@@ -318,7 +327,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="热位移(mm):" prop="thermalDisplacement">
                 <el-input
@@ -360,7 +369,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="结构载荷(KN):" prop="structuralLoad">
                 <el-input
@@ -402,7 +411,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="行程(mm):" prop="itinerary">
                 <el-input
@@ -444,7 +453,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="要求刻度(mm):" prop="requiredScale">
                 <el-input
@@ -486,7 +495,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24">
+          <el-row :gutter="8">
             <el-col :span="6" class="my-el-col">
               <el-form-item label="最大载荷(KN):" prop="maximumLoad">
                 <el-input
@@ -525,7 +534,9 @@
           <!-- 纯展示无操作栏，直接表格+分页 -->
 
           <el-table
+            ref="maintainTable"
             :data="pageMaintainList"
+            :height="tableHeight"
             border
             stripe
             style="width: 100%"
@@ -668,6 +679,7 @@
           <!-- 分页组件，纯只读翻页 -->
 
           <el-pagination
+            class="maintain-pagination"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="pagination.current"
@@ -675,7 +687,6 @@
             :page-size="pagination.size"
             layout="total, sizes, prev, pager, next, jumper"
             :total="maintainTotal"
-            style="margin-top: 20px; text-align: right"
           />
         </div>
       </el-tab-pane>
@@ -685,7 +696,9 @@
           <!-- 纯展示无操作栏，直接表格+分页 -->
 
           <el-table
+            ref="inspectTable"
             :data="pageMaintainRcList"
+            :height="tableHeight"
             border
             stripe
             style="width: 100%"
@@ -821,6 +834,7 @@
           <!-- 分页组件，纯只读翻页 -->
 
           <el-pagination
+            class="maintain-pagination"
             @size-change="handleSizeChangeRc"
             @current-change="handleCurrentChangeRc"
             :current-page="paginationRc.current"
@@ -828,25 +842,10 @@
             :page-size="paginationRc.size"
             layout="total, sizes, prev, pager, next, jumper"
             :total="maintainRcTotal"
-            style="margin-top: 20px; text-align: right"
           />
         </div>
       </el-tab-pane>
     </el-tabs>
-
-    <!-- 底部操作按钮组 -->
-
-    <div class="page-footer">
-      <el-button
-        v-if="pageType !== 'view'"
-        type="primary"
-        size="small"
-        :loading="submitLoading"
-        @click="submitForm"
-        >保存</el-button
-      >
-
-      <el-button type="primary" size="small" @click="goBack">返回</el-button>
     </div>
   </div>
 </template>
@@ -864,6 +863,8 @@ export default {
       pageType: "view",
 
       activeTab: "baseInfo",
+
+      tableHeight: 360,
 
       submitLoading: false,
 
@@ -1035,13 +1036,55 @@ export default {
     }
   },
 
+  mounted() {
+    this.fitLayout();
+    window.addEventListener("resize", this.fitLayout);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("resize", this.fitLayout);
+  },
+
   methods: {
+    fitLayout() {
+      this.$nextTick(() => {
+        const page = this.$el;
+        if (!page || !page.getBoundingClientRect) return;
+        const bottomGap = 6;
+        page.style.marginBottom = "0";
+        const top = page.getBoundingClientRect().top;
+        page.style.height =
+          Math.max(window.innerHeight - top - bottomGap, 420) + "px";
+        this.$nextTick(() => {
+          const extra = document.documentElement.scrollHeight - window.innerHeight;
+          if (extra > 1) {
+            page.style.marginBottom = -extra + "px";
+          }
+          const content = page.querySelector(".detail-tabs .el-tabs__content");
+          if (content) {
+            const paginationBlock = 52;
+            this.tableHeight = Math.max(
+              Math.floor(content.clientHeight - paginationBlock),
+              240
+            );
+          }
+          this.$nextTick(() => {
+            ["maintainTable", "inspectTable"].forEach(name => {
+              const table = this.$refs[name];
+              if (table && table.doLayout) table.doLayout();
+            });
+          });
+        });
+      });
+    },
+
     handleTabClick(tab) {
       if (tab.name === "maintainRecordJh") {
         this.loadingmaintainRecordJh();
       } else if (tab.name === "maintainRecordRc") {
         this.loadingmaintainRecordRc();
       }
+      this.fitLayout();
     },
 
     loadingmaintainRecordJh() {
@@ -1245,134 +1288,155 @@ export default {
 
 <style lang="less" scoped>
 .hanger-detail-page {
-  padding: 20px;
-
-  background: #f0f4f8;
-
-  min-height: calc(100vh - 60px);
-}
-
-.page-breadcrumb-wrap {
+  height: calc(100vh - 110px);
+  overflow: hidden;
   display: flex;
-
+  flex-direction: column;
+  background: transparent;
+  padding: 16px 20px 0;
+  box-sizing: border-box;
+}
+.detail-topbar {
+  display: flex;
   align-items: center;
-
+  justify-content: space-between;
+  flex-shrink: 0;
   margin-bottom: 12px;
-
-  font-size: 14px;
-
-  color: #606266;
-
-  .breadcrumb-icon {
-    color: #409eff;
-
-    margin-right: 6px;
+}
+.detail-crumb {
+  font-size: 13px;
+  color: #909399;
+  .crumb-sep {
+    margin: 0 6px;
+    font-size: 12px;
+  }
+  .crumb-current {
+    color: #1f2329;
+    font-weight: 500;
   }
 }
-
-.page-breadcrumb {
-  /deep/ .el-breadcrumb__item {
-    color: #606266;
-
-    .el-breadcrumb__inner {
-      color: #409eff;
-
-      &.is-link {
-        color: #409eff;
-      }
-    }
-  }
-}
-
-.page-title {
-  font-size: 18px;
-
-  font-weight: 500;
-
-  margin-bottom: 16px;
-
-  color: #303133;
-
-  margin-left: 300px;
-}
-
-.detail-tabs {
-  background: #fff;
-
-  padding: 20px;
-
-  border-radius: 4px;
-}
-
-/deep/ .el-tabs__item {
-  font-size: 14px;
-
-  padding: 0 20px;
-}
-
-/deep/ .el-tabs__item.is-active {
-  color: #409eff;
-
-  font-weight: 500;
-}
-
-/deep/ .el-tabs__nav-wrap::after {
-  background-color: #e4e7ed;
-}
-
-/deep/ .el-tabs__active-bar {
-  background-color: #409eff;
-
-  height: 2px;
-}
-
-// 检修模块纯展示适配样式
-
-.maintain-record-container {
-  padding: 10px 0;
-}
-
-// 长文本自动省略加悬浮提示，避免表格变形
-
-/deep/ .el-tooltip__popper {
-  max-width: 400px;
-}
-
-.page-footer {
-  position: fixed;
-
-  bottom: 16px;
-
-  left: 216px;
-
-  right: 20px;
-
-  height: 52px;
-
-  background: #ffffff;
-
+.detail-top-actions {
   display: flex;
-
   align-items: center;
-
-  padding: 0 20px;
-
-  gap: 12px;
-
-  border-radius: 6px;
-
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-
-  z-index: 998;
+  gap: 8px;
 }
-
+.detail-head-card,
+.detail-body-card {
+  background: #fff;
+  border: 1px solid #e6e8eb;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.detail-head-card {
+  flex-shrink: 0;
+  padding: 16px 20px;
+}
+.detail-head-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2329;
+    line-height: 32px;
+  }
+}
+.detail-head-card p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #909399;
+}
+.detail-body-card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  padding: 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.detail-tabs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /deep/ .el-tabs__header {
+    flex-shrink: 0;
+    margin-bottom: 12px;
+  }
+  /deep/ .el-tabs__content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  /deep/ .el-tab-pane {
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  /deep/ .el-tabs__nav-wrap::after {
+    height: 1px;
+    background-color: #e6e8eb;
+  }
+  /deep/ .el-tabs__item {
+    height: 44px;
+    line-height: 44px;
+    font-size: 14px;
+    color: #606266;
+  }
+  /deep/ .el-tabs__item.is-active {
+    color: #1a6fc4;
+    font-weight: 600;
+  }
+  /deep/ .el-tabs__active-bar {
+    background-color: #1a6fc4;
+    height: 2px;
+  }
+}
+.detail-form {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /deep/ .el-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  /deep/ .el-col {
+    min-width: 0;
+  }
+  /deep/ .el-form-item__content {
+    min-width: 0;
+  }
+  /deep/ .el-select,
+  /deep/ .el-date-editor {
+    width: 100%;
+  }
+}
 .my-el-col {
   margin-bottom: 12px;
 }
-
 .my-el-col-ind {
   margin-bottom: 12px;
-
   margin-top: 7px;
+}
+.maintain-record-container {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  /deep/ .el-table__empty-block {
+    min-height: 240px;
+  }
+}
+.maintain-pagination {
+  flex-shrink: 0;
+  margin-top: 12px;
+  text-align: right;
+}
+/deep/ .el-tooltip__popper {
+  max-width: 400px;
 }
 </style>

@@ -30,6 +30,7 @@ export default {
       maxTreeHeight: 0,
       maxTableHeight: 0,
       maxRightHeight: 0,
+      detailCardHeight: 0,
       treeBlockHeight: 0,
       tableBlockHeight: 0,
       tableData: [],
@@ -61,6 +62,7 @@ export default {
       multipleSelection: [],
       loading: false,
       detailVisible: false,
+      detailAlive: false,
       detailMode: "pipeline",
       currentPipelineId: "",
       currentDirectoryId: ""
@@ -86,6 +88,20 @@ export default {
   methods: {
     initMaxHeight() {
       calcHeight(this);
+    },
+    fitDetailCard() {
+      this.$nextTick(() => {
+        const card = this.$el.querySelector(".pipe-detail-card");
+        if (!card || !this.detailVisible) return;
+        card.style.marginBottom = "0";
+        const top = card.getBoundingClientRect().top;
+        this.detailCardHeight = Math.max(window.innerHeight - top - 6, 420);
+        this.$nextTick(() => {
+          const extra =
+            document.documentElement.scrollHeight - window.innerHeight;
+          card.style.marginBottom = extra > 1 ? -extra + "px" : "0";
+        });
+      });
     },
     indexMethod(index) {
       return (this.current - 1) * this.size + index + 1;
@@ -336,20 +352,30 @@ export default {
       this.detailMode = "directory";
       this.currentDirectoryId = id;
       this.currentPipelineId = "";
+      this.detailAlive = true;
       this.detailVisible = true;
+      this.fitDetailCard();
     },
     closeDetail() {
       this.detailVisible = false;
-      this.detailMode = "pipeline";
-      this.currentPipelineId = "";
-      this.currentDirectoryId = "";
       this.$nextTick(() => {
-        if (this.currentNode && this.$refs.resourceTree) {
-          this.$refs.resourceTree.setCurrentKey(this.currentNode.id);
-        } else if (this.$refs.resourceTree) {
-          this.$refs.resourceTree.setCurrentKey(null);
+        const releaseDetail = () => {
+          this.detailAlive = false;
+          this.detailMode = "pipeline";
+          this.currentPipelineId = "";
+          this.currentDirectoryId = "";
+          if (this.currentNode && this.$refs.resourceTree) {
+            this.$refs.resourceTree.setCurrentKey(this.currentNode.id);
+          } else if (this.$refs.resourceTree) {
+            this.$refs.resourceTree.setCurrentKey(null);
+          }
+          this.initMaxHeight();
+        };
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(releaseDetail);
+        } else {
+          releaseDetail();
         }
-        this.initMaxHeight();
       });
     },
     downloadRow(row) {
@@ -489,7 +515,10 @@ export default {
   },
   mounted() {
     this.initMaxHeight();
-    this.throttleFunc = throttle(this.initMaxHeight, 500);
+    this.throttleFunc = throttle(() => {
+      this.initMaxHeight();
+      if (this.detailVisible) this.fitDetailCard();
+    }, 500);
     window.addEventListener("resize", this.throttleFunc);
     this.getTreeList();
   },

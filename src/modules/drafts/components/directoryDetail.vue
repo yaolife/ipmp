@@ -2044,15 +2044,18 @@ export default {
 <style lang="less" scoped>
 .directory-detail {
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: #f4f6f9;
-  padding: 4px 4px 8px;
+  padding: 4px 4px 0;
   box-sizing: border-box;
 }
 .detail-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
   margin-bottom: 12px;
 }
 .detail-crumb {
@@ -2097,6 +2100,7 @@ export default {
   margin-bottom: 12px;
 }
 .detail-head-card {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2116,6 +2120,10 @@ export default {
   }
 }
 .detail-body-card {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  overflow: auto;
   padding: 0 20px 20px;
 }
 .detail-tabs {

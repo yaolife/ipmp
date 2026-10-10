@@ -3,7 +3,7 @@
     <div class="cud__scroll--div">
       <el-row>
         <el-col
-          v-if="!detailVisible"
+          v-show="!detailVisible"
           :span="6"
           class="cud-commom-tree-left"
           :class="{
@@ -76,9 +76,10 @@
           :class="{ 'cud-all-width-resize': isTreeCollapse || detailVisible }"
         >
           <el-card
-            v-if="detailVisible"
+            v-if="detailAlive"
+            v-show="detailVisible"
             class="pipe-detail-card"
-            :style="{ height: computedDetailHeight + 'px' }"
+            :style="{ height: (detailCardHeight || computedDetailHeight) + 'px' }"
           >
             <directory-detail
               v-if="detailMode === 'directory'"
@@ -93,7 +94,7 @@
               @updated="getList"
             ></pipe-detail>
           </el-card>
-          <template v-else>
+          <div v-show="!detailVisible">
           <el-card>
             <query-form
               :queryFormId="'pipeDatabase'"
@@ -267,7 +268,7 @@
                 </div>
               </el-row>
           </el-card>
-          </template>
+          </div>
         </el-col>
       </el-row>
     </div>
@@ -309,7 +310,7 @@ export default drafts;
 }
 .pipe-detail-card /deep/ .el-card__body {
   height: 100%;
-  padding: 12px 16px 16px;
+  padding: 12px 16px 0;
   box-sizing: border-box;
   overflow: hidden;
   background: #f4f6f9;
