@@ -83,6 +83,7 @@
                 <el-table-column label="KKS" min-width="150">
                   <template slot-scope="scope">{{ kksText(scope.row) }}</template>
                 </el-table-column>
+                <el-table-column prop="nodeName" label="管段名称" min-width="170" show-overflow-tooltip></el-table-column>
                 <el-table-column label="起止支撑" min-width="170">
                   <template slot-scope="scope">{{ supportRange(scope.row) }}</template>
                 </el-table-column>
