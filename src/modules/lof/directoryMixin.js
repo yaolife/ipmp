@@ -13,9 +13,26 @@ export default {
   created() {
     this.loadSegments();
   },
+  activated() {
+    // 缓存页面再次进入时created不会执行，必须重新应用跳转指定的管段。
+    this.selectRouteSegment((this.$route && this.$route.query) || {});
+  },
+  beforeRouteUpdate(to, from, next) {
+    this.selectRouteSegment(to.query || {});
+    next();
+  },
   methods: {
     isSuccessCode: isSuccessCode,
     unwrapList: unwrapList,
+    selectRouteSegment(query) {
+      const requestedId = query.segmentId || query.segment;
+      if (requestedId == null || requestedId === "") return;
+      const id = String(requestedId);
+      // 等待树加载完成后再选择，确保下拉选项和详情请求使用同一字符串ID。
+      if (!this.segments.some(item => item.id === id) || this.segmentId === id) return;
+      this.segmentId = id;
+      if (typeof this.onSegmentChange === "function") this.onSegmentChange(id);
+    },
     segmentLabel(item) {
       if (!item) return "-";
       if (item.labelPath) return item.labelPath;
@@ -32,11 +49,12 @@ export default {
         const nextPath = path ? (name ? path + " / " + name : path) : name;
         const children = Array.isArray(node.children) ? node.children : [];
         const nameText = String(node.nodeName || "").trim();
-        // 三个评估页面的评估对象已经明确为0-管段。
-        // 后端会保留管段的祖先路径，因此这里再次校验类型，避免有类型的祖先节点进入下拉框。
-        const isAssessmentObject = Number(node.componentType) === 0;
+        const isLeaf = !children.length;
+        const isLevel5 = Number(node.levelNo) === 5;
+        // 最新模型树的管段节点不再依赖固定的moduleType或componentType编码，
+        // 只把叶子节点及第五层管段节点放入选择框，避免把系统、装置等父级目录当成评估对象。
         if (
-          isAssessmentObject &&
+          (isLeaf || isLevel5) &&
           node.id != null &&
           node.id !== "" &&
           nameText &&
@@ -67,14 +85,7 @@ export default {
           }
           const tree = Array.isArray(res.data) ? res.data : this.unwrapList(res.data);
           this.segments = this.flattenDirectoryNodes(tree, "");
-          const routeQuery = (this.$route && this.$route.query) || {};
-          const requestedId = routeQuery.segmentId || routeQuery.segment;
-          if (requestedId && this.segments.some(item => item.id === String(requestedId))) {
-            this.segmentId = String(requestedId);
-            if (typeof this.onSegmentChange === "function") {
-              this.onSegmentChange(this.segmentId);
-            }
-          }
+          this.selectRouteSegment((this.$route && this.$route.query) || {});
         })
         .catch(() => {
           this.pageLoading = false;
