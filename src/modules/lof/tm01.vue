@@ -444,11 +444,26 @@ export default {
    * 这样在其他页签保存 TM02 新版本后，当前管段 Main_LOF 不会继续显示旧版本值。
    */
   activated() {
+    if (this.selectRouteSegment((this.$route && this.$route.query) || {})) return;
     if (!this.segmentId) return;
     this.loadLatestMainLof();
     this.loadHistoryPage();
   },
+  beforeRouteUpdate(to, from, next) {
+    this.selectRouteSegment(to.query || {});
+    next();
+  },
   methods: {
+    selectRouteSegment(query) {
+      const requestedId = query.segmentId || query.segment;
+      if (requestedId == null || requestedId === "") return false;
+      const id = String(requestedId);
+      // 树异步加载完成、缓存页重新进入及同页路由切换都按跳转ID选择。
+      if (!this.segments.some(item => item.id === id) || this.segmentId === id) return false;
+      this.segmentId = id;
+      this.onSegmentChange(id);
+      return true;
+    },
     scoreClass,
     riskMeta,
     isSuccessCode(code) {
@@ -475,9 +490,10 @@ export default {
         const children = Array.isArray(node.children) ? node.children : [];
         const isLeaf = !children.length;
         const isLevel5 = Number(node.levelNo) === 5;
+        const isMainSegment = Number(node.componentType) === -2;
         const nameText = String(node.nodeName || "").trim();
         if (
-          (isLeaf || isLevel5) &&
+          (isMainSegment || isLeaf || isLevel5) &&
           node.id != null &&
           node.id !== "" &&
           nameText &&
@@ -621,12 +637,7 @@ export default {
           }
           const tree = Array.isArray(res.data) ? res.data : this.unwrapList(res.data);
           this.segments = this.flattenDirectoryNodes(tree, "");
-          const routeQuery = (this.$route && this.$route.query) || {};
-          const requestedId = routeQuery.segmentId || routeQuery.segment;
-          if (requestedId && this.segments.some(item => item.id === String(requestedId))) {
-            this.segmentId = String(requestedId);
-            this.onSegmentChange(this.segmentId);
-          }
+          this.selectRouteSegment((this.$route && this.$route.query) || {});
         })
         .catch(error => {
           this.pageLoading = false;

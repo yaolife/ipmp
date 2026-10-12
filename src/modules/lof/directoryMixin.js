@@ -51,10 +51,10 @@ export default {
         const nameText = String(node.nodeName || "").trim();
         const isLeaf = !children.length;
         const isLevel5 = Number(node.levelNo) === 5;
-        // 最新模型树的管段节点不再依赖固定的moduleType或componentType编码，
-        // 只把叶子节点及第五层管段节点放入选择框，避免把系统、装置等父级目录当成评估对象。
+        const isMainSegment = Number(node.componentType) === -2;
+        // 主管段有元件子节点也可评估；同时保留旧模型叶子及第五层节点的选择兼容。
         if (
-          (isLeaf || isLevel5) &&
+          (isMainSegment || isLeaf || isLevel5) &&
           node.id != null &&
           node.id !== "" &&
           nameText &&
