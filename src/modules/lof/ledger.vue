@@ -217,45 +217,42 @@
       <el-dialog
         title="编辑管段参数"
         :visible.sync="editVisible"
-        width="860px"
+        width="960px"
+        custom-class="ledger-edit-dialog"
         append-to-body
         :close-on-click-modal="false"
       >
-        <el-form :model="editForm" label-width="150px" size="small">
-          <el-row :gutter="16">
-            <el-col :span="12"><el-form-item label="管线号"><el-input v-model="editForm.pipelineNo"></el-input></el-form-item></el-col>
-            <el-col :span="12"><el-form-item label="管道名称"><el-input v-model="editForm.pipelineName"></el-input></el-form-item></el-col>
-            <el-col :span="12"><el-form-item label="管道起始点"><el-input v-model="editForm.startPoint"></el-input></el-form-item></el-col>
-            <el-col :span="12"><el-form-item label="管道终止点"><el-input v-model="editForm.endPoint"></el-input></el-form-item></el-col>
-            <el-col :span="12"><el-form-item label="工作介质"><el-input v-model="editForm.workingMedium"></el-input></el-form-item></el-col>
-            <el-col :span="12">
-              <el-form-item label="介质类型">
-                <el-select v-model="editForm.mediumType" clearable style="width:100%">
-                  <el-option label="单相蒸汽" :value="0"></el-option>
-                  <el-option label="单相水" :value="1"></el-option>
-                  <el-option label="气液两相" :value="2"></el-option>
-                  <el-option label="多相流" :value="3"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8"><el-form-item label="跨距(m)"><el-input-number v-model="editForm.spanReference" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="外径(mm)"><el-input-number v-model="editForm.outerDiameter" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="壁厚(mm)"><el-input-number v-model="editForm.wallThickness" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="运行压力(MPa)"><el-input-number v-model="editForm.operatingPressure" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="运行温度(℃)"><el-input-number v-model="editForm.operatingTemperature" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="介质密度(kg/m³)"><el-input-number v-model="editForm.fluidDensity" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="最大流速(m/s)"><el-input-number v-model="editForm.maxVelocity" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="低流量占比(%)"><el-input-number v-model="editForm.lowFlowRatio" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col :span="8"><el-form-item label="年启停次数"><el-input-number v-model="editForm.annualStartStops" :controls="false"></el-input-number></el-form-item></el-col>
-            <el-col v-for="field in booleanFields" :key="field.key" :span="8">
-              <el-form-item :label="field.label">
-                <el-select v-model="editForm[field.key]" clearable style="width:100%">
-                  <el-option label="否" :value="0"></el-option>
-                  <el-option label="是" :value="1"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
+        <el-form class="ledger-edit-form" :model="editForm" label-width="132px" size="small">
+          <div class="ledger-edit-grid">
+            <el-form-item class="col-2" label="管线号"><el-input v-model="editForm.pipelineNo"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管道名称"><el-input v-model="editForm.pipelineName"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管道起始点"><el-input v-model="editForm.startPoint"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管道终止点"><el-input v-model="editForm.endPoint"></el-input></el-form-item>
+            <el-form-item class="col-2" label="工作介质"><el-input v-model="editForm.workingMedium"></el-input></el-form-item>
+            <el-form-item class="col-2" label="介质类型">
+              <el-select v-model="editForm.mediumType" clearable>
+                <el-option label="单相蒸汽" :value="0"></el-option>
+                <el-option label="单相水" :value="1"></el-option>
+                <el-option label="气液两相" :value="2"></el-option>
+                <el-option label="多相流" :value="3"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item class="col-3" label="跨距(m)"><el-input-number v-model="editForm.spanReference" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="外径(mm)"><el-input-number v-model="editForm.outerDiameter" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="壁厚(mm)"><el-input-number v-model="editForm.wallThickness" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="运行压力(MPa)"><el-input-number v-model="editForm.operatingPressure" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="运行温度(℃)"><el-input-number v-model="editForm.operatingTemperature" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="介质密度(kg/m³)"><el-input-number v-model="editForm.fluidDensity" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="最大流速(m/s)"><el-input-number v-model="editForm.maxVelocity" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="低流量占比(%)"><el-input-number v-model="editForm.lowFlowRatio" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="年启停次数"><el-input-number v-model="editForm.annualStartStops" :controls="false"></el-input-number></el-form-item>
+            <el-form-item v-for="field in booleanFields" :key="field.key" class="col-3" :label="field.label">
+              <el-select v-model="editForm[field.key]" clearable>
+                <el-option label="否" :value="0"></el-option>
+                <el-option label="是" :value="1"></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
         </el-form>
         <span slot="footer">
           <el-button @click="editVisible = false">取消</el-button>
@@ -807,5 +804,62 @@ export default {
   .ledger-filters .el-select {
     width: 100%;
   }
+}
+</style>
+
+<style>
+.ledger-edit-dialog {
+  border-radius: 8px;
+}
+
+.ledger-edit-dialog .el-dialog__header {
+  padding: 0 28px;
+}
+
+.ledger-edit-dialog .el-dialog__body {
+  padding: 18px 28px 4px;
+  overflow-x: hidden;
+}
+
+.ledger-edit-dialog .el-dialog__footer {
+  padding: 8px 28px 18px;
+}
+
+.ledger-edit-form .ledger-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  column-gap: 28px;
+}
+
+.ledger-edit-form .col-2 {
+  grid-column: span 3;
+}
+
+.ledger-edit-form .col-3 {
+  grid-column: span 2;
+}
+
+.ledger-edit-form .el-form-item {
+  margin-bottom: 14px;
+}
+
+.ledger-edit-form .el-form-item__label {
+  white-space: nowrap;
+}
+
+.ledger-edit-form .el-form-item__content {
+  min-width: 0;
+}
+
+.ledger-edit-form .el-input,
+.ledger-edit-form .el-select,
+.ledger-edit-form .el-input-number {
+  width: 100%;
+}
+
+.ledger-edit-form .el-input-number .el-input__inner {
+  padding-right: 12px;
+  padding-left: 12px;
+  text-align: left;
 }
 </style>
