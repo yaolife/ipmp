@@ -1,11 +1,10 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <breadcrumb :arrayName="brand" :hasIcon="hasIcon"></breadcrumb>
       <div class="lof-page" v-loading="pageLoading">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">管段选择</div>
+            <div class="card-title">定量评估设置</div>
           </div>
           <div class="card-body">
             <div class="form-row form-row-3">
@@ -702,7 +701,6 @@
 </template>
 
 <script>
-import breadcrumb from "@/components/common/breadcrumb";
 import LofTraceDrawer from "./components/LofTraceDrawer";
 import directoryMixin from "./directoryMixin";
 import api from "./api";
@@ -916,15 +914,9 @@ function defaultParams() {
 
 export default {
   mixins: [directoryMixin],
-  components: { breadcrumb, LofTraceDrawer },
+  components: { LofTraceDrawer },
   data() {
     return {
-      hasIcon: false,
-      brand: [
-        { name: "lang.analysis_govern" },
-        { name: "lang.lof" },
-        { name: "lang.lof_tm02" }
-      ],
       paramTab: "pipe",
       params: defaultParams(),
       hfa: defaultHfa(),

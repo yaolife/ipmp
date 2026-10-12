@@ -4,7 +4,7 @@
       <div class="lof-page" v-loading="pageLoading">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">评估设置</div>
+            <div class="card-title">定性评估设置</div>
           </div>
           <div class="card-body">
             <div class="form-row lof-form-row-4">
