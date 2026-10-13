@@ -289,13 +289,15 @@ export default {
         .uploadSysFile(formData)
         .then(res => {
           this.uploading = false;
-          if (!this.isSuccessCode(res && res.code) || !res.data) {
+          // 公共上传接口返回文件列表；兼容旧环境的单对象返回，避免上传后丢失文件主键。
+          const payload = res && res.data;
+          const data = Array.isArray(payload) ? payload[0] : payload;
+          if (!this.isSuccessCode(res && res.code) || !data || !data.id) {
             this.pendingFile = null;
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
             return;
           }
-          const data = res.data || {};
-          const newFileId = data.id || "";
+          const newFileId = data.id;
           const prevFileId = this.editForm.fileId || "";
           if (prevFileId && prevFileId !== newFileId) {
             if (this.isEdit && !this.replacedOldFileId) {
