@@ -304,7 +304,7 @@ export default {
     },
   },
   created() {
-    this.defaultActive = this.$route.fullPath;
+    this.defaultActive = this.$route.path;
     this.getMenuManagerGetFormMenuTree();
     this.$nextTick(async () => {
       await this.getNowUser(); //获取当前用户信息，右上角展示
@@ -329,7 +329,7 @@ export default {
     //折叠菜单tr
     this.menuCollapse();
     //关联菜单默认选中
-    this.defaultActive = this.$route.fullPath;
+    this.defaultActive = this.$route.path;
     //查询草稿数量
     this.getDraftCount();
   },
@@ -729,12 +729,13 @@ export default {
     //路由跳转 改变菜单栏颜色 高亮显示
     async menuSelect(index) {
       this.activeIndex = index;
-      //关联菜单默认选中
-      let props = this.$route.matched[1].props;
-      if (props.default && props.default.menuPath) {
-        this.defaultActive = this.$route.matched[1].props.default.menuPath;
+      // 菜单 index 不含查询参数。操作栏跳转会带 segmentId，用 path 才能对上选中底色。
+      const matched = this.$route.matched[1];
+      const props = matched && matched.props;
+      if (props && props.default && props.default.menuPath) {
+        this.defaultActive = props.default.menuPath;
       } else {
-        this.defaultActive = this.$route.fullPath;
+        this.defaultActive = this.$route.path;
       }
     },
     initProcBaseInfo() {

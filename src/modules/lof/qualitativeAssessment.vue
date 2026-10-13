@@ -171,7 +171,7 @@
                   </div>
                 </div>
                 <div class="mt-12" v-if="result.quantitativeRequired">
-                  <router-link class="btn btn-primary" :to="tm02Route">执行定量评估</router-link>
+                  <router-link class="btn btn-primary" :to="quantitativeRoute">执行定量评估</router-link>
                 </div>
               </div>
             </div>
@@ -417,9 +417,9 @@ export default {
         return item ? id.toUpperCase() + " " + item.name : id;
       });
     },
-    tm02Route() {
+    quantitativeRoute() {
       return {
-        path: "/lof/tm02",
+        path: "/lof/quantitativeAssessment",
         query: this.segmentId ? { segmentId: this.segmentId } : {}
       };
     },

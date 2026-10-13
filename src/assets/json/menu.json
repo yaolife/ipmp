@@ -48,19 +48,19 @@
             "resource": "lofLedger"
           },
           {
-            "name": "lang.lof_tm01",
-            "url": "/lof/tm01",
-            "resource": "lofTm01"
+            "name": "lang.lof_qualitative_assessment",
+            "url": "/lof/qualitativeAssessment",
+            "resource": "lofQualitativeAssessment"
           },
           {
-            "name": "lang.lof_tm02",
-            "url": "/lof/tm02",
-            "resource": "lofTm02"
+            "name": "lang.lof_quantitative_assessment",
+            "url": "/lof/quantitativeAssessment",
+            "resource": "lofQuantitativeAssessment"
           },
           {
-            "name": "lang.lof_tm05",
-            "url": "/lof/tm05",
-            "resource": "lofTm05"
+            "name": "lang.lof_vibration_check",
+            "url": "/lof/vibrationCheck",
+            "resource": "lofVibrationCheck"
           }
         ]
       }

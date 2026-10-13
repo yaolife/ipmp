@@ -131,9 +131,9 @@
                     <el-button type="text" size="mini" @click="openDetail(scope.row)">查看</el-button>
                     <el-button type="text" size="mini" @click="openEdit(scope.row)">编辑参数</el-button>
                     <el-button type="text" size="mini" @click="openHistory(scope.row)">分析历史</el-button>
-                    <el-button type="text" size="mini" @click="goAssessment('tm01', scope.row)">定性评估</el-button>
-                    <el-button type="text" size="mini" @click="goAssessment('tm02', scope.row)">定量评估</el-button>
-                    <el-button type="text" size="mini" @click="goAssessment('tm05', scope.row)">振动校核</el-button>
+                    <el-button type="text" size="mini" @click="goAssessment('qualitativeAssessment', scope.row)">定性评估</el-button>
+                    <el-button type="text" size="mini" @click="goAssessment('quantitativeAssessment', scope.row)">定量评估</el-button>
+                    <el-button type="text" size="mini" @click="goAssessment('vibrationCheck', scope.row)">振动校核</el-button>
                     <el-button type="text" size="mini" @click="exportSingleReport(scope.row)">导出报告</el-button>
                   </template>
                 </el-table-column>

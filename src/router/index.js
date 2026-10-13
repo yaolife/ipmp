@@ -21,9 +21,9 @@ import logManage from "@/modules/logManage/logManage.vue";
 import apiManage from "@/modules/system/apiManage/apiManage.vue";
 // 分析治理 / LOF
 import lofLedger from "@/modules/lof/ledger.vue";
-import lofTm01 from "@/modules/lof/tm01.vue";
-import lofTm02 from "@/modules/lof/tm02.vue";
-import lofTm05 from "@/modules/lof/tm05.vue";
+import qualitativeAssessment from "@/modules/lof/qualitativeAssessment.vue";
+import quantitativeAssessment from "@/modules/lof/quantitativeAssessment.vue";
+import vibrationCheck from "@/modules/lof/vibrationCheck.vue";
 
 // 用户中心
 import userinfo from "@/modules/authManage/userCenter/view/userinfo";
@@ -159,22 +159,22 @@ const _router = new Router({
           meta: "lofLedger"
         },
         {
-          path: "/lof/tm01",
+          path: "/lof/qualitativeAssessment",
           name: "定性评估",
-          component: lofTm01,
-          meta: "lofTm01"
+          component: qualitativeAssessment,
+          meta: "lofQualitativeAssessment"
         },
         {
-          path: "/lof/tm02",
+          path: "/lof/quantitativeAssessment",
           name: "定量评估",
-          component: lofTm02,
-          meta: "lofTm02"
+          component: quantitativeAssessment,
+          meta: "lofQuantitativeAssessment"
         },
         {
-          path: "/lof/tm05",
+          path: "/lof/vibrationCheck",
           name: "振动校核",
-          component: lofTm05,
-          meta: "lofTm05"
+          component: vibrationCheck,
+          meta: "lofVibrationCheck"
         },
         // 用户中心
         {
