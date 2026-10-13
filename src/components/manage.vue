@@ -241,7 +241,6 @@ import LangSwitch from "./i18n/lang_switch";
 import osUtil from "@/utils/osUtil";
 import multipleTabs from "@/components/common/multipleTabs";
 import userCenter from "@/components/common/userCenter";
-import draftApi from "../modules/drafts/api/index";
 // import router from "@/router/index.js"
 export default {
   components: {
@@ -330,8 +329,6 @@ export default {
     this.menuCollapse();
     //关联菜单默认选中
     this.defaultActive = this.$route.path;
-    //查询草稿数量
-    this.getDraftCount();
   },
   watch: {
     //用于菜单栏高亮
@@ -346,27 +343,6 @@ export default {
     },
   },
   methods: {
-    //设置管道数据库菜单数量标记
-    getDraftCount() {
-      if (!draftApi || typeof draftApi.pagePipelines !== "function") {
-        return;
-      }
-      draftApi
-        .pagePipelines({
-          current: 1,
-          size: 1
-        })
-        .then((res) => {
-          const ok = res && (res.code === "0" || res.code === 0);
-          if (!ok) return;
-          const total =
-            (res.data && res.data.total != null ? res.data.total : res.total) ||
-            0;
-          const count = total > 99 ? "99+" : total;
-          store.commit("setBadgeCount", { name: "draftCount", count: count });
-        })
-        .catch(() => {});
-    },
     //初始化搜索
     searchInit(val) {
       let result = [];

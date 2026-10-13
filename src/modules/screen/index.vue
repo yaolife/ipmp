@@ -42,7 +42,6 @@
 </template>
 
 <script>
-import api from "@/modules/drafts/api";
 import AssetDetailPanel from "./components/AssetDetailPanel.vue";
 import PixelStreamLoading from "./components/Loading.vue";
 import VideoMonitorDialog from "./components/VideoMonitorDialog.vue";
@@ -60,7 +59,6 @@ export default {
       treeData: [],
       currentNode: null,
       directoryPath: [],
-      pipelineId: "",
       detailNodeName: "",
       detailVisible: false,
       treeVisible: false,
@@ -335,9 +333,6 @@ export default {
     onUeProgress(data) {
       this.progress = Number(data) || 0;
     },
-    isSuccessCode(code) {
-      return code === 0 || code === "0";
-    },
     getMeshId(node, fallback) {
       return (
         this.$pixelStream.getNodeMeshId(node) ||
@@ -359,35 +354,6 @@ export default {
       this.directoryPath = directoryId
         ? this.findNodePath(this.treeData, directoryId, []) || []
         : [];
-    },
-    pickPipeline(records, node, meshId) {
-      const list = Array.isArray(records) ? records : [];
-      if (!list.length) return null;
-      const code = this.getMeshId(node, meshId);
-      if (code) {
-        const matched = list.find(item => {
-          return (
-            this.$pixelStream.normalizeMeshId(item.pipelineNo) === code ||
-            this.$pixelStream.normalizeMeshId(item.modelCode) === code ||
-            this.$pixelStream.normalizeMeshId(item.modelNo) === code ||
-            this.$pixelStream.normalizeMeshId(item.pipelineName) === code ||
-            (node &&
-              (item.pipelineName === node.name ||
-                item.pipelineName === node.nodeName ||
-                item.pipelineNo === node.name ||
-                item.pipelineNo === node.nodeName))
-          );
-        });
-        if (matched) return matched;
-      }
-      if (node && (node.name || node.nodeName)) {
-        const name = node.nodeName || node.name;
-        const matched = list.find(
-          item => item.pipelineName === name || item.pipelineNo === name
-        );
-        if (matched) return matched;
-      }
-      return list[0];
     },
     resolveVideoMonitorUrl(data) {
       if (data == null || data === "") return "";
@@ -465,9 +431,7 @@ export default {
       if (meshId) {
         this.syncTreeByMeshId(meshId);
         if (pending) this.applyPendingDetail();
-        return;
       }
-      this.bootstrapPipeline();
     },
     onTreeSelect(node, meshId) {
       const id = this.getMeshId(node, meshId);
@@ -546,77 +510,6 @@ export default {
         this.syncingFromUe = false;
         if (node && node.id) this.updateDirectoryPath(node.id);
       }
-    },
-    bootstrapPipeline() {
-      api
-        .pagePipelines({ current: 1, size: 1 })
-        .then(res => {
-          if (!this.isSuccessCode(res && res.code)) return;
-          const record = this.pickPipeline((res.data && res.data.records) || []);
-          if (!record) return;
-          this.pipelineId = record.id;
-          if (record.directoryId) {
-            this.updateDirectoryPath(record.directoryId);
-            this.$refs.treePanel &&
-              this.$refs.treePanel.setCurrentKey(record.directoryId);
-          }
-        })
-        .catch(() => {});
-    },
-    loadPipelineByDirectory(node, meshId) {
-      if (!node || !node.id) {
-        this.loadPipelineByMeshId(meshId);
-        return;
-      }
-      this.updateDirectoryPath(node.id);
-      api
-        .pagePipelines({
-          directoryId: node.id,
-          current: 1,
-          size: 50
-        })
-        .then(res => {
-          if (!this.isSuccessCode(res && res.code)) {
-            this.loadPipelineByMeshId(meshId, node);
-            return;
-          }
-          const target = this.pickPipeline(
-            (res.data && res.data.records) || [],
-            node,
-            meshId
-          );
-          if (target) {
-            this.pipelineId = target.id;
-            if (target.directoryId) this.updateDirectoryPath(target.directoryId);
-            return;
-          }
-          this.loadPipelineByMeshId(meshId, node);
-        })
-        .catch(() => {
-          this.loadPipelineByMeshId(meshId, node);
-        });
-    },
-    loadPipelineByMeshId(meshId, node) {
-      const id = this.getMeshId(node, meshId);
-      if (!id) return;
-      api
-        .pagePipelines({
-          keyword: id,
-          current: 1,
-          size: 50
-        })
-        .then(res => {
-          if (!this.isSuccessCode(res && res.code)) return;
-          const target = this.pickPipeline(
-            (res.data && res.data.records) || [],
-            node,
-            id
-          );
-          if (!target) return;
-          this.pipelineId = target.id;
-          if (target.directoryId) this.updateDirectoryPath(target.directoryId);
-        })
-        .catch(() => {});
     }
   }
 };
