@@ -3,6 +3,7 @@ import queryForm from "@/components/common/queryForm";
 import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
+import { downloadAuthenticatedFile } from "@/utils/directFileAccess";
 import uploadModelDialog from "../components/uploadModelDialog.vue";
 import editModelInfoDialog from "../components/editModelInfoDialog.vue";
 import modelLibraryDialog from "../components/modelLibraryDialog.vue";
@@ -307,19 +308,9 @@ export default {
       const fileIds = this.getFileIds(row);
       const filename = row.originalName || row.modelName || "模型文件";
       if (fileIds[0]) {
-        return api.downloadSysFile(fileIds[0], filename);
+        return downloadAuthenticatedFile(fileIds[0], filename);
       }
-      const url = row.absoluteFileUrl || row.fileUrl;
-      if (!url) {
-        return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
-      }
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return Promise.resolve();
+      return Promise.reject({ msg: "模型文件缺少文件主键，请重新查询或上传模型" });
     },
     downloadRow(row) {
       this.fetchDetail(row && row.id)

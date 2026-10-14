@@ -106,7 +106,6 @@ import api from "../api";
 
 const ACCEPT_EXTS = ["rvt", "ifc", "fbx", "obj", "glb"];
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
-const FILE_DIRECTORY = "modelFile";
 
 function emptyForm() {
   return {
@@ -284,7 +283,6 @@ export default {
       this.uploading = true;
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("directory", FILE_DIRECTORY);
       api
         .uploadSysFile(formData)
         .then(res => {

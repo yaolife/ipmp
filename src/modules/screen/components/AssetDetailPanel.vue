@@ -173,6 +173,7 @@
 
 <script>
 import api from "@/modules/drafts/api";
+import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { readFrequencyParams } from "@/modules/drafts/naturalFrequency";
 import {
   getComponentTypeItem,
@@ -453,6 +454,7 @@ function nextId() {
 }
 
 export default {
+  mixins: [authenticatedPreviewMixin],
   name: "AssetDetailPanel",
   props: {
     visible: {
@@ -677,6 +679,14 @@ export default {
     }
   },
   watch: {
+    visible(val) {
+      if (val) {
+        this.loadDetail();
+      } else {
+        this.releaseFilePreviews();
+        this.imagePreviews = [];
+      }
+    },
     nodeName: {
       immediate: true,
       handler(val) {
@@ -870,6 +880,7 @@ export default {
       }));
     },
     resetState() {
+      this.releaseFilePreviews();
       this.detail = {};
       this.form = emptyForm();
       this.privateAttrs = [];
@@ -880,6 +891,7 @@ export default {
     loadDetail() {
       if (!this.nodeName) return;
       this.loading = true;
+      this.resetState();
       api
         .getDirectoryDetailByNodeName({
           nodeName: this.nodeName
@@ -892,7 +904,7 @@ export default {
             this.privateAttrs = this.normalizeAttrs(
               this.detail.privateAttributes || this.detail.privateAttrs
             );
-            this.imagePreviews = this.normalizeAttachments(this.detail.attachments);
+            this.loadAuthenticatedImages(this.normalizeAttachments(this.detail.attachments));
             this.relatedSegments = this.normalizeSegments(this.detail.relatedSegments);
             this.maintenanceRecords = this.normalizeMaintenance(
               this.detail.maintenanceRecords

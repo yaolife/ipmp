@@ -845,6 +845,7 @@
 
 <script>
 import api from "../api";
+import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { frequencySupportOptions, readFrequencyParams, writeFrequencyParams } from "../naturalFrequency";
 import { debounce } from "@/utils/funcUtil";
 import {
@@ -1234,6 +1235,7 @@ function nextId() {
 }
 
 export default {
+  mixins: [authenticatedPreviewMixin],
   name: "DirectoryDetail",
   components: {
     TabSvg
@@ -1689,6 +1691,7 @@ export default {
       }));
     },
     resetLocalState() {
+      this.releaseFilePreviews();
       this.form = emptyForm();
       this.privateAttrs = [{ name: "", value: "" }];
       this.imagePreviews = [];
@@ -1716,9 +1719,7 @@ export default {
             this.privateAttrs = this.normalizeAttrs(
               this.detail.privateAttributes || this.detail.privateAttrs
             );
-            this.imagePreviews = this.normalizeAttachments(
-              this.detail.attachments
-            );
+            this.loadAuthenticatedImages(this.normalizeAttachments(this.detail.attachments));
             this.relatedSegments = this.normalizeSegments(
               this.detail.relatedSegments
             );
@@ -1764,6 +1765,7 @@ export default {
     uploadImageFile(file) {
       const tempId = nextId();
       const localUrl = window.URL.createObjectURL(file);
+      this._fileBlobUrls.push(localUrl);
       this.imagePreviews.push({
         id: tempId,
         name: file.name,
@@ -1779,27 +1781,26 @@ export default {
         .then(res => {
           this.uploadingImages = Math.max(0, this.uploadingImages - 1);
           const idx = this.imagePreviews.findIndex(item => item.id === tempId);
-          if (idx < 0) {
+          if (idx < 0 || this._isDestroyed) {
             if (localUrl) window.URL.revokeObjectURL(localUrl);
             return;
           }
-          if (!this.isSuccessCode(res && res.code) || !res.data) {
+          // 公共上传接口返回列表，兼容历史环境的单对象返回。
+          const payload = res && res.data;
+          const data = Array.isArray(payload) ? payload[0] : payload;
+          if (!this.isSuccessCode(res && res.code) || !data || !data.id) {
             this.imagePreviews.splice(idx, 1);
             if (localUrl) window.URL.revokeObjectURL(localUrl);
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
             return;
           }
-          const data = res.data || {};
-          const remoteUrl = this.resolveAttachmentUrl(data);
           this.$set(this.imagePreviews, idx, {
-            id: data.id || "",
+            id: data.id,
             name: data.originalName || file.name,
-            url: remoteUrl || localUrl,
+            // 本次上传继续显示已选择图片的本地Blob；重新查询时按ID认证读取。
+            url: localUrl,
             uploading: false
           });
-          if (remoteUrl && localUrl) {
-            window.URL.revokeObjectURL(localUrl);
-          }
         })
         .catch(err => {
           this.uploadingImages = Math.max(0, this.uploadingImages - 1);

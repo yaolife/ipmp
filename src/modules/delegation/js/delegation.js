@@ -3,10 +3,12 @@ import queryForm from "@/components/common/queryForm";
 import { throttle } from "@/utils/funcUtil";
 import { calcHeight } from "@/utils/funcUtil";
 import api from "../api";
+import { downloadAuthenticatedFile, fetchAuthenticatedFile, authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import componentFormDialog from "../components/componentFormDialog.vue";
 import componentConfirmDialog from "../components/componentConfirmDialog.vue";
 
 export default {
+  mixins: [authenticatedPreviewMixin],
   name: "PipeComponentDatabase",
   components: {
     breadcrumb,
@@ -274,52 +276,36 @@ export default {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     },
-    fetchFileBlob(url) {
-      if (!url) return Promise.reject(new Error("empty url"));
-      return fetch(url, { credentials: "omit" }).then(res => {
-        if (!res.ok) {
-          throw new Error("download fail");
-        }
-        return res.blob();
-      });
-    },
     downloadByFile(row) {
-      const url = this.getAbsoluteFileUrl(row);
-      if (!url) {
+      const fileId = this.getFileId(row);
+      if (!fileId) {
         this.$message.warning(this.$t("lang.no_file_to_download"));
         return Promise.reject({ msg: this.$t("lang.no_file_to_download") });
       }
       const filename = row.originalName || row.componentName || "模型文件";
-      const relativeUrl = this.getRelativeFileUrl(row);
-      return this.fetchFileBlob(url)
-        .catch(() => this.fetchFileBlob(relativeUrl))
-        .then(blob => {
-          this.saveBlobAsFile(blob, filename);
-        })
-        .catch(() => {
-          const iframe = document.createElement("iframe");
-          iframe.style.cssText =
-            "position:absolute;left:-9999px;width:0;height:0;border:0;visibility:hidden;";
-          iframe.src = url;
-          document.body.appendChild(iframe);
-          setTimeout(() => {
-            if (iframe.parentNode) {
-              iframe.parentNode.removeChild(iframe);
-            }
-          }, 30000);
-        });
+      return downloadAuthenticatedFile(fileId, filename);
     },
     previewRow(row) {
+      const preview = window.open("about:blank", "_blank");
+      if (!preview) {
+        this.$message.warning("请允许浏览器打开预览窗口");
+        return;
+      }
+      preview.opener = null;
       this.fetchComponentDetail(row && row.id)
         .then(detail => {
-          const url = this.getAbsoluteFileUrl(detail);
-          if (!url) {
-            this.$message.warning(this.$t("lang.no_file_to_preview"));
-            return;
-          }
-          window.open(url, "_blank");
+          return fetchAuthenticatedFile(this.getFileId(detail));
         })
-        .catch(() => {});
+        .then(({ blob }) => {
+          if (preview.closed || this._isDestroyed) return;
+          const url = window.URL.createObjectURL(blob);
+          this._fileBlobUrls.push(url);
+          preview.location.replace(url);
+        })
+        .catch(error => {
+          preview.close();
+          this.$message.error((error && error.msg) || "预览失败");
+        });
     },
     downloadRow(row) {
       this.fetchComponentDetail(row && row.id)

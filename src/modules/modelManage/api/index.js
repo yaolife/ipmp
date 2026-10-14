@@ -1,4 +1,5 @@
 import axios from "@/api/http";
+import { downloadAuthenticatedFile } from "@/utils/directFileAccess";
 
 const modelResourceUrl = "/model-resources";
 const modelResourceItemUrl = "/model-resource-items";
@@ -144,9 +145,6 @@ export default {
         }).then(res => res.data);
     },
     downloadSysFile: function(id, filename) {
-        return axios.get(sysFileBaseUrl + "/stream/" + id, {
-            responseType: "blob",
-            apiTitle: "获取文件流"
-        }).then(res => saveBlob(res, filename || "模型文件"));
+        return downloadAuthenticatedFile(id, filename || "模型文件");
     }
 };
