@@ -24,11 +24,13 @@
         </div>
         <el-tree
           ref="resourceTree"
+          :key="treeRenderKey"
           node-key="id"
           :data="treeData"
           :props="treeProps"
           highlight-current
-          default-expand-all
+          :default-expand-all="expandAll"
+          :default-expanded-keys="expandedKeys"
           :expand-on-click-node="false"
           :filter-node-method="filterTreeNode"
           class="library-tree-list"
@@ -127,12 +129,71 @@
 import api from "../api";
 import replaceModelFileDialog from "./replaceModelFileDialog.vue";
 
+const FULL_EXPAND_NODE_LIMIT = 400;
+
 function splitFileIds(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
   return String(value || "")
     .split(",")
     .map(item => item.trim())
     .filter(Boolean);
+}
+
+function mergeModel(prev, source) {
+  const data = source || {};
+  const base = prev || {};
+  return {
+    id: data.id || base.id || "",
+    modelName: data.modelName || base.modelName || "",
+    modelCode: data.modelCode || base.modelCode || "",
+    modelType: data.modelType || base.modelType || "",
+    versionNo: data.versionNo || base.versionNo || "",
+    status: data.status != null && data.status !== "" ? data.status : base.status,
+    coordinateSystem: data.coordinateSystem || base.coordinateSystem || "",
+    remark: data.remark != null ? data.remark : base.remark || ""
+  };
+}
+
+function countTreeNodes(list, limit) {
+  let count = 0;
+  const stack = [];
+  const roots = Array.isArray(list) ? list : [];
+  for (let i = 0; i < roots.length; i++) stack.push(roots[i]);
+  while (stack.length) {
+    const node = stack.pop();
+    count += 1;
+    if (count > limit) return count;
+    const children = node && node.children;
+    if (children && children.length) {
+      for (let i = 0; i < children.length; i++) stack.push(children[i]);
+    }
+  }
+  return count;
+}
+
+function collectExpandedKeys(list, limit) {
+  const keys = [];
+  let visible = Array.isArray(list) ? list.length : 0;
+  let frontier = Array.isArray(list) ? list.slice() : [];
+  while (frontier.length) {
+    let add = 0;
+    for (let i = 0; i < frontier.length; i++) {
+      const children = frontier[i] && frontier[i].children;
+      if (children && children.length) add += children.length;
+    }
+    if (!add || visible + add > limit) break;
+    const next = [];
+    for (let i = 0; i < frontier.length; i++) {
+      const node = frontier[i];
+      const children = node && node.children;
+      if (!children || !children.length) continue;
+      if (node.id != null && node.id !== "") keys.push(node.id);
+      for (let j = 0; j < children.length; j++) next.push(children[j]);
+    }
+    visible += add;
+    frontier = next;
+  }
+  return keys;
 }
 
 export default {
@@ -146,6 +207,10 @@ export default {
       pageLoading: false,
       treeLoading: false,
       loading: false,
+      requestSeq: 0,
+      treeRenderKey: 0,
+      expandAll: true,
+      expandedKeys: [],
       model: {},
       filterText: "",
       treeData: [],
@@ -220,7 +285,10 @@ export default {
       });
     },
     open(detail) {
-      this.model = detail || {};
+      const source = detail || {};
+      const seq = ++this.requestSeq;
+      const cachedTree = source.resourceDirectoryTree;
+      this.model = mergeModel({}, source);
       this.filterText = "";
       this.keyword = "";
       this.current = 1;
@@ -230,16 +298,31 @@ export default {
       this.tableData = [];
       this.total = 0;
       this.multipleSelection = [];
+      this.treeData = [];
+      this.treeLoading = false;
+      this.pageLoading = true;
       this.dialogVisible = true;
       this.$nextTick(() => {
+        if (seq !== this.requestSeq || !this.dialogVisible) return;
         this.clearSelection();
-        this.applyTree(this.model.resourceDirectoryTree);
       });
+      if (Array.isArray(cachedTree) && cachedTree.length) {
+        setTimeout(() => {
+          if (seq !== this.requestSeq || !this.dialogVisible) return;
+          this.applyTree(cachedTree);
+          this.pageLoading = false;
+        }, 0);
+        return;
+      }
+      this.loadTree(seq);
     },
     close() {
       this.dialogVisible = false;
     },
     onClose() {
+      this.requestSeq += 1;
+      this.pageLoading = false;
+      this.treeLoading = false;
       this.model = {};
       this.treeData = [];
       this.tableData = [];
@@ -249,38 +332,46 @@ export default {
       this.multipleSelection = [];
     },
     applyTree(tree) {
-      this.treeData = Array.isArray(tree) ? tree : [];
+      const list = Array.isArray(tree) ? tree.slice() : [];
+      this.expandAll = countTreeNodes(list, FULL_EXPAND_NODE_LIMIT) <= FULL_EXPAND_NODE_LIMIT;
+      this.expandedKeys = this.expandAll ? [] : collectExpandedKeys(list, FULL_EXPAND_NODE_LIMIT);
+      this.treeRenderKey += 1;
+      this.treeData = Object.freeze(list);
       this.$nextTick(() => {
-        if (this.$refs.resourceTree) {
-          this.$refs.resourceTree.setCurrentKey(
-            this.currentNode && this.currentNode.id ? this.currentNode.id : null
-          );
+        if (!this.dialogVisible || !this.$refs.resourceTree) return;
+        const currentId = this.currentNode && this.currentNode.id;
+        this.$refs.resourceTree.setCurrentKey(currentId || null);
+        if (this.filterText) {
+          this.$refs.resourceTree.filter((this.filterText || "").trim());
         }
       });
     },
-    loadTree() {
+    loadTree(seq) {
+      const token = seq == null ? this.requestSeq : seq;
       if (!this.model.id) {
-        this.applyTree(this.model.resourceDirectoryTree);
+        this.pageLoading = false;
+        this.applyTree([]);
         return;
       }
-      this.treeLoading = true;
+      this.pageLoading = true;
       api
         .getModelResourceDetail(this.model.id)
         .then(res => {
-          this.treeLoading = false;
+          if (token !== this.requestSeq || !this.dialogVisible) return;
           if (this.isSuccessCode(res && res.code) && res.data) {
-            this.model = Object.assign({}, this.model, res.data);
+            this.model = mergeModel(this.model, res.data);
             this.applyTree(res.data.resourceDirectoryTree);
           } else {
-            this.applyTree(this.model.resourceDirectoryTree);
-            if (res && !this.isSuccessCode(res.code)) {
-              this.$message.error((res && res.msg) || this.$t("cm.fail"));
-            }
+            this.applyTree([]);
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
           }
+          this.pageLoading = false;
         })
         .catch(() => {
-          this.treeLoading = false;
-          this.applyTree(this.model.resourceDirectoryTree);
+          if (token !== this.requestSeq || !this.dialogVisible) return;
+          this.pageLoading = false;
+          this.applyTree([]);
+          this.$message.error(this.$t("cm.fail"));
         });
     },
     getNodeLevel(data) {
@@ -420,7 +511,8 @@ export default {
       this.loadChildrenToTable(this.currentNode);
     },
     updateModel(detail) {
-      if (detail) this.model = Object.assign({}, this.model, detail);
+      if (!detail) return;
+      this.model = mergeModel(this.model, detail);
     },
     editItem(row) {
       if (!row) return;

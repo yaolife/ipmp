@@ -227,11 +227,8 @@ export default {
         });
     },
     editRow(row) {
-      this.fetchDetail(row && row.id)
-        .then(detail => {
-          this.$refs.libraryDialog && this.$refs.libraryDialog.open(detail);
-        })
-        .catch(() => {});
+      if (!row || !this.$refs.libraryDialog) return;
+      this.$refs.libraryDialog.open(row);
     },
     openEditModel(model) {
       this.fetchDetail(model && model.id)
