@@ -68,45 +68,46 @@
 
             <div v-show="smallTab === 'input'" class="tab-panel">
               <div class="section-title">管段几何与集中质量</div>
-              <div class="form-row form-row-equal-4" v-for="(row, index) in pipeRows" :key="'pipe-' + index">
-                <div class="form-group">
-                  <label>管段{{ index + 1 }} 外径 Do (mm)</label>
-                  <input type="number" step="0.01" v-model.number="form.Do[index]" @input="scheduleCalc">
+              <div class="text-sm text-muted">管段2、3为选填，长度留空或为0时不参与计算；每个管段分别填写材料、流体及保温参数。</div>
+              <div v-for="(row, index) in pipeRows" :key="'pipe-' + index" class="parameter-block">
+                <div class="section-title">管段{{ index + 1 }}</div>
+                <div class="form-row form-row-equal-4">
+                  <div class="form-group">
+                    <label>外径 Do (mm)</label>
+                    <input type="number" step="0.01" v-model.number="form.Do[index]" @input="scheduleCalc">
+                  </div>
+                  <div class="form-group">
+                    <label>壁厚 tp (mm)</label>
+                    <input type="number" step="0.01" v-model.number="form.tp[index]" @input="scheduleCalc">
+                  </div>
+                  <div class="form-group">
+                    <label>长度 Lp (mm)</label>
+                    <input type="number" step="1" v-model.number="form.Lp[index]" @input="scheduleCalc">
+                  </div>
+                  <div class="form-group">
+                    <label>阀门集中质量 mv (kg)</label>
+                    <input type="number" step="0.01" v-model.number="form.mv[index]" @input="scheduleCalc">
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label>管段{{ index + 1 }} 壁厚 tp (mm)</label>
-                  <input type="number" step="0.01" v-model.number="form.tp[index]" @input="scheduleCalc">
-                </div>
-                <div class="form-group">
-                  <label>管段{{ index + 1 }} 长度 Lp (mm)</label>
-                  <input type="number" step="1" v-model.number="form.Lp[index]" @input="scheduleCalc">
-                </div>
-                <div class="form-group">
-                  <label>管段{{ index + 1 }} 阀门集中质量 mv (kg)</label>
-                  <input type="number" step="0.01" v-model.number="form.mv[index]" @input="scheduleCalc">
+                <div class="form-row form-row-equal-4">
+                  <div class="form-group">
+                    <label>管材密度 ρp (kg/m³)</label>
+                    <input type="number" step="1" v-model.number="form.rho_p[index]" @input="scheduleCalc">
+                  </div>
+                  <div class="form-group">
+                    <label>流体密度 ρf (kg/m³)</label>
+                    <input type="number" step="0.1" v-model.number="form.rho_f[index]" @input="scheduleCalc">
+                  </div>
+                  <div class="form-group">
+                    <label>保温层密度 ρin (kg/m³)</label>
+                    <input type="number" step="1" v-model.number="form.rho_in[index]" @input="scheduleCalc">
+                  </div>
+                  <div class="form-group">
+                    <label>保温层厚度 tin (mm)</label>
+                    <input type="number" step="0.1" v-model.number="form.tin[index]" @input="scheduleCalc">
+                  </div>
                 </div>
               </div>
-
-              <div class="section-title">材料 / 流体 / 保温</div>
-              <div class="form-row form-row-equal-4">
-                <div class="form-group">
-                  <label>管材密度 ρp (kg/m³)</label>
-                  <input type="number" step="1" v-model.number="form.rho_p" @input="scheduleCalc">
-                </div>
-                <div class="form-group">
-                  <label>流体密度 ρf (kg/m³)</label>
-                  <input type="number" step="0.1" v-model.number="form.rho_f" @input="scheduleCalc">
-                </div>
-                <div class="form-group">
-                  <label>保温层密度 ρin (kg/m³)</label>
-                  <input type="number" step="1" v-model.number="form.rho_in" @input="scheduleCalc">
-                </div>
-                <div class="form-group">
-                  <label>保温层厚度 tin (mm)</label>
-                  <input type="number" step="0.1" v-model.number="form.tin" @input="scheduleCalc">
-                </div>
-              </div>
-
               <div class="section-title">焊缝 / 形状</div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
@@ -547,10 +548,10 @@ function defaultForm() {
     tp: [null, null, null],
     Lp: [null, null, null],
     mv: [null, null, null],
-    rho_p: null,
-    rho_f: null,
-    rho_in: null,
-    tin: null,
+    rho_p: [null, null, null],
+    rho_f: [null, null, null],
+    rho_in: [null, null, null],
+    tin: [null, null, null],
     hfRoot: false,
     weldType: "",
     endCondition: "",
@@ -712,8 +713,11 @@ export default {
         null
       );
       if (lengthM != null) this.form.Lp.splice(0, 1, lengthM * 1000);
-      this.form.rho_p = pickNum(detail.materialDensity, this.form.rho_p);
-      this.form.rho_f = pickNum(detail.fluidDensity, this.form.rho_f);
+      // 台账仅描述当前管段，自动加载第1段；第2、3段参数由用户按实际支管分别填写。
+      this.form.rho_p.splice(0, 1, pickNum(detail.materialDensity, this.form.rho_p[0]));
+      this.form.rho_f.splice(0, 1, pickNum(detail.fluidDensity, this.form.rho_f[0]));
+      this.form.rho_in.splice(0, 1, pickNum(detail.insulationDensity, this.form.rho_in[0]));
+      this.form.tin.splice(0, 1, pickNum(detail.insulationThickness, this.form.tin[0]));
       this.form.Sa_T = pickNum(detail.fatigueLimit, this.form.Sa_T);
       this.form.operatingTemp = pickNum(
         detail.operatingTemperature != null
@@ -817,10 +821,18 @@ export default {
           tp3: this.form.tp[2],
           lp3: this.form.Lp[2],
           mv3: this.form.mv[2],
-          materialDensity: this.form.rho_p,
-          fluidDensity: this.form.rho_f,
-          insulationDensity: this.form.rho_in,
-          insulationThickness: this.form.tin,
+          materialDensity1: this.form.rho_p[0],
+          materialDensity2: this.form.rho_p[1],
+          materialDensity3: this.form.rho_p[2],
+          fluidDensity1: this.form.rho_f[0],
+          fluidDensity2: this.form.rho_f[1],
+          fluidDensity3: this.form.rho_f[2],
+          insulationDensity1: this.form.rho_in[0],
+          insulationDensity2: this.form.rho_in[1],
+          insulationDensity3: this.form.rho_in[2],
+          insulationThickness1: this.form.tin[0],
+          insulationThickness2: this.form.tin[1],
+          insulationThickness3: this.form.tin[2],
           weldType: this.form.weldType,
           endCondition: this.form.endCondition,
           operatingTemperature: this.form.operatingTemp,
@@ -1031,10 +1043,11 @@ export default {
       this.form.Lp = [parameters.lp1, parameters.lp2, parameters.lp3];
       this.form.mv = [parameters.mv1, parameters.mv2, parameters.mv3];
       Object.assign(this.form, {
-        rho_p: parameters.materialDensity,
-        rho_f: parameters.fluidDensity,
-        rho_in: parameters.insulationDensity,
-        tin: parameters.insulationThickness,
+        // 旧版本公共值曾应用于全部有效管段，回显时延续该语义；零值也必须保留。
+        rho_p: [1, 2, 3].map(i => parameters['materialDensity' + i] == null ? parameters.materialDensity : parameters['materialDensity' + i]),
+        rho_f: [1, 2, 3].map(i => parameters['fluidDensity' + i] == null ? parameters.fluidDensity : parameters['fluidDensity' + i]),
+        rho_in: [1, 2, 3].map(i => parameters['insulationDensity' + i] == null ? parameters.insulationDensity : parameters['insulationDensity' + i]),
+        tin: [1, 2, 3].map(i => parameters['insulationThickness' + i] == null ? parameters.insulationThickness : parameters['insulationThickness' + i]),
         weldType: normalizeWeldType(parameters.weldType),
         endCondition: parameters.endCondition,
         operatingTemp: parameters.operatingTemperature,

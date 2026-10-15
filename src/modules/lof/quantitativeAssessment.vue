@@ -163,13 +163,13 @@
               </div>
               <div class="form-row form-row-2 hfa-count-row">
                 <div class="form-group">
-                  <label>声源数</label>
+                  <label>声源数量</label>
                   <select v-model.number="hfa.sourceCount" @change="syncHfaSourceCount">
                     <option v-for="count in hfaCountOptions" :key="'source-count-' + count" :value="count">{{ count }}</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>不连续点数</label>
+                  <label>焊接不连续点数量</label>
                   <select v-model.number="hfa.discontinuityCount" @change="syncHfaDiscontinuityCount">
                     <option v-for="count in hfaCountOptions" :key="'point-count-' + count" :value="count">{{ count }}</option>
                   </select>
