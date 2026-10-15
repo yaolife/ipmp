@@ -189,9 +189,12 @@ export default {
         this.$t("cm.fail")
       );
     },
-    fetchDetail(id) {
+    fetchDetail(id, forEdit = false) {
       if (!id) return Promise.reject({ msg: this.$t("cm.fail") });
-      return api.getModelResourceDetail(id).then(res => {
+      const request = forEdit
+        ? api.getModelResourceEditDetail(id)
+        : api.getModelResourceDetail(id);
+      return request.then(res => {
         if (this.isSuccessCode(res && res.code) && res.data) {
           return this.mapRow(res.data);
         }
@@ -231,7 +234,7 @@ export default {
       this.$refs.libraryDialog.open(row);
     },
     openEditModel(model) {
-      this.fetchDetail(model && model.id)
+      this.fetchDetail(model && model.id, true)
         .then(detail => {
           this.$refs.editInfoDialog && this.$refs.editInfoDialog.open(detail);
         })
@@ -248,7 +251,10 @@ export default {
             this.$message.success(this.$t("cm.edit_succ"));
             this.getList();
             if (this.$refs.libraryDialog) {
-              this.$refs.libraryDialog.updateModel(res.data || payload);
+              // 保存接口只返回操作结果；用已提交的元数据回显，保留原有文件关联与目录树。
+              const metadata = Object.assign({}, payload);
+              delete metadata.fileIds;
+              this.$refs.libraryDialog.updateModel(metadata);
             }
           } else {
             this.$message.error((res && res.msg) || this.$t("cm.fail"));
@@ -310,7 +316,8 @@ export default {
       return Promise.reject({ msg: "模型文件缺少文件主键，请重新查询或上传模型" });
     },
     downloadRow(row) {
-      this.fetchDetail(row && row.id)
+      // 下载信息接口按文件ID返回原始文件名和认证信息，无需预加载整棵树的文件对象。
+      this.fetchDetail(row && row.id, true)
         .then(detail => this.downloadByRow(detail))
         .then(() => {
           this.$message.success(this.$t("cm.download") + this.$t("cm.success"));

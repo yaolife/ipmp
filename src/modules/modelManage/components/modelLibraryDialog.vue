@@ -355,7 +355,7 @@ export default {
       }
       this.pageLoading = true;
       api
-        .getModelResourceDetail(this.model.id)
+        .getModelResourceEditDetail(this.model.id)
         .then(res => {
           if (token !== this.requestSeq || !this.dialogVisible) return;
           if (this.isSuccessCode(res && res.code) && res.data) {

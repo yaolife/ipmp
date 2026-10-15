@@ -58,6 +58,12 @@ export default {
             apiTitle: "查询模型详情"
         }).then(res => res.data);
     },
+    // 一次加载模型基本信息及精简目录树，节点详情和文件在点击后查询。
+    getModelResourceEditDetail: function(id) {
+        return axios.get(modelResourceUrl + "/edit-detail/" + id, {
+            apiTitle: "查询模型编辑详情"
+        }).then(res => res.data);
+    },
     createModelResource: function(params) {
         return axios.post(modelResourceUrl, params, {
             apiTitle: "创建模型资源"
