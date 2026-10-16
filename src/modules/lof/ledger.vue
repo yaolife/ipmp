@@ -79,38 +79,38 @@
                 @selection-change="onSelectionChange"
                 @sort-change="onSortChange"
               >
-                <el-table-column type="selection" width="45"></el-table-column>
-                <el-table-column label="KKS" min-width="150">
+                <el-table-column type="selection" width="45" align="center"></el-table-column>
+                <el-table-column label="KKS" min-width="150" align="center" header-align="center">
                   <template slot-scope="scope">{{ kksText(scope.row) }}</template>
                 </el-table-column>
-                <el-table-column prop="nodeName" label="管段名称" min-width="170" show-overflow-tooltip></el-table-column>
-                <el-table-column label="起止支撑" min-width="170">
+                <el-table-column prop="nodeName" label="管段名称" min-width="170" align="center" header-align="center" show-overflow-tooltip></el-table-column>
+                <el-table-column label="起止支撑" min-width="170" align="center" header-align="center">
                   <template slot-scope="scope">{{ supportRange(scope.row) }}</template>
                 </el-table-column>
-                <el-table-column prop="spanReference" label="跨距(m)" width="92"></el-table-column>
-                <el-table-column prop="outerDiameter" label="外径(mm)" width="98"></el-table-column>
-                <el-table-column prop="wallThickness" label="壁厚(mm)" width="98"></el-table-column>
-                <el-table-column prop="workingMedium" label="介质" min-width="110"></el-table-column>
-                <el-table-column label="介质类型" min-width="110">
+                <el-table-column prop="spanReference" label="跨距(m)" width="92" align="center" header-align="center"></el-table-column>
+                <el-table-column prop="outerDiameter" label="外径(mm)" width="98" align="center" header-align="center"></el-table-column>
+                <el-table-column prop="wallThickness" label="壁厚(mm)" width="98" align="center" header-align="center"></el-table-column>
+                <el-table-column prop="workingMedium" label="介质" min-width="110" align="center" header-align="center"></el-table-column>
+                <el-table-column label="介质类型" min-width="110" align="center" header-align="center">
                   <template slot-scope="scope">{{ mediumTypeText(scope.row.mediumType) }}</template>
                 </el-table-column>
-                <el-table-column prop="operatingPressure" label="压力(MPa)" width="105"></el-table-column>
-                <el-table-column prop="operatingTemperature" label="温度(℃)" width="92"></el-table-column>
-                <el-table-column label="质量流量(kg/s)" width="128">
+                <el-table-column prop="operatingPressure" label="压力(MPa)" width="105" align="center" header-align="center"></el-table-column>
+                <el-table-column prop="operatingTemperature" label="温度(℃)" width="92" align="center" header-align="center"></el-table-column>
+                <el-table-column label="质量流量(kg/s)" width="128" align="center" header-align="center">
                   <template slot-scope="scope">{{ numberText(scope.row.massFlow, 4) }}</template>
                 </el-table-column>
-                <el-table-column prop="supportType" label="支撑类型" width="100"></el-table-column>
-                <el-table-column prop="mainLof" label="Main_LOF" width="105" sortable="custom">
+                <el-table-column prop="supportType" label="支撑类型" width="100" align="center" header-align="center"></el-table-column>
+                <el-table-column prop="mainLof" label="Main_LOF" width="105" align="center" header-align="center" sortable="custom">
                   <template slot-scope="scope">{{ numberText(scope.row.mainLof, 4) }}</template>
                 </el-table-column>
-                <el-table-column label="风险等级" width="100">
+                <el-table-column label="风险等级" width="100" align="center" header-align="center">
                   <template slot-scope="scope">
                     <span class="badge" :class="riskMeta(scope.row.riskLevel).className">
                       {{ riskMeta(scope.row.riskLevel).text }}
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column label="数据完整性" width="110">
+                <el-table-column label="数据完整性" width="110" align="center" header-align="center">
                   <template slot-scope="scope">
                     <el-tooltip
                       :disabled="scope.row.completeness === 1"
@@ -123,10 +123,10 @@
                     </el-tooltip>
                   </template>
                 </el-table-column>
-                <el-table-column label="分析状态" min-width="125">
+                <el-table-column label="分析状态" min-width="125" align="center" header-align="center">
                   <template slot-scope="scope">{{ analysisStatusText(scope.row.analysisStatus) }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="430">
+                <el-table-column label="操作" width="430" align="center" header-align="center">
                   <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="openDetail(scope.row)">查看</el-button>
                     <el-button type="text" size="mini" @click="openEdit(scope.row)">编辑参数</el-button>
@@ -736,6 +736,11 @@ export default {
 
 .ledger-table-body .el-table {
   flex: 1;
+}
+
+.ledger-table-body /deep/ .el-table th,
+.ledger-table-body /deep/ .el-table td {
+  text-align: center;
 }
 
 .ledger-pagination {

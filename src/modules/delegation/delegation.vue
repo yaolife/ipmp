@@ -51,14 +51,14 @@
               align="center"
               type="index"
               :label="$t('cm.no')"
-              width="60"
+              width="48"
               :index="indexMethod"
             ></el-table-column>
             <el-table-column
               align="center"
               prop="componentName"
               :label="$t('lang.component_name')"
-              min-width="180"
+              min-width="130"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
@@ -104,7 +104,7 @@
               align="center"
               prop="createUserName"
               :label="$t('lang.upload_user_name')"
-              min-width="120"
+              min-width="170"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
@@ -125,13 +125,13 @@
               align="center"
               prop="modifyUserName"
               :label="$t('lang.modify_user_name')"
-              min-width="120"
+              min-width="170"
               show-overflow-tooltip
             ></el-table-column>
             <el-table-column
               align="center"
               :label="$t('cm.operate')"
-              width="180"
+              width="148"
               fixed="right"
             >
               <template slot-scope="scope">
