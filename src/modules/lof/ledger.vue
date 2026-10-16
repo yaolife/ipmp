@@ -30,7 +30,7 @@
                 <el-button
                   size="small"
                   :loading="batchAnalyzing"
-                  :disabled="batchAnalyzing || !records.length"
+                  :disabled="batchAnalyzing || pageLoading || !selectedRows.length"
                   @click="startBatchAnalysis"
                 >一键自动分析</el-button>
                 <el-button size="small" @click="syncLedger">批量同步</el-button>
@@ -387,6 +387,7 @@ export default {
       });
     },
     loadPage() {
+      this.selectedRows = [];
       this.pageLoading = true;
       api.pageLedger(this.query).then(res => {
         this.pageLoading = false;
@@ -508,22 +509,25 @@ export default {
       this.$message.info("三维定位需要三维引擎页面配合，当前已定位到所选系统范围");
     },
     /**
-     * 按原型逐条执行台账自动分析：先保存 TM01，再使用管段台账参数保存 TM02。
+     * 仅对勾选的管段执行自动分析：先保存 TM01，再使用管段台账参数保存 TM02。
      * TM05 依赖小支管结构、实测振动和动应力参数，当前台账不包含这些数据，
      * 因此不能为了显示“已完成”而伪造 TM05 结果，后续由用户在 TM05 页面补充后保存。
      */
     startBatchAnalysis() {
-      if (!this.records.length) {
-        this.$message.warning("当前没有可分析的管段");
+      if (this.batchAnalyzing || this.pageLoading) return;
+      if (!this.selectedRows.length) {
+        this.$message.warning("请先勾选需要分析的管段");
         return;
       }
+      // 确认前固定勾选范围，避免弹窗打开后列表或筛选变化影响本次分析。
+      const segmentIds = this.selectedRows.map(row => row.id);
       this.$confirm(
-        "将对当前筛选范围内的全部管段逐条执行定性评估和定量评估并保存版本，是否继续？",
+        "将对勾选的 " + segmentIds.length + " 条管段执行定性评估和定量评估并保存版本，是否继续？",
         "一键自动分析",
         { type: "warning" }
       ).then(() => {
         this.batchAnalyzing = true;
-        return api.autoAnalyzeLedger(this.query);
+        return api.autoAnalyzeLedger({ segmentIds });
       }).then(response => {
         this.batchAnalyzing = false;
         if (!this.isSuccessCode(response && response.code)) {
