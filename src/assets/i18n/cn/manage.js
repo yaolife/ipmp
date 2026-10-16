@@ -307,6 +307,8 @@ export const lang = {
     status_disabled: "已停用",
     status_abnormal: "异常",
     status_to_confirm: "待确认",
+    component_type_system: "系统",
+    component_type_main_segment: "主管段",
     component_type_pipe: "管道",
     component_type_elbow: "弯头",
     component_type_tee: "三通",

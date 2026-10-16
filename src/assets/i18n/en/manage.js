@@ -319,6 +319,8 @@ export const lang = {
   status_abnormal: 'Abnormal',
   status_to_confirm: 'To Confirm',
   component_type: 'Component Type',
+  component_type_system: 'System',
+  component_type_main_segment: 'Main Pipe Segment',
   component_type_pipe: 'Pipe',
   component_type_elbow: 'Elbow',
   component_type_tee: 'Tee',

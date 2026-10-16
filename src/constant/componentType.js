@@ -1,8 +1,10 @@
 /**
  * 全局管道元件类型
- * 与后端枚举保持一致：PIPE(0), ELBOW(1), ...
+ * 与后端枚举保持一致：系统(-1)、主管段(-2)及元件类型；主管段按系统节点的直接子级识别。
  */
 export const COMPONENT_TYPES = [
+  { code: -1, key: "SYSTEM", i18nKey: "lang.component_type_system" }, // 系统
+  { code: -2, key: "MAIN_SEGMENT", i18nKey: "lang.component_type_main_segment" }, // 主管段
   { code: 0, key: "PIPE", i18nKey: "lang.component_type_pipe" }, // 管道
   { code: 1, key: "ELBOW", i18nKey: "lang.component_type_elbow" }, // 弯头
   { code: 2, key: "TEE", i18nKey: "lang.component_type_tee" }, // 三通
