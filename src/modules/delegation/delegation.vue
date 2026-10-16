@@ -51,7 +51,7 @@
               align="center"
               type="index"
               :label="$t('cm.no')"
-              width="48"
+              width="64"
               :index="indexMethod"
             ></el-table-column>
             <el-table-column

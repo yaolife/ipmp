@@ -100,7 +100,7 @@
                   <template slot-scope="scope">{{ numberText(scope.row.massFlow, 4) }}</template>
                 </el-table-column>
                 <el-table-column prop="supportType" label="支撑类型" width="100" align="center" header-align="center"></el-table-column>
-                <el-table-column prop="mainLof" label="Main_LOF" width="105" align="center" header-align="center" sortable="custom">
+                <el-table-column prop="mainLof" label="Main_LOF" width="136" align="center" header-align="center" sortable="custom">
                   <template slot-scope="scope">{{ numberText(scope.row.mainLof, 4) }}</template>
                 </el-table-column>
                 <el-table-column label="风险等级" width="100" align="center" header-align="center">
@@ -741,6 +741,19 @@ export default {
 .ledger-table-body /deep/ .el-table th,
 .ledger-table-body /deep/ .el-table td {
   text-align: center;
+}
+
+.ledger-table-body /deep/ .el-table th.is-sortable > .cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.ledger-table-body /deep/ .el-table th.is-sortable .caret-wrapper {
+  flex: 0 0 auto;
+  height: 24px;
 }
 
 .ledger-pagination {
