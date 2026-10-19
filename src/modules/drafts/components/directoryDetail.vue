@@ -9,7 +9,7 @@
         <span class="crumb-current">{{ $t("lang.add_edit_component") }}</span>
       </div>
       <div class="detail-top-actions">
-        <span class="save-status">{{ $t("lang.pending_save") }}</span>
+        <span v-if="false" class="save-status">{{ $t("lang.pending_save") }}</span>
         <el-button size="small" @click="$emit('back')">{{
           $t("cm.cancel")
         }}</el-button>
