@@ -63,6 +63,11 @@
             "resource": "lofVibrationCheck"
           }
         ]
+      },
+      {
+        "name": "lang.pipe_stress_analysis",
+        "url": "/pipeStressAnalysis",
+        "resource": "pipeStressAnalysis"
       }
     ]
   },

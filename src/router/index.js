@@ -24,6 +24,7 @@ import lofLedger from "@/modules/lof/ledger.vue";
 import qualitativeAssessment from "@/modules/lof/qualitativeAssessment.vue";
 import quantitativeAssessment from "@/modules/lof/quantitativeAssessment.vue";
 import vibrationCheck from "@/modules/lof/vibrationCheck.vue";
+import pipeStressAnalysis from "@/modules/pipeStressAnalysis/pipeStressAnalysis.vue";
 
 // 用户中心
 import userinfo from "@/modules/authManage/userCenter/view/userinfo";
@@ -175,6 +176,12 @@ const _router = new Router({
           name: "振动校核",
           component: vibrationCheck,
           meta: "lofVibrationCheck"
+        },
+        {
+          path: "/pipeStressAnalysis",
+          name: "管网应力分析",
+          component: pipeStressAnalysis,
+          meta: "pipeStressAnalysis"
         },
         // 用户中心
         {
