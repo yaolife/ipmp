@@ -252,7 +252,7 @@ export const lang = {
     component_detail_title: "管道详情",
     component_detail_tip: "填写管道基础信息、LOF 基础输入参数、技术参数及关联关系",
     pipe_detail_tip: "填写管道基础信息、LOF 基础输入参数、技术参数及关联关系",
-    pending_save: "待保存",
+    pending_save: "保存草稿",
     add_private_attr: "添加私有属性",
     image_upload_path: "图片上传 / 图片相对路径",
     example_image: "示例图",

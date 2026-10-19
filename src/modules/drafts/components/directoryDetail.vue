@@ -9,10 +9,7 @@
         <span class="crumb-current">{{ $t("lang.add_edit_component") }}</span>
       </div>
       <div class="detail-top-actions">
-        <span class="save-status">
-          <i class="status-dot"></i>
-          {{ $t("lang.pending_save") }}
-        </span>
+        <span class="save-status">{{ $t("lang.pending_save") }}</span>
         <el-button size="small" @click="$emit('back')">{{
           $t("cm.cancel")
         }}</el-button>
@@ -2091,19 +2088,22 @@ export default {
 .save-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 15px;
   font-size: 12px;
-  color: #909399;
-  background: #f4f6f9;
-  border: 1px solid #e6e8eb;
-  border-radius: 6px;
-  padding: 4px 10px;
+  line-height: 1;
+  color: #606266;
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  cursor: pointer;
 }
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #f59e0b;
+.save-status:hover {
+  color: #409eff;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
 }
 .detail-head-card,
 .detail-body-card {

@@ -263,7 +263,7 @@ export const lang = {
   component_detail_title: 'Pipeline Detail',
   component_detail_tip: 'Fill in pipeline basic information, LOF inputs, technical parameters and relations',
   pipe_detail_tip: 'Fill in pipeline basic information, LOF inputs, technical parameters and relations',
-  pending_save: 'Unsaved',
+  pending_save: 'Save Draft',
   add_private_attr: 'Add Private Attribute',
   image_upload_path: 'Image Upload / Relative Path',
   example_image: 'Sample Image',
