@@ -536,7 +536,7 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group"><label>设备功率 (kW)</label><input type="number" v-model.number="other.reciprocating.power" @input="scheduleRecalc"></div>
                 <div class="form-group"><label>排放压力 (bar)</label><input type="number" v-model.number="other.reciprocating.pressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>具有脉动分析报告</label><select v-model="other.reciprocating.hasReport" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
+                <div class="form-group"><label>设备具体信息已知</label><select v-model="other.reciprocating.equipmentKnown" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="1">是</option><option :value="0">否</option></select></div>
                 <div class="form-group"><label>通过 API 618 分析</label><select v-model="other.reciprocating.passApi618" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
               </div>
               <div class="section-title">离心旋转失速</div>
@@ -561,6 +561,10 @@
                 <div class="form-group"><label>允许荷载 Flim（自动）</label><input type="number" :value="other.waterHammer.loadLimit" readonly></div>
               </div>
               <div class="section-title">空化闪蒸</div>
+              <div class="form-row form-row-2">
+                <div class="form-group"><label>压降是否由阀门引起</label><select v-model="other.cavitation.pressureDropByValve" @change="scheduleRecalc"><option :value="null">请选择</option><option :value="1">是</option><option :value="0">否</option></select></div>
+                <div class="form-group" v-if="other.cavitation.pressureDropByValve !== 0"><label>阀门类型</label><select v-model="other.cavitation.valveType" @change="scheduleRecalc"><option value="">请选择</option><option value="球阀">球阀</option><option value="蝶阀">蝶阀</option><option value="截止阀">截止阀</option><option value="闸阀">闸阀</option></select></div>
+              </div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group"><label>上游压力 P1 (Pa)</label><input type="number" v-model.number="other.cavitation.upstreamPressure" @input="scheduleRecalc"></div>
                 <div class="form-group"><label>下游压力 P2 (Pa)</label><input type="number" v-model.number="other.cavitation.downstreamPressure" @input="scheduleRecalc"></div>
@@ -720,18 +724,20 @@ const FACTOR_DEFINITIONS = [
   { id: "f1", name: "流动湍流", note: "按管段工况参数计算" },
   { id: "f2", name: "高频声学", note: "按声源和不连续点参数计算" },
   { id: "f3", name: "机械激励", note: "按配套设备类型查表" },
-  { id: "f4", name: "往复脉动", note: "按功率、压力、脉动报告和 API 618 结论计算" },
+  { id: "f4", name: "往复脉动", note: "按设备信息、功率、压力和分析结论计算" },
   { id: "f5", name: "离心旋转失速", note: "按失速特性和低流量工况计算" },
   { id: "f6", name: "死支管涡激", note: "先比较支管直径与临界管径，再判断 Fe/Fs" },
   { id: "f7", name: "阀门水锤", note: "按工况判断，通常取 Fmax / Flim" },
-  { id: "f8", name: "空化闪蒸", note: "由压降和蒸汽压判断是否发生及机理" }
+  { id: "f8", name: "空化闪蒸", note: "由压降和蒸汽压判断是否发生及机理" },
+  { id: "f9", name: "段塞流", note: "由管段基础数据或关联定性评估确定，存在段塞流时 LOF=1" }
 ];
 
 const FACTOR_TRACE = {
   f1: { meaning: "流动介质湍流脉动对管道产生的振动失效可能性。", formula: "LOF = ρ × v² × FVF / Fv" },
   f2: { meaning: "节流、压降和音速流形成的高频声学能量对不连续点的影响。", formula: "按各声源PWL、沿程衰减、不连续点修正和材料修正计算LOF。" },
   f3: { meaning: "配套旋转或往复设备传递到管道的机械振动风险。", formula: "根据设备类型对应的机械激励LOF表取值。" },
-  f4: { meaning: "往复泵或压缩机产生的压力脉动风险。", formula: "根据设备功率、排放压力、脉动报告及API 618/674符合性分级。" },
+  f4: { meaning: "往复泵或压缩机产生的压力脉动风险。", formula: "设备信息未知取1；已知且功率小于112kW、压力小于35bar，或分析通过时取0.4；其余取1。" },
+  f9: { meaning: "段塞流造成的瞬态冲击风险。", formula: "优先使用关联定性评估s8：中或高取1，低则排除；无该评分时按基础数据段塞流标识判断。" },
   f5: { meaning: "离心设备在低流量或失速工况下产生的激励风险。", formula: "特性未知取1.0；已知且无失速取0.2；已知有失速时，低流量取1.0，否则取0.4。" },
   f6: { meaning: "封闭死支管内声学驻波与主管激励耦合产生的风险。", formula: "支管直径小于临界管径取0.2；否则Fe/Fs≥1取1.0，低于1取0.29。" },
   f7: { meaning: "快动阀动作造成瞬态压力冲击的风险。", formula: "通常LOF=Fmax/Flim；液体或多相阀关闭且由原始参数计算时，另按关阀工况条件判定。Ψ已用于Flim，不再重复相乘。" },
@@ -782,10 +788,10 @@ function defaultSbc() {
 
 const THERMO_METRICS = {
   Dint: { name: "内径 Dint", meaning: "热电偶套管安装位置处的主管流通内径。", formula: "Dint = Dext - 2 × T" },
-  Re: { name: "雷诺数 Re", meaning: "表征套管位置流体流动状态的无量纲参数。", formula: "Re = ρf × v × Dint / μ" },
+  Re: { name: "雷诺数 Re", meaning: "表征套管位置流体流动状态的无量纲参数。", formula: "Re = ρf × v × (Dint / 1000) / μ，Dint输入单位为mm，μ为Pa·s。" },
   fn: { name: "固有频率 fn", meaning: "热电偶套管悬臂结构的一阶固有频率。", formula: "根据套管类型、几何尺寸、弹性模量和材料密度计算。" },
   FeFn: { name: "频率比 Fe/fn", meaning: "涡流激励频率与套管固有频率之比。", formula: "Fe/fn" },
-  LOF: { name: "热电偶套管涡激 LOF", meaning: "套管发生涡激共振的失效可能性。", formula: "Fe/fn≥0.8时LOF=1.0，否则LOF=0.29。" },
+  LOF: { name: "热电偶套管涡激 LOF", meaning: "套管发生涡激共振的失效可能性。", formula: "Fe/fn>0.8时LOF=1.0，否则LOF=0.29。" },
   level: { name: "热电偶套管风险等级", meaning: "根据涡激LOF映射得到的风险等级。", formula: "LOF≥0.8为High；0.5≤LOF＜0.8为Medium；LOF＜0.5为Low。" }
 };
 
@@ -836,6 +842,7 @@ function defaultOtherMechanisms() {
       power: null,
       pressure: null,
       hasReport: null,
+      equipmentKnown: null,
       passApi618: null
     },
     rotatingStall: {
@@ -857,6 +864,7 @@ function defaultOtherMechanisms() {
       loadLimit: null
     },
     cavitation: {
+      pressureDropByValve: null,
       upstreamPressure: null,
       downstreamPressure: null,
       pressureDrop: null,
@@ -965,7 +973,7 @@ export default {
       return this.hasEvaluationResult ? riskLevel(this.mainLof) : "-";
     },
     thermoLevel() {
-      return this.thermoResult ? riskLevel(this.thermoResult.LOF) : "-";
+      return this.thermoResult && this.thermoResult.LOF != null ? riskLevel(this.thermoResult.LOF) : "-";
     },
     advice() {
       return this.hasEvaluationResult ? controlAdvice(this.mainLof) : "请先执行定量评估";
@@ -1188,7 +1196,12 @@ export default {
           span: this.params.span
         }),
         cavitation: Object.assign({}, this.other.cavitation, {
-          temperature: this.params.temperature
+          temperature: this.params.temperature,
+          // 派生值只展示，每次按当前输入重算，避免上一次结果覆盖本次工况。
+          pressureDrop: null,
+          delta: null,
+          pressureRecoveryFactor: null,
+          vaporPressure: null
         }),
         remarks: this.remarks || null
       };
@@ -1436,6 +1449,10 @@ export default {
         waterHammer: Object.assign({}, defaultOtherMechanisms().waterHammer, inputs.waterHammer || {}),
         cavitation: Object.assign({}, defaultOtherMechanisms().cavitation, inputs.cavitation || {})
       };
+      // 历史快照只有hasReport，回显时保持原决策值；新请求使用语义准确的字段。
+      if (this.other.reciprocating.equipmentKnown == null && this.other.reciprocating.hasReport != null) {
+        this.other.reciprocating.equipmentKnown = this.other.reciprocating.hasReport ? 1 : 0;
+      }
     },
     factorCardStyle(item) {
       if (item.isMax) return { borderLeft: "4px solid var(--danger)", cursor: "pointer" };
