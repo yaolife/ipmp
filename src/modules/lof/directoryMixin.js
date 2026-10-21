@@ -1,7 +1,9 @@
 import api from "./api";
 import { isSuccessCode, unwrapList } from "./utils";
+import assessmentRequestMixin from "./assessmentRequestMixin";
 
 export default {
+  mixins: [assessmentRequestMixin],
   data() {
     return {
       pageLoading: false,
@@ -93,6 +95,7 @@ export default {
         });
     },
     loadSegmentDetail(id) {
+      const isCurrent = this.captureSegmentRequest("segmentDetail");
       if (!id) {
         this.currentSegment = null;
         if (typeof this.onSegmentLoaded === "function") this.onSegmentLoaded(null);
@@ -100,9 +103,12 @@ export default {
       }
       const local = this.segments.find(item => item.id === id) || null;
       this.currentSegment = local;
+      this.segmentDetailLoading = true;
       return api
         .getResourceDirectoryDetail(id)
         .then(res => {
+          if (!isCurrent()) return null;
+          this.segmentDetailLoading = false;
           if (this.isSuccessCode(res && res.code) && res.data) {
             this.currentSegment = Object.assign({}, local || {}, res.data);
           }
@@ -112,6 +118,8 @@ export default {
           return this.currentSegment;
         })
         .catch(() => {
+          if (!isCurrent()) return null;
+          this.segmentDetailLoading = false;
           this.$message.error("管段详情加载失败");
           if (typeof this.onSegmentLoaded === "function") {
             this.onSegmentLoaded(this.currentSegment);

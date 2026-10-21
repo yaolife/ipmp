@@ -208,6 +208,7 @@ export default {
       treeLoading: false,
       loading: false,
       requestSeq: 0,
+      nodeRequestSeq: 0,
       treeRenderKey: 0,
       expandAll: true,
       expandedKeys: [],
@@ -285,6 +286,7 @@ export default {
       });
     },
     open(detail) {
+      this.loading = false;
       const source = detail || {};
       const seq = ++this.requestSeq;
       const cachedTree = source.resourceDirectoryTree;
@@ -320,6 +322,7 @@ export default {
       this.dialogVisible = false;
     },
     onClose() {
+      this.loading = false;
       this.requestSeq += 1;
       this.pageLoading = false;
       this.treeLoading = false;
@@ -390,7 +393,9 @@ export default {
       this.loadChildrenToTable(data);
     },
     loadDetailToTable(node) {
+      const isCurrent = this.captureNodeRequest();
       if (!node || !node.id) {
+        this.loading = false;
         this.clearTable();
         return;
       }
@@ -399,6 +404,7 @@ export default {
       api
         .getResourceDirectoryDetail(node.id)
         .then(res => {
+          if (!isCurrent()) return;
           this.loading = false;
           if (this.isSuccessCode(res && res.code) && res.data) {
             this.childrenAll = [this.mapDirectoryRow(res.data)];
@@ -409,12 +415,15 @@ export default {
           }
         })
         .catch(() => {
+          if (!isCurrent()) return;
           this.loading = false;
           this.clearTable();
         });
     },
     loadChildrenToTable(node) {
+      const isCurrent = this.captureNodeRequest();
       if (!node || !node.id) {
+        this.loading = false;
         this.clearTable();
         return;
       }
@@ -423,6 +432,7 @@ export default {
       api
         .getResourceDirectoryChildren(node.id)
         .then(res => {
+          if (!isCurrent()) return;
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {
             const raw = res.data;
@@ -439,9 +449,17 @@ export default {
           }
         })
         .catch(() => {
+          if (!isCurrent()) return;
           this.loading = false;
           this.clearTable();
         });
+    },
+    // 详情和子节点查询共用序号，切换节点或重新打开弹窗后忽略旧响应。
+    captureNodeRequest() {
+      const request = ++this.nodeRequestSeq;
+      const dialog = this.requestSeq;
+      return () => this.dialogVisible && dialog === this.requestSeq &&
+        request === this.nodeRequestSeq;
     },
     matchKeyword(row) {
       const nameKey = (this.keyword || "").trim().toLowerCase();

@@ -1,7 +1,7 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <div class="lof-page" v-loading="pageLoading">
+      <div class="lof-page" v-loading="pageLoading || segmentDetailLoading">
         <div class="card">
           <div class="card-header">
             <div class="card-title">定量评估设置</div>
@@ -908,6 +908,7 @@ function defaultParams() {
     thickness: null,
     span: null,
     support: "",
+    supportOverride: "",
     fn: null,
     rho: null,
     v: null,
@@ -984,6 +985,7 @@ export default {
     fmtExp: fmtExp,
     riskBadgeClass: riskBadgeClass,
     onSegmentChange(id) {
+      this.invalidateSegmentRequests();
       this.tm01AssessmentId = "";
       this.history = [];
       this.historyCurrent = 1;
@@ -1013,6 +1015,9 @@ export default {
       this.params.od = pickNum(detail.outerDiameter, null);
       this.params.thickness = pickNum(detail.wallThickness, null);
       this.params.span = pickNum(detail.spanReference, null);
+      const supportNames = ["刚性", "中刚", "中等", "柔性"];
+      this.params.supportOverride = detail.supportTypeCode == null
+        ? (detail.supportType || "") : (supportNames[Number(detail.supportTypeCode)] || "");
       this.refreshSupportType();
       this.params.fn = pickNum(detail.naturalFrequency, null);
       this.params.rho = pickNum(detail.fluidDensity, null);
@@ -1020,7 +1025,8 @@ export default {
       this.params.pressure = pickNum(detail.operatingPressure, null);
       this.params.temperature = pickNum(detail.operatingTemperature, null);
       this.params.massFlow = pickNum(detail.massFlow, null);
-      this.params.viscosity = pickNum(detail.viscosity, null);
+      // 详情接口的动力粘度为dynamicViscosity（Pa.s），套管专用fluidViscosity为cP。
+      this.params.viscosity = pickNum(detail.dynamicViscosity, pickNum(detail.viscosity, null));
       this.params.fluid = detail.fluidMedium || detail.mediumName || detail.fluid || "";
       this.params.fluid = detail.workingMedium || this.params.fluid;
       this.params.equipmentType = detail.equipmentType || "";
@@ -1029,13 +1035,16 @@ export default {
       this.hfa.Dext = this.params.od;
       this.hfa.T = this.params.thickness;
       this.hfa.rho = this.params.rho;
+      this.hfa.Q = this.params.massFlow;
+      this.hfa.c = pickNum(detail.soundSpeed, null);
       this.thermo.Dext = this.params.od;
       this.thermo.T = this.params.thickness;
       this.thermo.P = this.params.pressure;
       this.thermo.TP = this.params.temperature;
       this.thermo.rhoF = this.params.rho;
       this.thermo.v = this.params.v;
-      this.thermo.mu = this.params.viscosity;
+      const thermowellViscosity = pickNum(detail.fluidViscosity, null);
+      this.thermo.mu = thermowellViscosity == null ? this.params.viscosity : thermowellViscosity / 1000;
     },
     /**
      * 用户修改输入后清除上一次后端评估结果，避免旧结果被误认为是当前参数的计算结果。
@@ -1050,11 +1059,11 @@ export default {
       this.hasEvaluationResult = false;
     },
     /**
-     * 按当前页面输入的跨距和外径实时更新支撑类型。
-     * 无效尺寸清空类型，防止沿用上一次管段或测试数据中的旧值。
+     * 优先保留基础数据或历史记录明确指定的支撑类型，未指定时按跨距和外径推导。
+     * 自动推导遇到无效尺寸时清空，防止沿用上一管段的类型。
      */
     refreshSupportType() {
-      this.params.support = calculateSupportType(this.params.span, this.params.od);
+      this.params.support = this.params.supportOverride || calculateSupportType(this.params.span, this.params.od);
     },
     /**
      * 按声源数调整声源表单和每个不连续点的距离数组，缩减时保留前面的已填数据。
@@ -1263,9 +1272,13 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
+      const isCurrent = this.captureSegmentRequest("evaluation");
+      const payload = JSON.parse(JSON.stringify(this.buildPayload()));
       this.evaluating = true;
-      api.evaluateTm02(this.buildPayload()).then(res => {
+      api.evaluateTm02(payload).then(res => {
+        if (!isCurrent()) return;
         this.evaluating = false;
+        if (JSON.stringify(this.buildPayload()) !== JSON.stringify(payload)) return;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "定量评估失败");
           return;
@@ -1273,6 +1286,7 @@ export default {
         this.applyBackendResult(res.data);
         this.$message.success((res && res.msg) || "定量评估完成");
       }).catch(error => {
+        if (!isCurrent()) return;
         this.evaluating = false;
         this.$message.error(this.errorMessage(error, "定量评估失败"));
       });
@@ -1282,22 +1296,28 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
+      if (this.saving) return;
+      const isCurrent = this.captureSegmentRequest("save");
+      const payload = JSON.parse(JSON.stringify(this.buildPayload()));
+      this.saving = true;
       this.$confirm("保存后将生成新的定量评估版本，是否继续？", "保存确认", {
         type: "warning"
       }).then(() => {
-        this.saving = true;
-        return api.saveTm02(this.buildPayload());
+        if (!isCurrent()) return;
+        return api.saveTm02(payload);
       }).then(res => {
+        if (!isCurrent()) return;
         this.saving = false;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "保存失败");
           return;
         }
-        this.applyBackendResult(res.data);
+        if (JSON.stringify(this.buildPayload()) === JSON.stringify(payload)) this.applyBackendResult(res.data);
         this.$message.success((res && res.msg) || "保存成功");
         this.historyCurrent = 1;
         this.loadHistoryPage();
       }).catch(error => {
+        if (!isCurrent()) return;
         this.saving = false;
         if (error !== "cancel" && error !== "close") {
           this.$message.error(this.errorMessage(error, "保存失败"));
@@ -1305,30 +1325,36 @@ export default {
       });
     },
     loadLatestTm01() {
+      const isCurrent = this.captureSegmentRequest("latestTm01");
       api.pageHistory({
         segmentId: this.segmentId,
         current: 1,
         size: 1
       }).then(res => {
+        if (!isCurrent()) return;
         if (!this.isSuccessCode(res && res.code)) return;
         const records = this.unwrapList(res.data);
         this.tm01AssessmentId = records.length ? records[0].id : "";
       }).catch(() => {
+        if (!isCurrent()) return;
         this.tm01AssessmentId = "";
       });
     },
     loadHistoryPage() {
       if (!this.segmentId) return;
+      const isCurrent = this.captureSegmentRequest("historyPage");
       api.pageTm02History({
         segmentId: this.segmentId,
         current: this.historyCurrent,
         size: this.historySize
       }).then(res => {
+        if (!isCurrent()) return;
         if (!this.isSuccessCode(res && res.code)) return;
         const data = res.data || {};
         this.history = this.unwrapList(data);
         this.historyTotal = Number(data.total || this.history.length || 0);
       }).catch(error => {
+        if (!isCurrent()) return;
         this.$message.error(this.errorMessage(error, "版本历史加载失败"));
       });
     },
@@ -1338,7 +1364,9 @@ export default {
     },
     loadHistoryDetail(row) {
       if (!row || !row.id) return;
+      const isCurrent = this.captureSegmentRequest("historyDetail");
       api.getTm02Detail(row.id).then(res => {
+        if (!isCurrent()) return;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "历史详情加载失败");
           return;
@@ -1346,6 +1374,7 @@ export default {
         this.applyHistoryInputs(res.data && res.data.inputs);
         this.applyBackendResult(res.data);
       }).catch(error => {
+        if (!isCurrent()) return;
         this.$message.error(this.errorMessage(error, "历史详情加载失败"));
       });
     },
@@ -1375,6 +1404,7 @@ export default {
         span: segment.span,
         fn: segment.naturalFrequency,
         support: segment.supportType,
+        supportOverride: segment.supportType || "",
         od: segment.outerDiameter,
         thickness: segment.thickness,
         rho: segment.fluidDensity,

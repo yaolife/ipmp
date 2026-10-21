@@ -1,7 +1,7 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <div class="lof-page" v-loading="pageLoading">
+      <div class="lof-page" v-loading="pageLoading || segmentDetailLoading">
         <div class="card">
           <div class="card-header">
             <div class="card-title">定性评估设置</div>
@@ -284,6 +284,7 @@
 <script>
 import LofTraceDrawer from "./components/LofTraceDrawer";
 import api from "./api";
+import assessmentRequestMixin from "./assessmentRequestMixin";
 import { calculateSupportType } from "./utils";
 import {
   INCENTIVES,
@@ -330,6 +331,7 @@ const CONDITION_RULES = {
 };
 
 export default {
+  mixins: [assessmentRequestMixin],
   components: { LofTraceDrawer },
   data() {
     return {
@@ -645,6 +647,8 @@ export default {
         });
     },
     onSegmentChange(id) {
+      this.invalidateSegmentRequests();
+      const isCurrent = this.captureSegmentRequest("segmentDetail");
       this.currentSegment = this.segments.find(item => item.id === id) || null;
       this.applyResult(null);
       this.history = [];
@@ -652,14 +656,19 @@ export default {
       this.historyCurrent = 1;
       this.mainLof = null;
       if (!id) return;
+      this.segmentDetailLoading = true;
       api
         .getResourceDirectoryDetail(id)
         .then(res => {
+          if (!isCurrent()) return;
+          this.segmentDetailLoading = false;
           if (this.isSuccessCode(res && res.code) && res.data) {
             this.currentSegment = Object.assign({}, this.currentSegment || {}, res.data);
           }
         })
         .catch(error => {
+          if (!isCurrent()) return;
+          this.segmentDetailLoading = false;
           this.$message.error(this.errorMessage(error, "管段详情加载失败"));
         });
       this.loadLatestMainLof();
@@ -673,11 +682,15 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
+      const isCurrent = this.captureSegmentRequest("evaluation");
+      const payload = JSON.parse(JSON.stringify(this.buildPayload()));
       this.evaluating = true;
       api
-        .evaluate(this.buildPayload())
+        .evaluate(payload)
         .then(res => {
+          if (!isCurrent()) return;
           this.evaluating = false;
+          if (JSON.stringify(this.buildPayload()) !== JSON.stringify(payload)) return;
           if (!this.isSuccessCode(res && res.code)) {
             this.$message.error((res && res.msg) || "评估失败");
             return;
@@ -687,6 +700,7 @@ export default {
           this.loadHistoryPage();
         })
         .catch(error => {
+          if (!isCurrent()) return;
           this.evaluating = false;
           this.$message.error(this.errorMessage(error, "评估失败"));
         });
@@ -696,22 +710,28 @@ export default {
         this.$message.warning("请选择管段");
         return;
       }
+      if (this.saving) return;
+      const isCurrent = this.captureSegmentRequest("save");
+      const payload = JSON.parse(JSON.stringify(this.buildPayload()));
+      this.saving = true;
       this.$confirm("保存后将生成新的定性评估版本，是否继续？", "保存确认", {
         type: "warning"
       }).then(() => {
-        this.saving = true;
-        return api.save(this.buildPayload());
+        if (!isCurrent()) return;
+        return api.save(payload);
       }).then(res => {
+        if (!isCurrent()) return;
         this.saving = false;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "保存失败");
           return;
         }
-        this.applyResult(res.data);
+        if (JSON.stringify(this.buildPayload()) === JSON.stringify(payload)) this.applyResult(res.data);
         this.$message.success((res && res.msg) || "保存成功");
         this.historyCurrent = 1;
         this.loadHistoryPage();
       }).catch(error => {
+        if (!isCurrent()) return;
         this.saving = false;
         if (error !== "cancel" && error !== "close") {
           this.$message.error(this.errorMessage(error, "保存失败"));
@@ -719,6 +739,7 @@ export default {
       });
     },
     loadLatestMainLof() {
+      const isCurrent = this.captureSegmentRequest("mainLof");
       if (!this.segmentId) {
         this.mainLof = null;
         return;
@@ -728,15 +749,18 @@ export default {
         current: 1,
         size: 1
       }).then(res => {
+        if (!isCurrent()) return;
         if (!this.isSuccessCode(res && res.code)) return;
         const records = this.unwrapList(res.data);
         this.mainLof = records.length ? records[0].maxLof : null;
       }).catch(() => {
+        if (!isCurrent()) return;
         this.mainLof = null;
       });
     },
     loadHistoryPage() {
       if (!this.segmentId) return;
+      const isCurrent = this.captureSegmentRequest("historyPage");
       api
         .pageHistory({
           segmentId: this.segmentId,
@@ -744,12 +768,14 @@ export default {
           size: this.historySize
         })
         .then(res => {
+          if (!isCurrent()) return;
           if (!this.isSuccessCode(res && res.code)) return;
           const data = res.data || {};
           this.history = this.unwrapList(data);
           this.historyTotal = Number(data.total || this.history.length || 0);
         })
         .catch(error => {
+          if (!isCurrent()) return;
           this.$message.error(this.errorMessage(error, "版本历史加载失败"));
         });
     },
@@ -759,9 +785,11 @@ export default {
     },
     loadHistory(row) {
       if (!row || !row.id) return;
+      const isCurrent = this.captureSegmentRequest("historyDetail");
       api
         .getDetail(row.id)
         .then(res => {
+          if (!isCurrent()) return;
           if (!this.isSuccessCode(res && res.code)) {
             this.$message.error((res && res.msg) || "详情加载失败");
             return;
@@ -772,6 +800,7 @@ export default {
           }
         })
         .catch(error => {
+          if (!isCurrent()) return;
           this.$message.error(this.errorMessage(error, "详情加载失败"));
         });
     },
