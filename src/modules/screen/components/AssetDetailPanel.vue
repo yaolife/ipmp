@@ -15,7 +15,11 @@
     <div class="panel-common">
       <h2 class="panel-title">{{ displayTitle }}</h2>
     </div>
-    <div class="panel-body" v-loading="loading">
+    <div
+      class="panel-body"
+      :class="{ 'is-monitor': activeTab === 'monitor' }"
+      v-loading="loading"
+    >
       <template v-if="activeTab === 'related'">
         <div class="info-section" :class="{ 'is-fill': !relatedSegments.length }">
           <div class="section-title">{{ $t("lang.related_segment_list") }}</div>
@@ -116,6 +120,14 @@
           </div>
         </div>
       </template>
+      <template v-else-if="activeTab === 'monitor'">
+        <online-monitor
+          fill
+          :key="'panel-' + (form.nodeName || nodeName)"
+          :point-keyword="form.nodeName || nodeName"
+          :extra-keyword="form.pipeStandardKks"
+        ></online-monitor>
+      </template>
       <template v-else>
         <div
           v-for="section in activeSections"
@@ -173,6 +185,7 @@
 
 <script>
 import api from "@/modules/drafts/api";
+import OnlineMonitor from "@/modules/onlineMonitor/OnlineMonitor.vue";
 import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { readFrequencyParams } from "@/modules/drafts/naturalFrequency";
 import {
@@ -456,6 +469,9 @@ function nextId() {
 export default {
   mixins: [authenticatedPreviewMixin],
   name: "AssetDetailPanel",
+  components: {
+    OnlineMonitor
+  },
   props: {
     visible: {
       type: Boolean,
@@ -491,7 +507,8 @@ export default {
         { name: "technical", labelKey: "lang.tab_tech_params" },
         { name: "lof", labelKey: "lang.tab_lof_basic" },
         { name: "related", labelKey: "lang.tab_related_segment" },
-        { name: "maintenance", labelKey: "lang.maintenance_records" }
+        { name: "maintenance", labelKey: "lang.maintenance_records" },
+        { name: "monitor", labelKey: "lang.tab_monitor" }
       ],
       basicIdentityFields: [
         { key: "nodeName", label: "lang.component_no" },
@@ -1003,6 +1020,9 @@ export default {
   /deep/ .el-loading-mask {
     background: rgba(0, 0, 0, 0.25);
   }
+}
+.panel-body.is-monitor {
+  overflow: hidden;
 }
 .panel-body::-webkit-scrollbar {
   width: 6px;

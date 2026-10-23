@@ -45,7 +45,8 @@ var BIZ_API_PATHS = [
   "/lof-ledger",
   "/fupportInfo",
   "/sdims",
-  "/system"
+  "/system",
+  "/opgview"
 ];
 
 function getRequestPathname(url) {

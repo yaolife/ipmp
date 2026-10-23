@@ -26,7 +26,8 @@ const BIZ_PROXY_PATHS = [
     "/lof-ledger",
     "/fupportInfo",
     "/sdims",
-  "/system"
+    "/system",
+    "/opgview"
 ];
 function createBizProxies(prefix, stripPrefix) {
     const table = {};

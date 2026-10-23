@@ -55,6 +55,7 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         include: [resolve('src'), resolve('report_modules'), resolve('formviewcomponent'), resolve('test'), resolve('node_modules/webpack-dev-server/client'), resolve('cudcomponents'), resolve('node_modules/@wangeditor')],
+        exclude: [resolve('src/modules/onlineMonitor/trendCanvasPC.js')],
         // exclude: [
         //   path.resolve(__dirname, '../src/modules/demoLib') // 添加你想要排除的demo目录
         // ],

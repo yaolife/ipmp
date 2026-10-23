@@ -835,6 +835,18 @@
             </div>
           </div>
         </el-tab-pane>
+
+        <el-tab-pane name="monitor" lazy>
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="activity"></tab-svg>
+            {{ $t("lang.tab_monitor") }}
+          </span>
+          <online-monitor
+            :key="'dir-' + directoryId"
+            :point-keyword="form.nodeName"
+            :extra-keyword="form.pipeStandardKks"
+          ></online-monitor>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -842,6 +854,7 @@
 
 <script>
 import api from "../api";
+import OnlineMonitor from "@/modules/onlineMonitor/OnlineMonitor.vue";
 import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { frequencySupportOptions, readFrequencyParams, writeFrequencyParams } from "../naturalFrequency";
 import { debounce } from "@/utils/funcUtil";
@@ -1067,7 +1080,9 @@ const TAB_ICONS = {
   link:
     '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
   wrench:
-    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  activity:
+    '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'
 };
 
 const TabSvg = {
@@ -1235,7 +1250,8 @@ export default {
   mixins: [authenticatedPreviewMixin],
   name: "DirectoryDetail",
   components: {
-    TabSvg
+    TabSvg,
+    OnlineMonitor
   },
   props: {
     directoryId: {
