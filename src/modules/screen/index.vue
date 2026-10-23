@@ -561,9 +561,9 @@ export default {
 }
 .screen-right {
   position: absolute;
-  left: 22.29%;
+  left: 20%;
   top: 9.26%;
-  width: 55.42%;
+  width: 62%;
   height: 75.93%;
   z-index: 2;
   pointer-events: auto;

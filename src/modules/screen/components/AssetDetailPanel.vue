@@ -17,11 +17,16 @@
     </div>
     <div
       class="panel-body"
-      :class="{ 'is-monitor': activeTab === 'monitor' }"
+      :class="{
+        'is-monitor': activeTab === 'monitor',
+        'is-sap': activeTab === 'sap'
+      }"
       v-loading="loading"
     >
       <sap-related-data
         v-if="activeTab === 'sap' && visible && !loading"
+        panel
+        stretch
         :node-name="nodeName"
       ></sap-related-data>
       <template v-else-if="activeTab === 'related'">
@@ -515,7 +520,7 @@ export default {
         { name: "related", labelKey: "lang.tab_related_segment" },
         { name: "maintenance", labelKey: "lang.maintenance_records" },
         { name: "monitor", labelKey: "lang.tab_monitor" },
-        { name: "sap", label: "关联数据" }
+        { name: "sap", labelKey: "lang.screen_tab_related" }
       ],
       basicIdentityFields: [
         { key: "nodeName", label: "lang.component_no" },
@@ -1028,8 +1033,16 @@ export default {
     background: rgba(0, 0, 0, 0.25);
   }
 }
-.panel-body.is-monitor {
+.panel-body.is-monitor,
+.panel-body.is-sap {
   overflow: hidden;
+}
+.panel-body.is-sap {
+  padding-bottom: 8px;
+}
+.panel-body.is-sap /deep/ .sap-related-data {
+  flex: 1;
+  min-height: 0;
 }
 .panel-body::-webkit-scrollbar {
   width: 6px;

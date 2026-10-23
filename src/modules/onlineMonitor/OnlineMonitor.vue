@@ -1199,6 +1199,32 @@ export default {
   height: 100%;
   min-height: 0;
 }
+.online-monitor.is-fill .monitor-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+}
+.online-monitor.is-fill .point-search {
+  width: 168px;
+  flex: 0 0 168px;
+  margin-bottom: 0;
+}
+.online-monitor.is-fill .toolbar-row {
+  flex-wrap: nowrap;
+  flex: 1 0 auto;
+  min-width: 0;
+}
+.online-monitor.is-fill .toolbar-row > * {
+  flex-shrink: 0;
+}
+.online-monitor.is-fill .date-term /deep/ .el-date-editor {
+  width: 308px;
+}
+.online-monitor.is-fill .toolbar-row > .el-select {
+  width: 88px !important;
+}
 .monitor-toolbar {
   flex-shrink: 0;
   padding: 8px 8px 4px;

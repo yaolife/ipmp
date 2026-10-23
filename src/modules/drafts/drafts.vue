@@ -34,7 +34,7 @@
                     &nbsp;&nbsp;{{ $t("lang.resource_catalog") }}
                   </span>
                 </div>
-                <div class="cud__mtb-10 ml-20 mr-20" v-loading="treeLoading">
+                <div class="cud__mtb-10 ml-20 mr-20 resource-tree-box" v-loading="treeLoading">
                   <el-tree
                     ref="resourceTree"
                     node-key="id"
@@ -50,11 +50,23 @@
                     }"
                     class="cud_tree"
                     @node-click="onTreeNodeClick"
+                    @scroll.native="syncTreeThumb"
                   >
                     <span class="custom-tree-node" slot-scope="{ node }">
                       <span>{{ node.label }}</span>
                     </span>
                   </el-tree>
+                  <div
+                    class="resource-tree-bar"
+                    ref="treeBar"
+                    @mousedown="onTreeTrackDown"
+                  >
+                    <div
+                      class="resource-tree-thumb"
+                      ref="treeThumb"
+                      @mousedown.stop="onTreeThumbDown"
+                    ></div>
+                  </div>
                 </div>
               </div>
               <div
@@ -73,7 +85,10 @@
         </el-col>
         <el-col
           :span="detailVisible ? 24 : isTreeCollapse ? 23 : 18"
-          :class="{ 'cud-all-width-resize': isTreeCollapse || detailVisible }"
+          :class="{
+            'cud-all-width-resize': isTreeCollapse || detailVisible,
+            'pipe-main-col': !detailVisible && !isTreeCollapse
+          }"
         >
           <el-card
             v-if="detailAlive"
@@ -296,8 +311,48 @@ export default drafts;
 .custom-tree-node {
   font-size: 14px;
 }
+.resource-tree-box {
+  position: relative;
+}
+.cud-commom-tree-left.cud-commom-tree-content-show {
+  width: 360px;
+}
+.pipe-main-col {
+  width: calc(100% - 360px);
+}
 /deep/ .cud_tree {
   overflow: auto;
+  padding-right: 14px;
+  box-sizing: border-box;
+  scrollbar-width: none;
+}
+/deep/ .cud_tree::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none;
+}
+.resource-tree-bar {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  border-radius: 5px;
+  background: #eef1f6;
+  z-index: 2;
+}
+.resource-tree-thumb {
+  width: 10px;
+  min-height: 64px;
+  border-radius: 5px;
+  background: #909399;
+  cursor: grab;
+}
+.resource-tree-thumb:hover,
+.resource-tree-thumb:active {
+  background: #606266;
+  cursor: grabbing;
 }
 .cud-commom-tree-left /deep/ .el-card {
   height: 100%;

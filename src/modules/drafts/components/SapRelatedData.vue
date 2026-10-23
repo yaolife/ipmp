@@ -1,33 +1,86 @@
 <template>
-  <div class="sap-related-data" v-loading="loading">
-    <div class="sap-toolbar">
-      <span>当前管道：{{ nodeName || "-" }}<span v-if="isReferenceUnit">（五号机暂关联一号机数据，实际功能位置见列表）</span></span>
-      <el-button size="small" :disabled="loading || !nodeName" @click="loadPage">刷新</el-button>
-    </div>
-    <el-alert v-if="error" :title="error" type="error" :closable="false" show-icon class="sap-error"></el-alert>
-    <el-table :data="records" border size="small" max-height="440" empty-text="暂无关联数据">
-      <el-table-column
-        v-for="column in columns"
-        :key="column.prop"
-        :prop="column.prop"
-        :label="column.label"
-        :min-width="column.width"
-        :formatter="formatCell"
-        show-overflow-tooltip
-      ></el-table-column>
-    </el-table>
-    <div class="sap-pagination">
-      <el-pagination
-        background
-        :current-page="current"
-        :page-size="size"
-        :page-sizes="[10, 20, 50, 100]"
-        :total="total"
-        layout="total, sizes, prev, pager, next"
-        :disabled="loading"
-        @current-change="changePage"
-        @size-change="changeSize"
-      ></el-pagination>
+  <div
+    class="sap-related-data"
+    :class="{ 'is-stretch': stretch, 'is-panel': panel }"
+    v-loading="loading"
+  >
+    <div class="sap-surface">
+      <div class="sap-toolbar">
+        <span class="sap-current">
+          当前管道：{{ nodeName || "-" }}
+          <span v-if="isReferenceUnit">（五号机暂关联一号机数据，实际功能位置见列表）</span>
+        </span>
+        <el-button size="small" :disabled="loading || !nodeName" @click="loadPage">刷新</el-button>
+      </div>
+      <el-alert
+        v-if="error"
+        :title="error"
+        type="error"
+        :closable="false"
+        show-icon
+        class="sap-error"
+      ></el-alert>
+      <div class="sap-table-wrap" ref="tableWrap">
+        <div v-if="panel" class="sap-native-scroll">
+          <table class="sap-native-table">
+            <thead>
+              <tr>
+                <th
+                  v-for="column in columns"
+                  :key="column.prop"
+                  :style="{ minWidth: column.width + 'px' }"
+                >
+                  {{ column.label }}
+                </th>
+              </tr>
+            </thead>
+            <tbody v-if="records.length">
+              <tr v-for="(row, rowIndex) in records" :key="row.aufnr || rowIndex">
+                <td v-for="column in columns" :key="column.prop">
+                  {{ formatCell(row, null, row[column.prop]) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-if="!records.length" class="sap-native-empty">暂无数据</div>
+        </div>
+        <el-table
+          v-else
+          :data="records"
+          border
+          size="small"
+          :height="useFill ? fillHeight : null"
+          :max-height="useFill ? null : 440"
+          empty-text="暂无关联数据"
+          class="sap-table"
+        >
+          <el-table-column
+            v-for="column in columns"
+            :key="column.prop"
+            :prop="column.prop"
+            :label="column.label"
+            :min-width="column.width"
+            align="center"
+            header-align="center"
+            :formatter="formatCell"
+            show-overflow-tooltip
+          ></el-table-column>
+        </el-table>
+      </div>
+      <div class="sap-pagination">
+        <el-pagination
+          background
+          :current-page="current"
+          :page-size="size"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next"
+          :disabled="loading"
+          :popper-class="panel ? 'sap-panel-pager-dropdown' : ''"
+          @current-change="changePage"
+          @size-change="changeSize"
+        ></el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -39,7 +92,9 @@ import api from "../api";
 export default {
   name: "SapRelatedData",
   props: {
-    nodeName: { type: String, default: "" }
+    nodeName: { type: String, default: "" },
+    stretch: { type: Boolean, default: false },
+    panel: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -49,6 +104,7 @@ export default {
       size: 10,
       loading: false,
       error: "",
+      tableHeight: 0,
       // 请求序号隔离切换节点、翻页和组件销毁前的旧响应，避免串入其他管道记录。
       requestId: 0,
       columns: [
@@ -70,6 +126,12 @@ export default {
   computed: {
     isReferenceUnit() {
       return /^(?:5[A-Z]{3}|YJ-5-)/i.test(this.nodeName.trim());
+    },
+    useFill() {
+      return this.stretch || this.panel;
+    },
+    fillHeight() {
+      return this.tableHeight || 480;
     }
   },
   watch: {
@@ -80,12 +142,54 @@ export default {
         this.total = 0;
         this.loadPage();
       }
+    },
+    loading(value) {
+      if (!value) this.scheduleTableHeight();
     }
+  },
+  mounted() {
+    this.scheduleTableHeight();
+    this.bindResize();
   },
   beforeDestroy() {
     this.requestId += 1;
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    window.removeEventListener("resize", this.updateTableHeight);
   },
   methods: {
+    bindResize() {
+      if (this.panel || !this.stretch) return;
+      this.$nextTick(() => {
+        const wrap = this.$refs.tableWrap;
+        if (window.ResizeObserver && wrap) {
+          this.resizeObserver = new ResizeObserver(() => {
+            this.updateTableHeight();
+          });
+          this.resizeObserver.observe(wrap);
+        }
+        window.addEventListener("resize", this.updateTableHeight);
+      });
+    },
+    scheduleTableHeight() {
+      this.$nextTick(() => {
+        this.updateTableHeight();
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(() => this.updateTableHeight());
+        }
+      });
+    },
+    updateTableHeight() {
+      if (this.panel || !this.stretch) return;
+      const wrap = this.$refs.tableWrap;
+      if (!wrap) return;
+      const next = Math.floor(wrap.clientHeight);
+      if (next > 80 && next !== this.tableHeight) {
+        this.tableHeight = next;
+      }
+    },
     formatCell(row, column, value) {
       return value === null || value === undefined || value === "" ? "-" : value;
     },
@@ -134,22 +238,172 @@ export default {
 .sap-related-data {
   min-width: 0;
   padding: 16px 0;
+  box-sizing: border-box;
+}
+.sap-related-data.is-stretch {
+  height: 100%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sap-surface {
+  min-width: 0;
+}
+.sap-related-data.is-stretch .sap-surface {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .sap-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   font-size: 13px;
   line-height: 1.6;
+  flex-shrink: 0;
+}
+.sap-current {
+  min-width: 0;
 }
 .sap-error {
   margin-bottom: 12px;
+  flex-shrink: 0;
+}
+.sap-table-wrap {
+  min-width: 0;
+}
+.sap-related-data.is-stretch .sap-table-wrap {
+  flex: 1 1 auto;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 .sap-pagination {
-  margin-top: 16px;
+  margin-top: 8px;
   overflow-x: auto;
   text-align: right;
+  flex-shrink: 0;
+}
+.sap-related-data.is-panel {
+  color: #e8f4ff;
+}
+.sap-related-data.is-panel .sap-surface {
+  padding: 12px 16px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(104, 190, 254, 0.35);
+  background: rgba(8, 36, 59, 0.74);
+}
+.sap-related-data.is-panel .sap-toolbar {
+  color: rgba(255, 255, 255, 0.85);
+}
+.sap-related-data.is-panel /deep/ .el-button {
+  background: transparent;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.sap-related-data.is-panel /deep/ .el-button:hover,
+.sap-related-data.is-panel /deep/ .el-button:focus {
+  background: rgba(0, 194, 236, 0.16);
+  color: #ffffff;
+  border-color: #00c2ec;
+}
+.sap-native-scroll {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sap-native-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.sap-native-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+}
+.sap-native-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.sap-native-table th,
+.sap-native-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(104, 190, 254, 0.22);
+  text-align: center;
+  white-space: nowrap;
+  color: #ffffff;
+}
+.sap-native-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+  background: #0c2c45;
+}
+.sap-native-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 14px;
+}
+.sap-related-data.is-panel /deep/ .el-pagination,
+.sap-related-data.is-panel /deep/ .el-pagination__total,
+.sap-related-data.is-panel /deep/ .el-pagination .el-pagination__jump {
+  color: rgba(255, 255, 255, 0.75);
+}
+.sap-related-data.is-panel /deep/ .el-pagination.is-background .btn-prev,
+.sap-related-data.is-panel /deep/ .el-pagination.is-background .btn-next,
+.sap-related-data.is-panel /deep/ .el-pagination.is-background .el-pager li {
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(104, 190, 254, 0.35);
+}
+.sap-related-data.is-panel /deep/ .el-pagination.is-background .el-pager li:not(.disabled).active {
+  background: #00c2ec;
+  color: #ffffff;
+  border-color: #00c2ec;
+}
+.sap-related-data.is-panel /deep/ .el-pagination.is-background .btn-prev:disabled,
+.sap-related-data.is-panel /deep/ .el-pagination.is-background .btn-next:disabled {
+  color: rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.18);
+}
+.sap-related-data.is-panel /deep/ .el-pagination .el-input__inner {
+  background: rgba(0, 0, 0, 0.28);
+  color: #ffffff;
+  border-color: rgba(104, 190, 254, 0.35);
+}
+</style>
+
+<style lang="less">
+.sap-panel-pager-dropdown {
+  background: #0d2438;
+  border: 1px solid rgba(104, 190, 254, 0.35);
+}
+.sap-panel-pager-dropdown .el-select-dropdown__item {
+  color: rgba(255, 255, 255, 0.85);
+}
+.sap-panel-pager-dropdown .el-select-dropdown__item.hover,
+.sap-panel-pager-dropdown .el-select-dropdown__item:hover {
+  background: rgba(0, 194, 236, 0.2);
+}
+.sap-panel-pager-dropdown .el-select-dropdown__item.selected {
+  color: #00c2ec;
+}
+.sap-panel-pager-dropdown .popper__arrow,
+.sap-panel-pager-dropdown .popper__arrow::after {
+  border-bottom-color: #0d2438 !important;
+  border-top-color: #0d2438 !important;
 }
 </style>

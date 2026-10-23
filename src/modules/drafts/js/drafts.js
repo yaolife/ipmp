@@ -83,11 +83,70 @@ export default {
     filterText(val) {
       this.filterText = (val || "").trim();
       this.$refs.resourceTree && this.$refs.resourceTree.filter(this.filterText);
+      this.$nextTick(() => this.syncTreeThumb());
     }
   },
   methods: {
     initMaxHeight() {
       calcHeight(this);
+      this.$nextTick(() => this.syncTreeThumb());
+    },
+    syncTreeThumb() {
+      const tree = this.$refs.resourceTree && this.$refs.resourceTree.$el;
+      const bar = this.$refs.treeBar;
+      const thumb = this.$refs.treeThumb;
+      if (!tree || !bar || !thumb) return;
+      const scrollHeight = tree.scrollHeight;
+      const clientHeight = tree.clientHeight;
+      const maxScroll = scrollHeight - clientHeight;
+      if (maxScroll <= 1 || clientHeight <= 0) {
+        bar.style.display = "none";
+        return;
+      }
+      const minThumb = 64;
+      const thumbHeight = Math.min(
+        clientHeight,
+        Math.max(minThumb, Math.round((clientHeight * clientHeight) / scrollHeight))
+      );
+      const maxTop = Math.max(clientHeight - thumbHeight, 0);
+      const top = maxTop > 0 ? (tree.scrollTop / maxScroll) * maxTop : 0;
+      bar.style.display = "block";
+      thumb.style.height = thumbHeight + "px";
+      thumb.style.transform = "translateY(" + top + "px)";
+    },
+    onTreeThumbDown(event) {
+      const tree = this.$refs.resourceTree && this.$refs.resourceTree.$el;
+      const thumb = this.$refs.treeThumb;
+      if (!tree || !thumb) return;
+      event.preventDefault();
+      const startY = event.clientY;
+      const startScroll = tree.scrollTop;
+      const thumbHeight = thumb.offsetHeight;
+      const maxTop = Math.max(tree.clientHeight - thumbHeight, 1);
+      const maxScroll = Math.max(tree.scrollHeight - tree.clientHeight, 1);
+      this._treeThumbMove = e => {
+        const delta = e.clientY - startY;
+        tree.scrollTop = startScroll + (delta / maxTop) * maxScroll;
+        this.syncTreeThumb();
+      };
+      this._treeThumbUp = () => {
+        document.removeEventListener("mousemove", this._treeThumbMove);
+        document.removeEventListener("mouseup", this._treeThumbUp);
+      };
+      document.addEventListener("mousemove", this._treeThumbMove);
+      document.addEventListener("mouseup", this._treeThumbUp);
+    },
+    onTreeTrackDown(event) {
+      const tree = this.$refs.resourceTree && this.$refs.resourceTree.$el;
+      const thumb = this.$refs.treeThumb;
+      if (!tree || !thumb) return;
+      event.preventDefault();
+      const barRect = event.currentTarget.getBoundingClientRect();
+      const clickY = event.clientY - barRect.top;
+      const thumbTop = thumb.getBoundingClientRect().top - barRect.top;
+      const page = tree.clientHeight * 0.85;
+      tree.scrollTop += clickY < thumbTop ? -page : page;
+      this.syncTreeThumb();
     },
     fitDetailCard() {
       this.$nextTick(() => {
@@ -524,5 +583,9 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.throttleFunc);
+    if (this._treeThumbMove) {
+      document.removeEventListener("mousemove", this._treeThumbMove);
+      document.removeEventListener("mouseup", this._treeThumbUp);
+    }
   }
 };

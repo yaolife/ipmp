@@ -31,7 +31,10 @@
       </div>
     </div>
 
-    <div class="detail-body-card">
+    <div
+      class="detail-body-card"
+      :class="{ 'is-fill-tab': activeTab === 'sap' }"
+    >
       <el-tabs v-model="activeTab" class="detail-tabs">
         <el-tab-pane name="basic">
           <span slot="label" class="tab-with-icon">
@@ -847,9 +850,14 @@
             :extra-keyword="form.pipeStandardKks"
           ></online-monitor>
         </el-tab-pane>
-        <el-tab-pane name="sap" label="关联数据">
+        <el-tab-pane name="sap">
+          <span slot="label" class="tab-with-icon">
+            <tab-svg name="related-list"></tab-svg>
+            {{ $t("lang.screen_tab_related") }}
+          </span>
           <sap-related-data
             v-if="activeTab === 'sap' && !loading"
+            stretch
             :node-name="detail.nodeName || ''"
           ></sap-related-data>
         </el-tab-pane>
@@ -1089,7 +1097,9 @@ const TAB_ICONS = {
   wrench:
     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   activity:
-    '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'
+    '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  "related-list":
+    '<path d="M7.2 5.8V4.6A2 2 0 0 1 9.2 2.6h8.2a2 2 0 0 1 2 2V15.6a2 2 0 0 1-2 2H16.4"/><path d="M6.2 5.8h8a2 2 0 0 1 2 2V18.8a2 2 0 0 1-2 2H6.2a2 2 0 0 1-2-2V7.8a2 2 0 0 1 2-2z"/><path d="M7.2 13.4h5.4M7.2 16.6h5.4"/>'
 };
 
 const TabSvg = {
@@ -2178,6 +2188,8 @@ export default {
     color: #606266;
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   /deep/ .el-tabs__item.is-active {
     color: #1a6fc4;
@@ -2191,12 +2203,42 @@ export default {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
+    line-height: 1;
   }
   /deep/ .tab-svg {
     width: 16px;
     height: 16px;
     flex-shrink: 0;
   }
+}
+.detail-body-card.is-fill-tab {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 8px;
+}
+.detail-body-card.is-fill-tab .detail-tabs {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.detail-body-card.is-fill-tab /deep/ .el-tabs__header {
+  flex-shrink: 0;
+}
+.detail-body-card.is-fill-tab /deep/ .el-tabs__content {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.detail-body-card.is-fill-tab /deep/ .el-tab-pane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
 }
 .section-block {
   margin-bottom: 8px;

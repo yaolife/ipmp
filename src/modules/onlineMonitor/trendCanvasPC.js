@@ -3245,16 +3245,28 @@
                   opTrend.getDateFormat(opTrend.dateType)
                 );
               }
+              var labelX = _x;
+              var isLastScale = i === opTrend.xAxisScaleCount;
+              if (isLastScale) {
+                var canvasNode = opTrend.canvas_context.canvas;
+                var canvasRight = canvasNode ? canvasNode.width - 2 : labelX;
+                if (labelX > canvasRight) labelX = canvasRight;
+                // 末尾刻度改为右对齐，避免时间文字画出画布被裁掉
+                opTrend.canvas_context.textAlign = "right";
+              }
               opTrend.canvas_context.fillText(
                 hms,
-                _x,
+                labelX,
                 y + opTrend.timeFontLineHeight * 2
               );
               opTrend.canvas_context.fillText(
                 ymd,
-                _x,
+                labelX,
                 y + opTrend.timeFontLineHeight * 4
               );
+              if (isLastScale) {
+                opTrend.canvas_context.textAlign = "left";
+              }
               xTemp += temp;
             }
           } catch (e) {
