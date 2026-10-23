@@ -76,6 +76,11 @@ export default {
             apiTitle: '查询资源目录详情'
         }).then(res => res.data);
     },
+    getSapRelatedDataPage: function(params) {
+        return axios.post('/model-resource-directories/sap/page', params, {
+            apiTitle: '分页查询管道关联SAP数据'
+        }).then(res => res.data);
+    },
     getDirectoryDetailByNodeName: function(params) {
         return axios.post('/model-resource-directories/getDetail', {
             nodeName: params && params.nodeName,

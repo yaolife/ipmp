@@ -847,6 +847,12 @@
             :extra-keyword="form.pipeStandardKks"
           ></online-monitor>
         </el-tab-pane>
+        <el-tab-pane name="sap" label="关联数据">
+          <sap-related-data
+            v-if="activeTab === 'sap' && !loading"
+            :node-name="detail.nodeName || ''"
+          ></sap-related-data>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -855,6 +861,7 @@
 <script>
 import api from "../api";
 import OnlineMonitor from "@/modules/onlineMonitor/OnlineMonitor.vue";
+import SapRelatedData from "./SapRelatedData.vue";
 import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { frequencySupportOptions, readFrequencyParams, writeFrequencyParams } from "../naturalFrequency";
 import { debounce } from "@/utils/funcUtil";
@@ -1251,7 +1258,8 @@ export default {
   name: "DirectoryDetail",
   components: {
     TabSvg,
-    OnlineMonitor
+    OnlineMonitor,
+    SapRelatedData
   },
   props: {
     directoryId: {

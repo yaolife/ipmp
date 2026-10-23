@@ -8,7 +8,7 @@
         :class="{ active: activeTab === tab.name }"
         @click="activeTab = tab.name"
       >
-        {{ $t(tab.labelKey) }}
+        {{ tab.labelKey ? $t(tab.labelKey) : tab.label }}
       </div>
       <i class="el-icon-close panel-close" @click="$emit('close')"></i>
     </div>
@@ -20,7 +20,11 @@
       :class="{ 'is-monitor': activeTab === 'monitor' }"
       v-loading="loading"
     >
-      <template v-if="activeTab === 'related'">
+      <sap-related-data
+        v-if="activeTab === 'sap' && visible && !loading"
+        :node-name="nodeName"
+      ></sap-related-data>
+      <template v-else-if="activeTab === 'related'">
         <div class="info-section" :class="{ 'is-fill': !relatedSegments.length }">
           <div class="section-title">{{ $t("lang.related_segment_list") }}</div>
           <div class="table-scroll">
@@ -128,7 +132,7 @@
           :extra-keyword="form.pipeStandardKks"
         ></online-monitor>
       </template>
-      <template v-else>
+      <template v-else-if="activeTab !== 'sap'">
         <div
           v-for="section in activeSections"
           :key="section.titleKey"
@@ -186,6 +190,7 @@
 <script>
 import api from "@/modules/drafts/api";
 import OnlineMonitor from "@/modules/onlineMonitor/OnlineMonitor.vue";
+import SapRelatedData from "@/modules/drafts/components/SapRelatedData.vue";
 import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { readFrequencyParams } from "@/modules/drafts/naturalFrequency";
 import {
@@ -470,7 +475,8 @@ export default {
   mixins: [authenticatedPreviewMixin],
   name: "AssetDetailPanel",
   components: {
-    OnlineMonitor
+    OnlineMonitor,
+    SapRelatedData
   },
   props: {
     visible: {
@@ -508,7 +514,8 @@ export default {
         { name: "lof", labelKey: "lang.tab_lof_basic" },
         { name: "related", labelKey: "lang.tab_related_segment" },
         { name: "maintenance", labelKey: "lang.maintenance_records" },
-        { name: "monitor", labelKey: "lang.tab_monitor" }
+        { name: "monitor", labelKey: "lang.tab_monitor" },
+        { name: "sap", label: "关联数据" }
       ],
       basicIdentityFields: [
         { key: "nodeName", label: "lang.component_no" },
