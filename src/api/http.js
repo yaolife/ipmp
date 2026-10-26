@@ -43,6 +43,8 @@ var BIZ_API_PATHS = [
   "/tm02-assessments",
   "/tm05-assessments",
   "/lof-ledger",
+  "/data-material-libraries",
+  "/data-operating-condition-libraries",
   "/fupportInfo",
   "/sdims",
   "/system",

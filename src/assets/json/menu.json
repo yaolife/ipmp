@@ -26,6 +26,22 @@
         "resource": "modelManage"
       },
       {
+        "name": "lang.pipe_data_library",
+        "resource": "pipeDataLibrary",
+        "children": [
+          {
+            "name": "lang.data_material_library",
+            "url": "/data/materialLibrary",
+            "resource": "dataMaterialLibrary"
+          },
+          {
+            "name": "lang.data_operating_condition_library",
+            "url": "/data/operatingConditionLibrary",
+            "resource": "dataOperatingConditionLibrary"
+          }
+        ]
+      },
+      {
         "name": "lang.digital_twin",
         "url": "/YJ3DVP",
         "resource": "digitalTwin",

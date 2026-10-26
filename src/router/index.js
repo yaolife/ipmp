@@ -16,6 +16,8 @@ import fupportDetail from "@/modules/fupport/page/fupportDetail";
 import delegation from "@/modules/delegation/delegation";
 // 模型管理
 import modelManage from "@/modules/modelManage/modelManage";
+// 管道数据基础库：维护管道详情导入时用于匹配的参数模板。
+import pipelineDataLibrary from "@/modules/dataLibrary/pipelineDataLibrary.vue";
 // 系统管理
 import logManage from "@/modules/logManage/logManage.vue";
 import apiManage from "@/modules/system/apiManage/apiManage.vue";
@@ -176,6 +178,18 @@ const _router = new Router({
           name: "振动校核",
           component: vibrationCheck,
           meta: "lofVibrationCheck"
+        },
+        {
+          path: "/data/materialLibrary",
+          name: "材料信息库",
+          component: pipelineDataLibrary,
+          meta: { menuCode: "dataMaterialLibrary", libraryType: "material" }
+        },
+        {
+          path: "/data/operatingConditionLibrary",
+          name: "运行工况库",
+          component: pipelineDataLibrary,
+          meta: { menuCode: "dataOperatingConditionLibrary", libraryType: "operating" }
         },
         {
           path: "/pipeStressAnalysis",

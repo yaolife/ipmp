@@ -12,6 +12,15 @@
         </span>
         <el-button size="small" :disabled="loading || !nodeName" @click="loadPage">刷新</el-button>
       </div>
+      <el-form class="sap-filters" :inline="true" :model="filters" size="small" @submit.native.prevent="search">
+        <el-form-item v-for="field in filterFields" :key="field.prop" :label="field.label">
+          <el-input v-model="filters[field.prop]" clearable :placeholder="'请输入' + field.label" @keyup.enter.native="search"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" :disabled="loading || !nodeName" @click="search">查询</el-button>
+          <el-button :disabled="loading || !nodeName" @click="resetFilters">重置</el-button>
+        </el-form-item>
+      </el-form>
       <el-alert
         v-if="error"
         :title="error"
@@ -88,6 +97,8 @@
 <script>
 import api from "../api";
 
+const emptyFilters = () => ({ aufnr: "", qmnum: "", ktext: "", asttx: "" });
+
 // 与管道详情共用，所有分页均由后端执行，不把完整SAP记录集加载到浏览器。
 export default {
   name: "SapRelatedData",
@@ -105,6 +116,15 @@ export default {
       loading: false,
       error: "",
       tableHeight: 0,
+      filters: emptyFilters(),
+      // 翻页和刷新沿用已查询条件，避免输入尚未提交就改变列表范围。
+      appliedFilters: emptyFilters(),
+      filterFields: [
+        { prop: "aufnr", label: "工单号" },
+        { prop: "qmnum", label: "通知单号" },
+        { prop: "ktext", label: "描述" },
+        { prop: "asttx", label: "状态" }
+      ],
       // 请求序号隔离切换节点、翻页和组件销毁前的旧响应，避免串入其他管道记录。
       requestId: 0,
       columns: [
@@ -140,6 +160,8 @@ export default {
       handler() {
         this.current = 1;
         this.total = 0;
+        this.filters = emptyFilters();
+        this.appliedFilters = emptyFilters();
         this.loadPage();
       }
     },
@@ -157,11 +179,13 @@ export default {
       this.resizeObserver.disconnect();
       this.resizeObserver = null;
     }
-    window.removeEventListener("resize", this.updateTableHeight);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("resize", this.updateTableHeight);
+    }
   },
   methods: {
     bindResize() {
-      if (this.panel || !this.stretch) return;
+      if (this.panel || !this.stretch || typeof window === "undefined") return;
       this.$nextTick(() => {
         const wrap = this.$refs.tableWrap;
         if (window.ResizeObserver && wrap) {
@@ -176,7 +200,7 @@ export default {
     scheduleTableHeight() {
       this.$nextTick(() => {
         this.updateTableHeight();
-        if (window.requestAnimationFrame) {
+        if (typeof window !== "undefined" && window.requestAnimationFrame) {
           window.requestAnimationFrame(() => this.updateTableHeight());
         }
       });
@@ -189,6 +213,20 @@ export default {
       if (next > 80 && next !== this.tableHeight) {
         this.tableHeight = next;
       }
+    },
+    search() {
+      if (this.loading || !this.nodeName) return;
+      this.appliedFilters = Object.keys(this.filters).reduce((result, key) => {
+        result[key] = this.filters[key].trim();
+        return result;
+      }, {});
+      this.current = 1;
+      this.loadPage();
+    },
+    resetFilters() {
+      if (this.loading || !this.nodeName) return;
+      this.filters = emptyFilters();
+      this.search();
     },
     formatCell(row, column, value) {
       return value === null || value === undefined || value === "" ? "-" : value;
@@ -210,11 +248,11 @@ export default {
       if (!this.nodeName) return;
       this.loading = true;
       try {
-        const res = await api.getSapRelatedDataPage({
+        const res = await api.getSapRelatedDataPage(Object.assign({}, this.appliedFilters, {
           nodeName: this.nodeName,
           current: this.current,
           size: this.size
-        });
+        }));
         if (requestId !== this.requestId) return;
         if (!res || (res.code !== 0 && res.code !== "0") || !res.data) {
           throw new Error((res && res.msg) || "关联数据查询失败，请点击刷新重试");
@@ -281,6 +319,17 @@ export default {
   height: 0;
   min-height: 0;
   overflow: hidden;
+}
+.sap-filters {
+  display: flex;
+  flex-wrap: wrap;
+  /deep/ .el-form-item {
+    margin-bottom: 12px;
+    margin-right: 16px;
+  }
+  /deep/ .el-input {
+    width: 180px;
+  }
 }
 .sap-pagination {
   margin-top: 8px;

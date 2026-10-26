@@ -24,6 +24,9 @@ const BIZ_PROXY_PATHS = [
     "/tm02-assessments",
     "/tm05-assessments",
     "/lof-ledger",
+    // 管道数据基础库与其他业务接口使用相同的后端代理。
+    "/data-material-libraries",
+    "/data-operating-condition-libraries",
     "/fupportInfo",
     "/sdims",
     "/system",
