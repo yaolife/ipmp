@@ -132,6 +132,7 @@
       <template v-else-if="activeTab === 'monitor'">
         <online-monitor
           fill
+          panel
           :key="'panel-' + (form.nodeName || nodeName)"
           :point-keyword="form.nodeName || nodeName"
           :extra-keyword="form.pipeStandardKks"

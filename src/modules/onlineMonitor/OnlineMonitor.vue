@@ -1,5 +1,9 @@
 <template>
-  <div class="online-monitor" :class="{ 'is-fill': fill }" v-loading="trendLoading">
+  <div
+    class="online-monitor"
+    :class="{ 'is-fill': fill, 'is-panel': panel }"
+    v-loading="trendLoading"
+  >
     <div class="monitor-toolbar">
       <el-autocomplete
         v-model="pointName"
@@ -8,7 +12,7 @@
         clearable
         :fetch-suggestions="pointNameSearchAsync"
         placeholder="请输入测点关键词"
-        popper-class="trend-autocomplete"
+        :popper-class="pointPopperClass"
         @select="pointNameHandleSelect"
       ></el-autocomplete>
       <div class="toolbar-row">
@@ -26,6 +30,7 @@
             range-separator="至"
             start-placeholder="开始时间"
             end-placeholder="结束时间"
+            :popper-class="panelPopperClass"
             @change="historyChange"
           ></el-date-picker>
           <el-button
@@ -38,6 +43,7 @@
           v-model="timeRadioButton"
           size="small"
           style="width: 120px"
+          :popper-class="panelPopperClass"
           @change="timeChange"
         >
           <el-option label="默认" value="0"></el-option>
@@ -287,6 +293,20 @@ export default {
     fill: {
       type: Boolean,
       default: false
+    },
+    panel: {
+      type: Boolean,
+      default: false
+    }
+  },
+  computed: {
+    panelPopperClass() {
+      return this.panel ? "monitor-panel-popper" : "";
+    },
+    pointPopperClass() {
+      return this.panel
+        ? "trend-autocomplete monitor-panel-popper"
+        : "trend-autocomplete";
     }
   },
   data() {
@@ -1303,5 +1323,287 @@ export default {
   color: #f56c6c;
   cursor: pointer;
   font-size: 16px;
+}
+.online-monitor.is-panel {
+  background: rgba(8, 36, 59, 0.74);
+  border: 1px solid rgba(104, 190, 254, 0.35);
+  border-radius: 6px;
+  color: #e8f4ff;
+  overflow: hidden;
+}
+.online-monitor.is-panel .monitor-toolbar {
+  padding: 10px 12px 8px;
+  background: rgba(4, 22, 38, 0.45);
+  border-bottom: 1px solid rgba(104, 190, 254, 0.22);
+}
+.online-monitor.is-panel .monitor-toolbar::-webkit-scrollbar {
+  height: 6px;
+}
+.online-monitor.is-panel .monitor-toolbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+}
+.online-monitor.is-panel /deep/ .el-input__inner,
+.online-monitor.is-panel /deep/ .el-range-editor.el-input__inner {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(104, 190, 254, 0.35);
+  color: #ffffff;
+}
+.online-monitor.is-panel /deep/ .el-input__inner::placeholder,
+.online-monitor.is-panel /deep/ .el-range-input::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+.online-monitor.is-panel /deep/ .el-input__inner:hover,
+.online-monitor.is-panel /deep/ .el-input__inner:focus,
+.online-monitor.is-panel /deep/ .el-range-editor.is-active,
+.online-monitor.is-panel /deep/ .el-range-editor:hover {
+  border-color: #00c2ec;
+}
+.online-monitor.is-panel /deep/ .el-input__icon,
+.online-monitor.is-panel /deep/ .el-input__suffix,
+.online-monitor.is-panel /deep/ .el-select .el-input .el-select__caret {
+  color: rgba(255, 255, 255, 0.65);
+}
+.online-monitor.is-panel /deep/ .el-range-input {
+  background: transparent;
+  color: #ffffff;
+}
+.online-monitor.is-panel /deep/ .el-range-separator {
+  color: rgba(255, 255, 255, 0.65);
+}
+.online-monitor.is-panel /deep/ .el-radio-button__inner {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(104, 190, 254, 0.35);
+  color: rgba(255, 255, 255, 0.72);
+  box-shadow: none;
+}
+.online-monitor.is-panel /deep/ .el-radio-button:first-child .el-radio-button__inner {
+  border-left-color: rgba(104, 190, 254, 0.35);
+}
+.online-monitor.is-panel /deep/ .el-radio-button__inner:hover {
+  color: #ffffff;
+}
+.online-monitor.is-panel /deep/ .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+  background: linear-gradient(180deg, rgba(7, 61, 95, 0.15) 0%, #00a8d0 100%);
+  border-color: #00c2ec;
+  color: #ffffff;
+  box-shadow: -1px 0 0 0 #00c2ec;
+}
+.online-monitor.is-panel /deep/ .el-button {
+  background: rgba(0, 0, 0, 0.22);
+  color: #ffffff;
+  border-color: rgba(104, 190, 254, 0.4);
+}
+.online-monitor.is-panel /deep/ .el-button:hover,
+.online-monitor.is-panel /deep/ .el-button:focus {
+  background: rgba(0, 194, 236, 0.18);
+  color: #ffffff;
+  border-color: #00c2ec;
+}
+.online-monitor.is-panel /deep/ .el-button--primary,
+.online-monitor.is-panel /deep/ .el-button--primary:hover,
+.online-monitor.is-panel /deep/ .el-button--primary:focus {
+  background: rgba(0, 194, 236, 0.32);
+  border-color: #00c2ec;
+  color: #ffffff;
+}
+.online-monitor.is-panel /deep/ .el-button.is-disabled,
+.online-monitor.is-panel /deep/ .el-button.is-disabled:hover,
+.online-monitor.is-panel /deep/ .el-button.is-disabled:focus {
+  background: rgba(0, 0, 0, 0.16);
+  color: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.online-monitor.is-panel /deep/ .el-color-picker__trigger {
+  border-color: rgba(104, 190, 254, 0.45);
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table,
+.online-monitor.is-panel /deep/ .trend-point-table.el-table__expanded-cell,
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__header-wrapper,
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body-wrapper,
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__empty-block {
+  background: transparent;
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table::before {
+  background: transparent;
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table tr,
+.online-monitor.is-panel /deep/ .trend-point-table.el-table tr:nth-child(even),
+.online-monitor.is-panel /deep/ .trend-point-table.el-table td {
+  background-color: transparent;
+  color: #ffffff;
+  border-bottom-color: rgba(104, 190, 254, 0.18);
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table thead tr,
+.online-monitor.is-panel /deep/ .trend-point-table.el-table thead tr th {
+  background-color: #0c2c45;
+  color: rgba(255, 255, 255, 0.55);
+  border-bottom-color: rgba(104, 190, 254, 0.28);
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table th .cell {
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+  font-size: 13px;
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table td .cell {
+  color: #ffffff;
+  font-size: 13px;
+}
+.online-monitor.is-panel /deep/ .trend-point-table.el-table.el-table--enable-row-hover .el-table__body tr:hover > td,
+.online-monitor.is-panel /deep/ .trend-point-table.el-table .el-table__body tr.hover-row > td {
+  background-color: rgba(0, 194, 236, 0.14);
+}
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+}
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__empty-text {
+  color: rgba(255, 255, 255, 0.45);
+}
+.online-monitor.is-panel .canvas-box {
+  background: #041018;
+  border-top: 1px solid rgba(104, 190, 254, 0.18);
+}
+.online-monitor.is-panel .link-num {
+  color: #7adfff;
+}
+.online-monitor.is-panel .delete-btn {
+  color: #ff8d8d;
+}
+.online-monitor.is-panel input[type="checkbox"] {
+  accent-color: #00c2ec;
+}
+</style>
+
+<style lang="less">
+.monitor-panel-popper.el-select-dropdown,
+.monitor-panel-popper.el-autocomplete-suggestion,
+.monitor-panel-popper.el-picker-panel {
+  background: #0d2438;
+  border: 1px solid rgba(104, 190, 254, 0.35);
+  color: rgba(255, 255, 255, 0.85);
+}
+.monitor-panel-popper .el-select-dropdown__item,
+.monitor-panel-popper .el-autocomplete-suggestion li {
+  color: rgba(255, 255, 255, 0.85);
+}
+.monitor-panel-popper .el-select-dropdown__item.hover,
+.monitor-panel-popper .el-select-dropdown__item:hover,
+.monitor-panel-popper .el-autocomplete-suggestion li:hover,
+.monitor-panel-popper .el-autocomplete-suggestion li.highlighted {
+  background: rgba(0, 194, 236, 0.2);
+}
+.monitor-panel-popper .el-select-dropdown__item.selected {
+  color: #00c2ec;
+  font-weight: 600;
+}
+.monitor-panel-popper .el-select-dropdown__empty,
+.monitor-panel-popper .el-autocomplete-suggestion__wrap {
+  color: rgba(255, 255, 255, 0.45);
+  background: transparent;
+}
+.monitor-panel-popper .popper__arrow,
+.monitor-panel-popper .popper__arrow::after {
+  border-bottom-color: #0d2438 !important;
+  border-top-color: #0d2438 !important;
+}
+.monitor-panel-popper .el-picker-panel__icon-btn,
+.monitor-panel-popper .el-date-range-picker__header,
+.monitor-panel-popper .el-date-range-picker__header div,
+.monitor-panel-popper .el-date-table th,
+.monitor-panel-popper .el-picker-panel__shortcut {
+  color: rgba(255, 255, 255, 0.75);
+}
+.monitor-panel-popper .el-picker-panel__shortcut:hover,
+.monitor-panel-popper .el-picker-panel__icon-btn:hover {
+  color: #00c2ec;
+}
+.monitor-panel-popper .el-date-table td span {
+  color: rgba(255, 255, 255, 0.85);
+}
+.monitor-panel-popper .el-date-table td.next-month span,
+.monitor-panel-popper .el-date-table td.prev-month span {
+  color: rgba(255, 255, 255, 0.28);
+}
+.monitor-panel-popper .el-date-table td.disabled div {
+  background: rgba(255, 255, 255, 0.04);
+}
+.monitor-panel-popper .el-date-table td.in-range div,
+.monitor-panel-popper .el-date-table td.in-range div:hover {
+  background: rgba(0, 194, 236, 0.18);
+}
+.monitor-panel-popper .el-date-table td.start-date span,
+.monitor-panel-popper .el-date-table td.end-date span {
+  background: #00c2ec;
+  color: #ffffff;
+}
+.monitor-panel-popper .el-date-table td.today span {
+  color: #7adfff;
+}
+.monitor-panel-popper .el-date-table td.available:hover span {
+  color: #ffffff;
+}
+.monitor-panel-popper .el-picker-panel__footer,
+.monitor-panel-popper .el-date-range-picker__time-header,
+.monitor-panel-popper .el-date-range-picker__content {
+  background: #0d2438;
+  border-color: rgba(104, 190, 254, 0.22);
+  color: rgba(255, 255, 255, 0.85);
+}
+.monitor-panel-popper .el-date-range-picker__time-header > .el-icon-arrow-right {
+  color: rgba(255, 255, 255, 0.55);
+}
+.monitor-panel-popper .el-input__inner {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(104, 190, 254, 0.35);
+  color: #ffffff;
+}
+.monitor-panel-popper .el-input.is-disabled .el-input__inner {
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.35);
+}
+.monitor-panel-popper .el-time-panel {
+  background: #0d2438;
+  border-color: rgba(104, 190, 254, 0.35);
+}
+.monitor-panel-popper .el-time-spinner__item {
+  color: rgba(255, 255, 255, 0.55);
+}
+.monitor-panel-popper .el-time-spinner__item.active:not(.disabled) {
+  color: #ffffff;
+}
+.monitor-panel-popper .el-time-spinner__item:hover:not(.disabled):not(.active) {
+  background: rgba(0, 194, 236, 0.16);
+}
+.monitor-panel-popper .el-time-panel__footer,
+.monitor-panel-popper .el-time-panel__content::after,
+.monitor-panel-popper .el-time-panel__content::before {
+  border-color: rgba(104, 190, 254, 0.22);
+}
+.monitor-panel-popper .el-time-panel__btn {
+  color: rgba(255, 255, 255, 0.7);
+}
+.monitor-panel-popper .el-time-panel__btn.confirm {
+  color: #00c2ec;
+}
+.monitor-panel-popper .el-picker-panel__footer .el-button--text {
+  color: #7adfff;
+}
+.monitor-panel-popper .el-picker-panel__footer .el-button.is-plain {
+  background: transparent;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.monitor-panel-popper .el-picker-panel__footer .el-button.is-plain:hover {
+  background: rgba(0, 194, 236, 0.16);
+  border-color: #00c2ec;
+  color: #ffffff;
 }
 </style>
