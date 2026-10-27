@@ -3198,14 +3198,20 @@
             var y = opTrend.canvasY + opTrend.canvasHeight + opTrend.margin_top;
             var axisCanvas = opTrend.canvas_context && opTrend.canvas_context.canvas;
             if (axisCanvas && axisCanvas.height > y) {
+              var axisHeight = axisCanvas.height - y;
               opTrend.canvas_context.save();
-              opTrend.canvas_context.fillStyle = "#ffffff";
-              opTrend.canvas_context.fillRect(
-                0,
-                y,
-                axisCanvas.width,
-                axisCanvas.height - y
-              );
+              opTrend.canvas_context.fillStyle = opTrend.timeAxisBg || "#ffffff";
+              opTrend.canvas_context.fillRect(0, y, axisCanvas.width, axisHeight);
+              if (opTrend.timeAxisBorder) {
+                opTrend.canvas_context.strokeStyle = opTrend.timeAxisBorder;
+                opTrend.canvas_context.lineWidth = 1;
+                opTrend.canvas_context.strokeRect(
+                  0.5,
+                  y + 0.5,
+                  Math.max(0, axisCanvas.width - 1),
+                  Math.max(0, axisHeight - 1)
+                );
+              }
               opTrend.canvas_context.restore();
             }
             var temp =

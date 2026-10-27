@@ -503,6 +503,17 @@ export default {
       this.trendGroup.adaptive = false;
       this.trendGroup.isDialog = true;
       this.trendGroup.trendcontainer = this.canvasId;
+      if (this.panel) {
+        this.trendGroup.lineWidth = 2;
+        this.trendGroup.getTrendColor = function() {
+          return "#2CE8FF";
+        };
+        if (this.trendGroup.opTrend) {
+          this.trendGroup.opTrend.timeFontColor = "#57758F";
+          this.trendGroup.opTrend.timeAxisBg = "#0B2A42";
+          this.trendGroup.opTrend.timeAxisBorder = "#427BA4";
+        }
+      }
       this.trendGroup.onRightMark = function(time) {
         self.openMark(time);
       };
@@ -1226,6 +1237,38 @@ export default {
   gap: 8px;
   overflow-x: auto;
 }
+.online-monitor.is-panel.is-fill .monitor-toolbar {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-right: 4px;
+}
+.online-monitor.is-panel.is-fill .point-search {
+  width: 176px;
+  flex: 0 0 176px;
+  min-width: 176px;
+}
+.online-monitor.is-panel.is-fill .toolbar-row {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.online-monitor.is-panel.is-fill .date-term {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+}
+.online-monitor.is-panel.is-fill .date-term /deep/ .el-date-editor {
+  width: 420px;
+  max-width: none;
+}
+.online-monitor.is-panel.is-fill .date-term /deep/ .el-range-input {
+  width: 152px;
+}
+.online-monitor.is-panel.is-fill /deep/ .el-color-picker {
+  flex-shrink: 0;
+  margin-right: 0;
+}
 .online-monitor.is-fill .point-search {
   width: 168px;
   flex: 0 0 168px;
@@ -1242,8 +1285,14 @@ export default {
 .online-monitor.is-fill .date-term /deep/ .el-date-editor {
   width: 308px;
 }
+.online-monitor.is-panel.is-fill .date-term /deep/ .el-date-editor {
+  width: 420px;
+}
 .online-monitor.is-fill .toolbar-row > .el-select {
   width: 88px !important;
+}
+.online-monitor.is-panel.is-fill .toolbar-row > .el-select {
+  width: 120px !important;
 }
 .monitor-toolbar {
   flex-shrink: 0;
@@ -1431,7 +1480,7 @@ export default {
 .online-monitor.is-panel /deep/ .trend-point-table.el-table tr:nth-child(even),
 .online-monitor.is-panel /deep/ .trend-point-table.el-table td {
   background-color: transparent;
-  color: #ffffff;
+  color: #b7d4e8;
   border-bottom-color: rgba(104, 190, 254, 0.18);
 }
 .online-monitor.is-panel /deep/ .trend-point-table.el-table thead tr,
@@ -1446,8 +1495,11 @@ export default {
   font-size: 13px;
 }
 .online-monitor.is-panel /deep/ .trend-point-table.el-table td .cell {
-  color: #ffffff;
+  color: #b7d4e8;
   font-size: 13px;
+}
+.online-monitor.is-panel /deep/ .trend-point-table .el-input__inner {
+  color: #b7d4e8;
 }
 .online-monitor.is-panel /deep/ .trend-point-table.el-table.el-table--enable-row-hover .el-table__body tr:hover > td,
 .online-monitor.is-panel /deep/ .trend-point-table.el-table .el-table__body tr.hover-row > td {
@@ -1472,7 +1524,7 @@ export default {
   border-top: 1px solid rgba(104, 190, 254, 0.18);
 }
 .online-monitor.is-panel .link-num {
-  color: #7adfff;
+  color: #b7d4e8;
 }
 .online-monitor.is-panel .delete-btn {
   color: #ff8d8d;

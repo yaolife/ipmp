@@ -17,7 +17,7 @@
           <el-input v-model="filters[field.prop]" clearable :placeholder="'请输入' + field.label" @keyup.enter.native="search"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search" :disabled="loading || !nodeName" @click="search">查询</el-button>
+          <el-button type="primary" :disabled="loading || !nodeName" @click="search">搜索</el-button>
           <el-button :disabled="loading || !nodeName" @click="resetFilters">重置</el-button>
         </el-form-item>
       </el-form>
@@ -348,6 +348,43 @@ export default {
 }
 .sap-related-data.is-panel .sap-toolbar {
   color: rgba(255, 255, 255, 0.85);
+}
+.sap-related-data.is-panel .sap-filters {
+  align-items: center;
+  column-gap: 20px;
+  row-gap: 10px;
+  margin-bottom: 16px;
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-form-item {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0 0;
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-form-item:last-child {
+  margin-left: 4px;
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-form-item__label {
+  float: none;
+  width: auto !important;
+  padding-right: 8px;
+  line-height: 32px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.55);
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-form-item__content {
+  margin-left: 0 !important;
+  line-height: 32px;
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-input {
+  width: 168px;
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-input__inner {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(104, 190, 254, 0.35);
+  color: #ffffff;
+}
+.sap-related-data.is-panel .sap-filters /deep/ .el-input__inner::placeholder {
+  color: rgba(255, 255, 255, 0.38);
 }
 .sap-related-data.is-panel /deep/ .el-button {
   background: transparent;

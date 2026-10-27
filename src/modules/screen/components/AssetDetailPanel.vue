@@ -1,5 +1,9 @@
 <template>
-  <div class="asset-detail-panel" v-show="visible">
+  <div
+    class="asset-detail-panel"
+    :class="{ 'is-monitor-tab': activeTab === 'monitor' }"
+    v-show="visible"
+  >
     <div class="panel-tabs">
       <div
         v-for="tab in tabs"
@@ -725,6 +729,12 @@ export default {
         } else {
           this.resetState();
         }
+      }
+    },
+    activeTab: {
+      immediate: true,
+      handler(val) {
+        this.$emit("tab-change", val);
       }
     }
   },

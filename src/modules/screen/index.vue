@@ -24,13 +24,18 @@
       ></i>
       <span>{{ $t("lang.screen_admin_entry") }}</span>
     </button>
-    <div class="screen-right" v-show="loaded && detailVisible">
+    <div
+      class="screen-right"
+      :class="{ 'is-monitor': detailTab === 'monitor' }"
+      v-show="loaded && detailVisible"
+    >
       <asset-detail-panel
         ref="detailPanel"
         :visible="detailVisible"
         :node-name="detailNodeName"
         :directory-path="directoryPath"
         @close="detailVisible = false"
+        @tab-change="detailTab = $event"
       ></asset-detail-panel>
     </div>
     <video-monitor-dialog
@@ -61,6 +66,7 @@ export default {
       directoryPath: [],
       detailNodeName: "",
       detailVisible: false,
+      detailTab: "basic",
       treeVisible: false,
       showcaseIconVisible: false,
       syncingFromUe: false,
@@ -567,6 +573,11 @@ export default {
   height: 75.93%;
   z-index: 2;
   pointer-events: auto;
+}
+.screen-right.is-monitor {
+  left: 18.2%;
+  width: auto;
+  right: 0.4%;
 }
 </style>
 <style lang="less">
