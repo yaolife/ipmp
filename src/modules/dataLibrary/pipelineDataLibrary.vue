@@ -1,66 +1,91 @@
 <template>
-  <div class="cud-commom-form-style pipeline-data-library-page">
+  <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <el-card class="library-toolbar-card">
-        <el-form :inline="true" :model="query" size="small" @submit.native.prevent>
-          <el-form-item v-if="libraryType === 'material'" label="管材牌号">
-            <el-input v-model.trim="query.materialGrade" clearable placeholder="请输入管材牌号" @keyup.enter.native="search"></el-input>
-          </el-form-item>
-          <el-form-item v-if="libraryType === 'material'" label="UNS编号">
-            <el-input v-model.trim="query.unsNo" clearable placeholder="请输入UNS编号" @keyup.enter.native="search"></el-input>
-          </el-form-item>
-          <el-form-item v-if="libraryType === 'material'" label="材料大类">
-            <el-input v-model.trim="query.category" clearable placeholder="请输入材料大类" @keyup.enter.native="search"></el-input>
-          </el-form-item>
-          <el-form-item v-if="libraryType === 'operating'" label="工况编码">
-            <el-input v-model.trim="query.conditionCode" clearable placeholder="请输入工况编码" @keyup.enter.native="search"></el-input>
-          </el-form-item>
-          <el-form-item v-if="libraryType === 'operating'" label="所属机组">
-            <el-select v-model="query.unitNo" clearable placeholder="请选择机组" @change="search">
-              <el-option label="5号机" :value="5"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="search">搜索</el-button>
-            <el-button @click="reset">重置</el-button>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
       <el-card>
-        <div class="library-actions">
-          <el-button type="primary" size="small" icon="el-icon-plus" @click="openCreate">新增</el-button>
-          <el-button size="small" icon="el-icon-upload2" @click="openImport">导入Excel</el-button>
-          <el-button size="small" icon="el-icon-download" @click="downloadTemplate">下载模板</el-button>
-          <el-button size="small" icon="el-icon-document" @click="exportExcel">导出Excel</el-button>
-          <el-button size="small" type="danger" icon="el-icon-delete" :disabled="!selected.length" @click="removeSelected">批量删除</el-button>
+        <query-form
+          :key="libraryType"
+          :queryFormId="libraryType === 'material' ? 'materialLibrary' : 'operatingConditionLibrary'"
+          :queryFields="queryFields"
+          :loading="loading"
+          :showMoreSetting="false"
+          labelWidth="80px"
+          @resize="initMaxHeight"
+          @submit="search"
+          ref="queryForm"
+          class="cud-commom-form-search"
+        >
+        </query-form>
+      </el-card>
+      <el-card>
+        <div class="table-button">
+          <el-button size="small" @click="openCreate">新增</el-button>
+          <el-button size="small" @click="openImport">导入Excel</el-button>
+          <el-button size="small" @click="downloadTemplate">下载模板</el-button>
+          <el-button size="small" type="primary" @click="exportExcel">导出Excel</el-button>
+          <el-button size="small" type="danger" :disabled="!selected.length" @click="removeSelected">批量删除</el-button>
           <input ref="fileInput" type="file" accept=".xls,.xlsx" style="display:none" @change="importExcel">
         </div>
-        <el-table v-loading="loading" :data="records" border stripe size="small" @selection-change="selected = $event">
-          <el-table-column type="selection" width="50" align="center"></el-table-column>
-          <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-          <template v-for="column in columns">
-            <el-table-column :key="column.prop" :prop="column.prop" :label="column.label" :min-width="column.width || 120" :formatter="column.prop === 'unitNo' ? formatUnitNo : undefined" show-overflow-tooltip></el-table-column>
-          </template>
-          <el-table-column label="操作" width="130" fixed="right" align="center">
-            <template slot-scope="scope">
-              <el-button type="text" size="small" @click="openEdit(scope.row)">编辑</el-button>
-              <el-button type="text" size="small" class="cud-common-operate-delete" @click="removeRow(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div class="library-pagination">
-          <el-pagination
-            background
-            layout="total, sizes, prev, pager, next, jumper"
-            :current-page="query.current"
-            :page-size="query.size"
-            :page-sizes="[10, 20, 50, 100]"
-            :total="total"
-            @size-change="changeSize"
-            @current-change="changePage"
-          ></el-pagination>
-        </div>
+        <el-row
+          class="cud__table--list"
+          :style="{ height: computedTableHeight + 'px' }"
+        >
+          <el-table
+            :data="records"
+            v-loading="loading"
+            :empty-text="$t('cm.nodata')"
+            highlight-current-row
+            border
+            stripe
+            :max-height="computedTableHeight"
+            header-row-class-name="cud-office-table-header"
+            class="cud-office-table"
+            @selection-change="selected = $event"
+          >
+            <el-table-column align="center" type="selection" width="55"></el-table-column>
+            <el-table-column
+              align="center"
+              type="index"
+              label="序号"
+              width="64"
+              :index="indexMethod"
+            ></el-table-column>
+            <el-table-column
+              v-for="column in columns"
+              :key="column.prop"
+              align="center"
+              :prop="column.prop"
+              :label="column.label"
+              :min-width="column.width || 120"
+              :label-class-name="column.nowrap ? 'library-header-nowrap' : ''"
+              :formatter="column.prop === 'unitNo' ? formatUnitNo : undefined"
+              show-overflow-tooltip
+            ></el-table-column>
+            <el-table-column label="操作" width="130" fixed="right" align="center">
+              <template slot-scope="scope">
+                <el-button type="text" size="small" class="cud-common-operate-edit" @click="openEdit(scope.row)">编辑</el-button>
+                <el-button type="text" size="small" class="cud-common-operate-delete" @click="removeRow(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
+        <el-row>
+          <div class="cud-special-pagination cud-special-pagination-button">
+            <el-pagination
+              popper-class="cud-pager-dropdown"
+              ref="pager"
+              class="cud__page"
+              :current-page="query.current"
+              :page-size="query.size"
+              :page-sizes="[10, 20, 30, 40]"
+              :pager-count="5"
+              layout="total,sizes, prev, pager, next"
+              :total="total"
+              :disabled="loading"
+              @size-change="changeSize"
+              @current-change="changePage"
+            ></el-pagination>
+          </div>
+        </el-row>
       </el-card>
 
       <el-dialog :title="editing ? '编辑' : '新增'" :visible.sync="dialogVisible" width="760px" append-to-body>
@@ -93,6 +118,8 @@
 
 <script>
 import api from "./api";
+import queryForm from "@/components/common/queryForm";
+import { calcHeight, throttle } from "@/utils/funcUtil";
 
 const MATERIAL_FIELDS = [
   ["materialGrade", "管材牌号"], ["unsNo", "UNS编号"], ["category", "材料大类"],
@@ -117,6 +144,9 @@ const OPERATING_FIELDS = [
 
 export default {
   name: "PipelineDataLibrary",
+  components: {
+    queryForm
+  },
   data() {
     return {
       libraryType: this.$route.meta && this.$route.meta.libraryType || "material",
@@ -128,26 +158,70 @@ export default {
       saving: false,
       dialogVisible: false,
       editing: false,
-      form: {}
+      form: {},
+      maxTableHeight: 0
     };
   },
   computed: {
     fields() { return this.libraryType === "material" ? MATERIAL_FIELDS : OPERATING_FIELDS; },
-    columns() { return this.fields.map(item => ({ prop: item[0], label: item[1], width: item[2] === "number" ? 140 : 130 })); },
+    columns() {
+      const nowrapProps = { c2Level: 196, c3Level: 188 };
+      return this.fields.map(item => ({
+        prop: item[0],
+        label: item[1],
+        width: nowrapProps[item[0]] || (item[2] === "number" ? 140 : 130),
+        nowrap: !!nowrapProps[item[0]]
+      }));
+    },
     formFields() { return this.fields.map(item => ({ prop: item[0], label: item[1], type: item[2], precision: item[3] })); },
-    pageTitle() { return this.libraryType === "material" ? "材料信息库" : "运行工况库"; }
+    pageTitle() { return this.libraryType === "material" ? "材料信息库" : "运行工况库"; },
+    computedTableHeight() { return this.maxTableHeight; },
+    queryFields() {
+      if (this.libraryType === "operating") {
+        return [
+          { name: "conditionCode", label: "工况编码", value: "", type: "input", display: true, order: 1 },
+          {
+            name: "unitNo",
+            label: "所属机组",
+            value: "",
+            type: "select",
+            display: true,
+            order: 2,
+            fieldMap: [{ label: "5号机", value: 5 }]
+          }
+        ];
+      }
+      return [
+        { name: "materialGrade", label: "管材牌号", value: "", type: "input", display: true, order: 1 },
+        { name: "unsNo", label: "UNS编号", value: "", type: "input", display: true, order: 2 },
+        { name: "category", label: "材料大类", value: "", type: "input", display: true, order: 3 }
+      ];
+    }
   },
   watch: {
-    "$route.path"() { this.switchType(); }
+    "$route.path"() {
+      this.switchType();
+      this.$nextTick(this.initMaxHeight);
+    }
   },
-  mounted() { this.switchType(); },
+  mounted() {
+    this.switchType();
+    this.initMaxHeight();
+    this.throttleFunc = throttle(this.initMaxHeight, 500);
+    window.addEventListener("resize", this.throttleFunc);
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.throttleFunc);
+  },
   methods: {
     // 机组编号仅在列表展示时转换名称，筛选和保存仍使用数字编号。
     formatUnitNo(row, column, value) {
       return value === null || value === undefined || value === "" ? "-" : value + "号机";
     },
     emptyQuery() { return { current: 1, size: 10, materialGrade: "", unsNo: "", category: "", conditionCode: "", unitNo: null }; },
-    switchType() { this.libraryType = this.$route.meta && this.$route.meta.libraryType || (this.$route.path.indexOf("operating") >= 0 ? "operating" : "material"); this.query = this.emptyQuery(); this.load(); },
+    initMaxHeight() { calcHeight(this); },
+    indexMethod(index) { return (this.query.current - 1) * this.query.size + index + 1; },
+    switchType() { this.libraryType = this.$route.meta && this.$route.meta.libraryType || (this.$route.path.indexOf("operating") >= 0 ? "operating" : "material"); this.query = this.emptyQuery(); this.selected = []; this.load(); },
     load() {
       this.loading = true;
       api.page(this.libraryType, this.query).then(res => {
@@ -156,8 +230,18 @@ export default {
         this.total = data && data.total || 0;
       }).catch(() => { this.$message.error("查询失败，请稍后重试"); }).finally(() => { this.loading = false; });
     },
-    search() { this.query.current = 1; this.load(); },
-    reset() { this.query = this.emptyQuery(); this.load(); },
+    search(form) {
+      const next = this.emptyQuery();
+      next.size = this.query.size;
+      if (form && typeof form === "object") {
+        ["materialGrade", "unsNo", "category", "conditionCode"].forEach(key => {
+          if (form[key] !== undefined && form[key] !== null) next[key] = String(form[key]).trim();
+        });
+        if (form.unitNo !== undefined && form.unitNo !== "" && form.unitNo !== null) next.unitNo = form.unitNo;
+      }
+      this.query = next;
+      this.load();
+    },
     changeSize(size) { this.query.size = size; this.query.current = 1; this.load(); },
     changePage(page) { this.query.current = page; this.load(); },
     openCreate() { this.editing = false; this.form = {}; this.dialogVisible = true; },
@@ -200,9 +284,51 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.pipeline-data-library-page { padding-bottom: 20px; }
-.library-actions { text-align: right; margin-bottom: 12px; }
-.library-pagination { padding: 16px 0 4px; text-align: right; }
-.library-form /deep/ .el-input-number { text-align: left; }
-.library-toolbar-card { margin-bottom: 12px; }
+.el-card.is-always-shadow {
+  margin-left: 15px;
+}
+/deep/ .el-button--text {
+  user-select: unset;
+}
+.table-button {
+  text-align: right;
+}
+/deep/ .el-form-item__label {
+  white-space: nowrap;
+}
+/deep/ .cud-commom-form-search .el-form-item {
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+}
+/deep/ .cud-commom-form-search .el-form-item__label {
+  width: auto !important;
+  float: none;
+  padding-right: 8px;
+  line-height: 32px;
+  flex-shrink: 0;
+}
+/deep/ .cud-commom-form-search .el-form-item__content {
+  margin-left: 0 !important;
+  flex: none;
+  float: none;
+  width: 50%;
+  max-width: 220px;
+  min-width: 0;
+}
+/deep/ .cud-commom-form-search .el-input,
+/deep/ .cud-commom-form-search .el-select {
+  width: 100%;
+}
+/deep/ .el-card:first-child .el-card__body {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.library-form /deep/ .el-input-number .el-input__inner {
+  text-align: left;
+}
+/deep/ .cud-office-table th.library-header-nowrap > .cell {
+  white-space: nowrap;
+  word-break: keep-all;
+}
 </style>
