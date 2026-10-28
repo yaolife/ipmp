@@ -41,7 +41,7 @@
           <el-table-column type="selection" width="50" align="center"></el-table-column>
           <el-table-column type="index" label="序号" width="60" align="center" :index="indexMethod"></el-table-column>
           <template v-for="column in columns">
-            <el-table-column :key="column.prop" :prop="column.prop" :label="column.label" :min-width="column.width || 120" :formatter="column.formatter" :label-class-name="column.nowrap ? 'library-header-nowrap' : ''" show-overflow-tooltip></el-table-column>
+            <el-table-column :key="column.prop" :prop="column.prop" :label="column.label" :min-width="column.width || 120" :formatter="column.formatter" align="center" header-align="center" show-overflow-tooltip></el-table-column>
           </template>
           <el-table-column label="操作" width="130" fixed="right" align="center">
             <template slot-scope="scope">
@@ -215,6 +215,11 @@ const TEMPERATURE_AXES = {
   elastic: [-200, -125, -75, 25, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700]
 };
 const emptyValues = temperatures => temperatures.reduce((result, temperature) => { result[String(temperature)] = null; return result; }, {});
+// 表头按单行宽度留出左右内边距，避免中文表头被挤成两行。
+const columnMinWidth = label => {
+  const width = Array.from(String(label || "")).reduce((sum, char) => sum + (char.charCodeAt(0) > 127 ? 16 : 9), 40);
+  return Math.max(100, Math.ceil(width));
+};
 const newMaterialForm = () => ({
   mechanicalCurveRows: {
     s: [{ sizeCondition: null, values: emptyValues(TEMPERATURE_AXES.s) }],
@@ -313,7 +318,7 @@ export default {
       return this.fields.map(item => ({
         prop: item[0],
         label: item[1],
-        width: item[2] === "number" ? 140 : 130,
+        width: columnMinWidth(item[1]),
         formatter: item[0] === "unitNo" ? this.formatUnitNo : (item[2] === "number" ? this.formatNumber : undefined)
       }));
     },
@@ -585,7 +590,9 @@ export default {
 .library-pagination { padding: 16px 0 4px; text-align: right; }
 .library-form /deep/ .el-input-number { text-align: left; }
 .library-form /deep/ .el-input-number .el-input__inner { text-align: left; }
-/deep/ .cud-office-table th.library-header-nowrap > .cell { white-space: nowrap; word-break: keep-all; }
+/deep/ .cud-office-table th > .cell,
+/deep/ .cud-office-table td > .cell { display: block; text-align: center; }
+/deep/ .cud-office-table th > .cell { white-space: nowrap; word-break: keep-all; }
 .material-editor-toolbar { display:flex; align-items:center; justify-content:space-between; padding:0 0 12px; border-bottom:1px solid #ebeef5; }
 .material-editor-toolbar > div { display:flex; flex-direction:column; gap:4px; }
 .material-editor-toolbar strong { font-size:16px; color:#303133; }
