@@ -66,6 +66,16 @@ export default {
             apiTitle: '查询最新启用模型资源目录树'
         }).then(res => res.data);
     },
+    getLatestEnabledModelTreeRoots: function() {
+        return axios.get('/model-resource-directories/tree/latest-enabled-model/roots', {
+            apiTitle: '查询最新启用模型资源目录树根节点'
+        }).then(res => res.data);
+    },
+    getLatestEnabledModelTreeChildren: function(id) {
+        return axios.get('/model-resource-directories/tree/latest-enabled-model/children/' + id, {
+            apiTitle: '懒加载最新启用模型资源目录树子节点'
+        }).then(res => res.data);
+    },
     getResourceDirectoryChildren: function(id) {
         return axios.get('/model-resource-directories/children/' + id, {
             apiTitle: '查询资源目录子节点'
@@ -74,6 +84,12 @@ export default {
     getResourceDirectoryDetail: function(id) {
         return axios.get('/model-resource-directories/' + id, {
             apiTitle: '查询资源目录详情'
+        }).then(res => res.data);
+    },
+    matchMaterialLibrary: function(keyword) {
+        return axios.get('/data-material-libraries/matches', {
+            params: { keyword: keyword },
+            apiTitle: '匹配材料信息库候选'
         }).then(res => res.data);
     },
     getSapRelatedDataPage: function(params) {

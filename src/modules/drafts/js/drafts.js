@@ -22,7 +22,8 @@ export default {
       treeData: [],
       treeProps: {
         children: "children",
-        label: "nodeName"
+        label: "nodeName",
+        isLeaf: "leaf"
       },
       currentNode: null,
       treeLoading: false,
@@ -82,8 +83,14 @@ export default {
   watch: {
     filterText(val) {
       this.filterText = (val || "").trim();
-      this.$refs.resourceTree && this.$refs.resourceTree.filter(this.filterText);
-      this.$nextTick(() => this.syncTreeThumb());
+      clearTimeout(this._treeSearchTimer);
+      this._treeSearchTimer = setTimeout(() => {
+        if (!this.filterText) {
+          this.getTreeList();
+          return;
+        }
+        this.loadFullTreeForSearch();
+      }, 250);
     }
   },
   methods: {
@@ -195,7 +202,7 @@ export default {
       const prevId = keepCurrent && this.currentNode ? this.currentNode.id : "";
       this.treeLoading = true;
       api
-        .getLatestEnabledModelTree()
+        .getLatestEnabledModelTreeRoots()
         .then(res => {
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {
@@ -203,7 +210,11 @@ export default {
             const nextNode = prevId
               ? this.findTreeNode(this.treeData, prevId)
               : null;
-            this.currentNode = nextNode;
+            // 懒加载只返回根节点时，当前节点可能尚未在根节点集合中；保留已选节点，
+            // 避免详情保存后关闭页面丢失当前管段上下文。
+            if (nextNode || !prevId) {
+              this.currentNode = nextNode;
+            }
             this.$nextTick(() => {
               if (this.$refs.resourceTree) {
                 this.$refs.resourceTree.setCurrentKey(
@@ -234,6 +245,61 @@ export default {
           this.currentNode = null;
           this.clearTable();
         });
+    },
+    /**
+     * 搜索资源树时按需加载完整轻量树；普通首屏和清空搜索仍只加载根节点。
+     */
+    loadFullTreeForSearch() {
+      const requestId = (this._treeSearchRequestId || 0) + 1;
+      this._treeSearchRequestId = requestId;
+      this.treeLoading = true;
+      api
+        .getLatestEnabledModelTree()
+        .then(res => {
+          if (requestId !== this._treeSearchRequestId) return;
+          if (!this.isSuccessCode(res && res.code)) {
+            this.treeData = [];
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+            return;
+          }
+          this.treeData = Array.isArray(res.data) ? res.data : [];
+          this.$nextTick(() => {
+            if (this.$refs.resourceTree) {
+              this.$refs.resourceTree.filter(this.filterText);
+            }
+            this.syncTreeThumb();
+          });
+        })
+        .catch(() => {
+          if (requestId === this._treeSearchRequestId) this.treeData = [];
+        })
+        .finally(() => {
+          if (requestId === this._treeSearchRequestId) this.treeLoading = false;
+        });
+    },
+    /**
+     * 懒加载资源目录树的直接子节点，避免首屏一次性构造整棵模型树。
+     *
+     * @param node Element UI 当前树节点
+     * @param resolve Element UI 子节点回调
+     */
+    loadTreeNode(node, resolve) {
+      const data = node && node.data;
+      if (!data || !data.id) {
+        resolve([]);
+        return;
+      }
+      api
+        .getLatestEnabledModelTreeChildren(data.id)
+        .then(res => {
+          if (this.isSuccessCode(res && res.code)) {
+            resolve(Array.isArray(res.data) ? res.data : []);
+          } else {
+            resolve([]);
+            this.$message.error((res && res.msg) || this.$t("cm.fail"));
+          }
+        })
+        .catch(() => resolve([]));
     },
     getNodeLevel(data) {
       if (!data) return -1;
@@ -583,6 +649,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.throttleFunc);
+    clearTimeout(this._treeSearchTimer);
     if (this._treeThumbMove) {
       document.removeEventListener("mousemove", this._treeThumbMove);
       document.removeEventListener("mouseup", this._treeThumbUp);

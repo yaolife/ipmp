@@ -250,9 +250,23 @@
                 <div class="field">
                   <label>{{ $t(item.label) }}</label>
                   <el-input
+                    v-if="item.key !== 'material'"
                     v-model="form[item.key]"
                     size="small"
                   ></el-input>
+                  <div v-else class="material-match-field">
+                    <el-input
+                      v-model="form[item.key]"
+                      size="small"
+                      @keyup.enter.native="queryMaterialMatches"
+                    ></el-input>
+                    <el-button
+                      type="primary"
+                      size="small"
+                      :loading="materialMatchLoading"
+                      @click="queryMaterialMatches"
+                    >匹配材料库</el-button>
+                  </div>
                 </div>
               </el-col>
             </el-row>
@@ -260,19 +274,6 @@
           <div class="section-block">
             <div class="section-title">{{ $t("lang.status_source") }}</div>
             <el-row :gutter="24" class="form-grid">
-              <el-col :span="8">
-                <div class="field">
-                  <label>{{ $t("lang.data_status") }}</label>
-                  <el-select v-model="form.dataStatus" size="small">
-                    <el-option
-                      v-for="opt in dataStatusOptions"
-                      :key="opt.value"
-                      :label="opt.label"
-                      :value="opt.value"
-                    ></el-option>
-                  </el-select>
-                </div>
-              </el-col>
               <el-col :span="8">
                 <div class="field">
                   <label>{{ $t("lang.data_source") }}</label>
@@ -863,6 +864,39 @@
         </el-tab-pane>
       </el-tabs>
     </div>
+    <el-dialog
+      title="选择材料库记录"
+      :visible.sync="materialMatchVisible"
+      width="960px"
+      append-to-body
+    >
+      <div class="material-match-tip">
+        匹配关键词：{{ materialMatchKeyword }}。选择后参数会回填到当前表单，请继续点击页面顶部“保存”。
+      </div>
+      <el-table
+        :data="materialMatchResults"
+        border
+        size="small"
+        max-height="480"
+        @row-click="applyMaterialMatch"
+      >
+        <el-table-column prop="materialGrade" label="管材牌号" min-width="130" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="subcategory" label="材料子类" min-width="130" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="category" label="材料大类" min-width="110" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="unsNo" label="UNS编号" min-width="110" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="productForm" label="产品形式" min-width="100" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="yieldStrength" label="屈服强度(MPa)" width="125"></el-table-column>
+        <el-table-column prop="elasticModulus" label="弹性模量" width="105"></el-table-column>
+        <el-table-column label="操作" width="80" fixed="right" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" size="small" @click.stop="applyMaterialMatch(scope.row)">选择</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer">
+        <el-button size="small" @click="materialMatchVisible = false">取消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -1179,7 +1213,6 @@ function emptyForm() {
     flowVelocity: "",
     maxVelocity: "",
     thermalDisplacement: "",
-    dataStatus: "已发布",
     dataSource: "",
     modifyDate: "",
     fluidDensity: "",
@@ -1281,6 +1314,10 @@ export default {
     return {
       loading: false,
       saving: false,
+      materialMatchVisible: false,
+      materialMatchLoading: false,
+      materialMatchKeyword: "",
+      materialMatchResults: [],
       uploadingImages: 0,
       activeTab: "basic",
       detail: {},
@@ -1446,14 +1483,6 @@ export default {
         { label: this.$t("lang.weld_socket"), value: "承插焊" },
         { label: this.$t("lang.weld_flange"), value: "法兰焊" },
         { label: this.$t("lang.weld_other"), value: "其他" }
-      ];
-    },
-    dataStatusOptions() {
-      return [
-        { label: this.$t("lang.status_draft"), value: "草稿" },
-        { label: this.$t("lang.status_published"), value: "已发布" },
-        { label: this.$t("lang.status_pending"), value: "待审核" },
-        { label: this.$t("lang.status_disabled"), value: "已停用" }
       ];
     },
     dataSourceOptions() {
@@ -1771,6 +1800,54 @@ export default {
           this.detail = {};
           this.resetLocalState();
         });
+    },
+    /**
+     * 按当前详情页输入的材质查询材料库候选，查询过程不保存资源详情。
+     */
+    queryMaterialMatches() {
+      const keyword = String(this.form.material || "").trim();
+      if (!keyword) {
+        this.$message.warning("请先输入管道材质");
+        return;
+      }
+      this.materialMatchKeyword = keyword;
+      this.materialMatchLoading = true;
+      api.matchMaterialLibrary(keyword)
+        .then(res => {
+          if (!this.isSuccessCode(res && res.code)) {
+            this.$message.error((res && res.msg) || "材料库匹配失败");
+            return;
+          }
+          this.materialMatchResults = Array.isArray(res.data) ? res.data : [];
+          if (!this.materialMatchResults.length) {
+            this.materialMatchVisible = false;
+            this.$message.info("未匹配到材料库记录");
+            return;
+          }
+          this.materialMatchVisible = true;
+        })
+        .catch(error => {
+          this.$message.error((error && error.msg) || "材料库匹配失败");
+        })
+        .finally(() => {
+          this.materialMatchLoading = false;
+        });
+    },
+    /**
+     * 将选中的材料库基础参数回填到详情表单，等待用户确认后统一保存。
+     *
+     * @param row 用户选择的材料库记录
+     */
+    applyMaterialMatch(row) {
+      if (!row) return;
+      this.form.materialGrade = row.materialGrade || row.subcategory || this.form.materialGrade;
+      this.form.elasticModulus = row.elasticModulus == null ? "" : row.elasticModulus;
+      this.form.poissonRatio = row.poissonRatio == null ? "" : row.poissonRatio;
+      this.form.materialDensity = row.materialDensity == null ? "" : row.materialDensity;
+      this.form.yieldStrength = row.yieldStrength == null ? "" : row.yieldStrength;
+      this.form.fatigueLimit = row.fatigueLimit == null ? "" : row.fatigueLimit;
+      this.materialMatchVisible = false;
+      this.$message.success("材料库参数已回填，请点击保存");
     },
     triggerImageInput() {
       this.$refs.imageInput && this.$refs.imageInput.click();
@@ -2118,6 +2195,21 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.material-match-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.material-match-field .el-input {
+  flex: 1;
+  min-width: 0;
+}
+.material-match-tip {
+  margin-bottom: 10px;
+  color: #909399;
+  font-size: 12px;
+  line-height: 1.6;
 }
 .save-status {
   display: inline-flex;

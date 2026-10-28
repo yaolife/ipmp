@@ -40,8 +40,9 @@
                     node-key="id"
                     :data="treeData"
                     :props="treeProps"
+                    lazy
+                    :load="loadTreeNode"
                     highlight-current
-                    default-expand-all
                     :expand-on-click-node="false"
                     :filter-node-method="filterTreeNode"
                     :style="{
