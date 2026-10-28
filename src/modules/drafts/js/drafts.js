@@ -20,6 +20,8 @@ export default {
       brand: [{ name: "lang.asset_manage" }, { name: "lang.pipe_database" }],
       filterText: "",
       treeData: [],
+      treeLazy: true,
+      treeRenderKey: 0,
       treeProps: {
         children: "children",
         label: "nodeName",
@@ -86,6 +88,10 @@ export default {
       clearTimeout(this._treeSearchTimer);
       this._treeSearchTimer = setTimeout(() => {
         if (!this.filterText) {
+          // 取消正在返回的全量搜索请求，避免清空搜索后旧结果再次覆盖懒加载树。
+          this._treeSearchRequestId = (this._treeSearchRequestId || 0) + 1;
+          this.treeLazy = true;
+          this.treeRenderKey += 1;
           this.getTreeList();
           return;
         }
@@ -253,6 +259,9 @@ export default {
       const requestId = (this._treeSearchRequestId || 0) + 1;
       this._treeSearchRequestId = requestId;
       this.treeLoading = true;
+      // 搜索需要遍历完整树。切换为非懒加载并重建 Tree，避免 Element UI 在 lazy 模式下只过滤已加载的根节点。
+      this.treeLazy = false;
+      this.treeRenderKey += 1;
       api
         .getLatestEnabledModelTree()
         .then(res => {

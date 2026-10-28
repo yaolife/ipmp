@@ -37,11 +37,12 @@
                 <div class="cud__mtb-10 ml-20 mr-20 resource-tree-box" v-loading="treeLoading">
                   <el-tree
                     ref="resourceTree"
+                    :key="treeRenderKey"
                     node-key="id"
                     :data="treeData"
                     :props="treeProps"
-                    lazy
-                    :load="loadTreeNode"
+                    :lazy="treeLazy"
+                    :load="treeLazy ? loadTreeNode : undefined"
                     highlight-current
                     :expand-on-click-node="false"
                     :filter-node-method="filterTreeNode"
