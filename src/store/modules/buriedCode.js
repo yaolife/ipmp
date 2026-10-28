@@ -18,8 +18,9 @@ export default {
     callCmmonMethod({ commit }, payload) {
       let obj = {};
       if (payload.type === "WEB") {
-        let props = payload.to.matched[1].props;
-        if (props.default && props.default.code) {
+        const matched = payload.to && payload.to.matched && payload.to.matched[1];
+        const props = matched && matched.props;
+        if (props && props.default && props.default.code) {
           obj = {
             monitorCode: props.default.code,
             elapsedTime: payload.time,
