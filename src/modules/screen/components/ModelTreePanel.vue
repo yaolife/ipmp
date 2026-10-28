@@ -16,11 +16,13 @@
     <div class="panel-tree" v-loading="loading">
       <el-tree
         ref="resourceTree"
+        :key="treeRenderKey"
         node-key="id"
         :data="treeData"
         :props="treeProps"
+        :lazy="treeLazy"
+        :load="treeLazy ? loadTreeNode : undefined"
         highlight-current
-        default-expand-all
         :expand-on-click-node="false"
         :filter-node-method="filterTreeNode"
         :empty-text="$t('cm.nodata')"
@@ -79,9 +81,12 @@ export default {
       loading: false,
       filterText: "",
       treeData: [],
+      treeLazy: true,
+      treeRenderKey: 0,
       treeProps: {
         children: "children",
-        label: "nodeName"
+        label: "nodeName",
+        isLeaf: "leaf"
       },
       currentNodeId: null,
       currentMeshId: "",
@@ -90,16 +95,35 @@ export default {
     };
   },
   watch: {
-    filterText(val) {
-      const keyword = (val || "").trim();
-      this.$refs.resourceTree && this.$refs.resourceTree.filter(keyword);
+    filterText() {
+      // 输入变化时立即使旧请求失效，避免清空搜索后旧的全量结果覆盖根节点。
+      const requestId = ++this._treeRequestId;
+      clearTimeout(this._treeSearchTimer);
+      this._treeSearchTimer = setTimeout(() => {
+        if (this.filterText.trim()) {
+          this.showFullTree(requestId);
+        } else {
+          this.loadTree(false);
+        }
+      }, 250);
     }
+  },
+  created() {
+    // 大树缓存和索引不参与 Vue 深度响应；只有当前展示的树交给 Element UI。
+    this._treeRequestId = 0;
+    this._selectionRequestId = 0;
+    this._nodeLookup = Object.create(null);
+    this._fullTree = null;
+    this._fullTreePromise = null;
   },
   mounted() {
     this.loadTree();
     window.addEventListener("ipmp-showcase", this.onWindowShowCase);
   },
   beforeDestroy() {
+    clearTimeout(this._treeSearchTimer);
+    this._treeRequestId += 1;
+    this._selectionRequestId += 1;
     window.removeEventListener("ipmp-showcase", this.onWindowShowCase);
   },
   methods: {
@@ -173,28 +197,116 @@ export default {
       }
       this.$emit("showcase", payload, id);
     },
-    loadTree() {
+    /**
+     * 仅加载启用模型的根节点，避免首次打开时请求并展开整个模型。
+     * @param notifyLoaded 首次加载时通知场景恢复选中；清空搜索时不触发全树反选。
+     */
+    loadTree(notifyLoaded) {
+      const requestId = ++this._treeRequestId;
       this.loading = true;
-      api
-        .getLatestEnabledModelTree()
+      return api
+        .getLatestEnabledModelTreeRoots()
         .then(res => {
-          this.loading = false;
-          if (this.isSuccessCode(res && res.code)) {
-            this.treeData = normalizeTree(
-              Array.isArray(res.data) ? res.data : []
-            );
-          } else {
-            this.treeData = [];
-          }
-          this.$emit("loaded", this.treeData);
+          if (requestId !== this._treeRequestId) return;
+          if (!this.isSuccessCode(res && res.code)) throw new Error((res && res.msg) || this.$t("cm.fail"));
+          this.treeLazy = true;
+          this.treeRenderKey += 1;
+          this.treeData = normalizeTree(res.data);
+          this.indexNodes(this.treeData);
+          this.setCurrentKey(this.currentNodeId);
+          if (notifyLoaded !== false) this.$emit("loaded", this.treeData);
         })
-        .catch(() => {
-          this.loading = false;
+        .catch(error => {
+          if (requestId !== this._treeRequestId) return;
           this.treeData = [];
-          this.$emit("loaded", []);
+          this.$message.error(error.message || this.$t("cm.fail"));
+        })
+        .finally(() => {
+          if (requestId === this._treeRequestId) this.loading = false;
         });
     },
+    /** 按展开节点查询直接子节点，保留节点的定位和详情联动字段。 */
+    loadTreeNode(node, resolve) {
+      // Element UI 在新建懒加载树时也会请求虚拟根节点，必须回填已取得的根数据。
+      if (node && node.level === 0) {
+        resolve(this.treeData);
+        return;
+      }
+      const data = node && node.data;
+      if (!data || !data.id) {
+        resolve([]);
+        return;
+      }
+      const renderKey = this.treeRenderKey;
+      api.getLatestEnabledModelTreeChildren(data.id).then(res => {
+        if (renderKey !== this.treeRenderKey || this._isDestroyed) return;
+        if (!this.isSuccessCode(res && res.code)) throw new Error((res && res.msg) || this.$t("cm.fail"));
+        const children = normalizeTree(res.data);
+        this.indexNodes(children);
+        resolve(children);
+        this.setCurrentKey(this.currentNodeId);
+      }).catch(error => {
+        if (renderKey !== this.treeRenderKey || this._isDestroyed) return;
+        resolve([]);
+        // 加载失败不永久标为叶节点，用户可再次展开重试。
+        node.loaded = false;
+        node.isLeaf = false;
+        this.$message.error(error.message || this.$t("cm.fail"));
+      });
+    },
+    /** 搜索或场景反选时才获取完整轻量树，并复用同一请求和缓存。 */
+    getFullTree() {
+      if (this._fullTree) return Promise.resolve(this._fullTree);
+      if (this._fullTreePromise) return this._fullTreePromise;
+      this._fullTreePromise = api.getLatestEnabledModelTree().then(res => {
+        if (!this.isSuccessCode(res && res.code)) throw new Error((res && res.msg) || this.$t("cm.fail"));
+        const tree = normalizeTree(res.data);
+        if (!this._isDestroyed) {
+          this._fullTree = tree;
+          this.indexNodes(tree);
+        }
+        return tree;
+      }).finally(() => {
+        this._fullTreePromise = null;
+      });
+      return this._fullTreePromise;
+    },
+    /** 切换为普通树后再过滤，确保能够搜到尚未展开的深层节点。 */
+    showFullTree(requestId) {
+      this.loading = true;
+      return this.getFullTree().then(tree => {
+        if (requestId !== this._treeRequestId) return;
+        if (this.treeLazy) {
+          this.treeLazy = false;
+          this.treeRenderKey += 1;
+        }
+        this.treeData = tree;
+        return this.$nextTick(() => {
+          if (requestId !== this._treeRequestId) return;
+          const resourceTree = this.$refs.resourceTree;
+          if (resourceTree) resourceTree.filter(this.filterText.trim());
+          this.setCurrentKey(this.currentNodeId);
+        });
+      }).catch(error => {
+        if (requestId === this._treeRequestId) this.$message.error(error.message || this.$t("cm.fail"));
+      }).finally(() => {
+        if (requestId === this._treeRequestId) this.loading = false;
+      });
+    },
+    /** 索引懒加载节点及其模型别名，供场景选中和展示命令快速查找。 */
+    indexNodes(list) {
+      (list || []).forEach(node => {
+        [getNodeMeshId(node), node.pipelineNo, node.modelCode, node.modelNo,
+          node.pipelineName, node.modelName, node.nodeName, node.name, node.code, node.id
+        ].forEach(value => {
+          const key = this.pickShowcaseText(value);
+          if (key && !this._nodeLookup[key]) this._nodeLookup[key] = node;
+        });
+        this.indexNodes(node.children);
+      });
+    },
     onNodeClick(data) {
+      this._selectionRequestId += 1;
       const meshId = getNodeMeshId(data);
       const sameNode =
         this.currentNodeId != null && String(this.currentNodeId) === String(data && data.id);
@@ -209,38 +321,36 @@ export default {
       this.$emit("select", data, meshId);
     },
     clearCurrent() {
+      this._selectionRequestId += 1;
       this.currentNodeId = null;
       this.currentMeshId = "";
       this.setCurrentKey(null);
     },
-    findNodeByMeshId(meshId, list) {
+    findNodeByMeshId(meshId) {
       const id = this.pickShowcaseText(meshId);
-      if (!id) return null;
-      const nodes = Array.isArray(list) ? list : this.treeData;
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        if (!node) continue;
-        const keys = [
-          getNodeMeshId(node),
-          node.pipelineNo,
-          node.modelCode,
-          node.modelNo,
-          node.pipelineName,
-          node.modelName,
-          node.nodeName,
-          node.name,
-          node.code,
-          node.id
-        ];
-        if (keys.some(item => this.pickShowcaseText(item) === id)) return node;
-        const found = this.findNodeByMeshId(id, node.children || []);
-        if (found) return found;
-      }
-      return null;
+      return id ? this._nodeLookup[id] || null : null;
     },
     selectByMeshId(meshId) {
+      const selectionId = ++this._selectionRequestId;
       const node = this.findNodeByMeshId(meshId);
-      if (!node) return null;
+      const tree = this.$refs.resourceTree;
+      if (!node || !tree || !tree.getNode(node.id)) {
+        // UE 可直接选中未展开的元件；此时按需获取整树，只展开选中节点的祖先。
+        const requestId = this._treeRequestId;
+        return this.getFullTree().then(() => {
+          if (selectionId !== this._selectionRequestId || requestId !== this._treeRequestId) return null;
+          const matched = this.findNodeByMeshId(meshId);
+          if (!matched) return null;
+          this.currentNodeId = matched.id;
+          this.currentMeshId = getNodeMeshId(matched) || normalizeMeshId(meshId);
+          return this.showFullTree(requestId).then(() => matched);
+        }).catch(error => {
+          if (selectionId === this._selectionRequestId && !this._isDestroyed) {
+            this.$message.error(error.message || this.$t("cm.fail"));
+          }
+          return null;
+        });
+      }
       this.currentNodeId = node.id;
       this.currentMeshId = getNodeMeshId(node) || normalizeMeshId(meshId);
       this.setCurrentKey(node.id);
@@ -249,7 +359,14 @@ export default {
     setCurrentKey(id) {
       this.$nextTick(() => {
         if (this.$refs.resourceTree) {
-          this.$refs.resourceTree.setCurrentKey(id || null);
+          const tree = this.$refs.resourceTree;
+          tree.setCurrentKey(id || null);
+          let parent = id && tree.getNode(id);
+          // 不再全部展开；反选时只打开祖先路径，避免大量节点同时渲染。
+          while (parent && parent.parent) {
+            parent = parent.parent;
+            parent.expanded = true;
+          }
         }
       });
     }
