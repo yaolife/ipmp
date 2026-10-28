@@ -2,16 +2,30 @@
   <div
     class="sap-related-data"
     :class="{ 'is-stretch': stretch, 'is-panel': panel }"
-    v-loading="loading"
   >
     <div class="sap-surface">
       <div class="sap-toolbar">
         <span class="sap-current">
           当前管道：{{ nodeName || "-" }}
-          <span v-if="isReferenceUnit">（五号机暂关联一号机数据，实际功能位置见列表）</span>
+          <span v-if="isReferenceUnit && sourceTab === 'sap'">（五号机暂关联一号机数据，实际功能位置见列表）</span>
         </span>
-        <el-button size="small" :disabled="loading || !nodeName" @click="loadPage">刷新</el-button>
+        <el-button v-if="sourceTab === 'sap'" size="small" :disabled="loading || !nodeName" @click="loadPage">刷新</el-button>
       </div>
+      <div class="sap-source-tabs">
+        <button
+          type="button"
+          class="sap-source-tab"
+          :class="{ active: sourceTab === 'sap' }"
+          @click="sourceTab = 'sap'"
+        >SAP</button>
+        <button
+          type="button"
+          class="sap-source-tab"
+          :class="{ active: sourceTab === 'other' }"
+          @click="sourceTab = 'other'"
+        >其他</button>
+      </div>
+      <div v-show="sourceTab === 'sap'" class="sap-pane" v-loading="loading">
       <el-form class="sap-filters" :inline="true" :model="filters" size="small" @submit.native.prevent="search">
         <el-form-item v-for="field in filterFields" :key="field.prop" :label="field.label">
           <el-input v-model="filters[field.prop]" clearable :placeholder="'请输入' + field.label" @keyup.enter.native="search"></el-input>
@@ -90,6 +104,14 @@
           @size-change="changeSize"
         ></el-pagination>
       </div>
+      </div>
+      <div v-show="sourceTab === 'other'" class="sap-pane">
+        <div class="sap-table-wrap">
+          <div class="sap-other-board" :class="{ 'is-native': panel }">
+            <div class="sap-native-empty">暂无数据</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -109,6 +131,7 @@ export default {
   },
   data() {
     return {
+      sourceTab: "sap",
       records: [],
       total: 0,
       current: 1,
@@ -158,12 +181,16 @@ export default {
     nodeName: {
       immediate: true,
       handler() {
+        this.sourceTab = "sap";
         this.current = 1;
         this.total = 0;
         this.filters = emptyFilters();
         this.appliedFilters = emptyFilters();
         this.loadPage();
       }
+    },
+    sourceTab() {
+      this.scheduleTableHeight();
     },
     loading(value) {
       if (!value) this.scheduleTableHeight();
@@ -299,10 +326,42 @@ export default {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-size: 13px;
   line-height: 1.6;
   flex-shrink: 0;
+}
+.sap-source-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e6e8eb;
+  flex-shrink: 0;
+}
+.sap-source-tab {
+  height: 34px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  color: #606266;
+  font-size: 14px;
+  line-height: 34px;
+  cursor: pointer;
+}
+.sap-source-tab.active {
+  color: #1a6fc4;
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 #1a6fc4;
+}
+.sap-pane {
+  min-width: 0;
+  min-height: 0;
+}
+.sap-related-data.is-stretch .sap-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .sap-current {
   min-width: 0;
@@ -346,8 +405,40 @@ export default {
   border: 1px solid rgba(104, 190, 254, 0.35);
   background: rgba(8, 36, 59, 0.74);
 }
+.sap-other-board {
+  height: 100%;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ebeef5;
+  background: #fff;
+}
+.sap-other-board .sap-native-empty {
+  color: #909399;
+}
+.sap-related-data.is-stretch .sap-other-board {
+  min-height: 0;
+}
 .sap-related-data.is-panel .sap-toolbar {
   color: rgba(255, 255, 255, 0.85);
+}
+.sap-related-data.is-panel .sap-source-tabs {
+  border-bottom-color: rgba(104, 190, 254, 0.22);
+}
+.sap-related-data.is-panel .sap-source-tab {
+  color: rgba(255, 255, 255, 0.55);
+}
+.sap-related-data.is-panel .sap-source-tab.active {
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(7, 61, 95, 0) 0%, #00c2ec 100%);
+  box-shadow: none;
+}
+.sap-related-data.is-panel .sap-other-board {
+  border-color: rgba(104, 190, 254, 0.22);
+  background: transparent;
+}
+.sap-related-data.is-panel .sap-other-board .sap-native-empty {
+  color: rgba(255, 255, 255, 0.45);
 }
 .sap-related-data.is-panel .sap-filters {
   align-items: center;
