@@ -511,6 +511,7 @@ export default {
   data() {
     return {
       loading: false,
+      detailLoadScheduled: false,
       activeTab: "basic",
       detail: {},
       form: emptyForm(),
@@ -715,7 +716,7 @@ export default {
   watch: {
     visible(val) {
       if (val) {
-        this.loadDetail();
+        this.scheduleLoadDetail();
       } else {
         this.releaseFilePreviews();
         this.imagePreviews = [];
@@ -724,9 +725,9 @@ export default {
     nodeName: {
       immediate: true,
       handler(val) {
-        if (val) {
-          this.loadDetail();
-        } else {
+        if (val && this.visible) {
+          this.scheduleLoadDetail();
+        } else if (!val) {
           this.resetState();
         }
       }
@@ -918,6 +919,14 @@ export default {
         unit: item.unit || "",
         sign: item.sign || ""
       }));
+    },
+    scheduleLoadDetail() {
+      if (this.detailLoadScheduled) return;
+      this.detailLoadScheduled = true;
+      this.$nextTick(() => {
+        this.detailLoadScheduled = false;
+        if (this.visible && this.nodeName) this.loadDetail();
+      });
     },
     resetState() {
       this.releaseFilePreviews();

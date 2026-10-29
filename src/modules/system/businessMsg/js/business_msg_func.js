@@ -1,18 +1,4 @@
-import api from "../api"
-
-const getAllMsg = () => {
-  api.getAllMsgAPI().then((res) => {
-    if (res.code === '0') {
-      localStorage.setItem('business_msg', JSON.stringify(res.data));
-    }
-  }).catch(() => {})
-}
-const install = (Vue, opt) => {
-  let storage = localStorage.getItem('business_msg');
-  if (!storage) {
-    getAllMsg();
-  }
-
+const install = (Vue) => {
   //全局调用方法
   Vue.prototype.$businessMsg = (msgKey, defaultLang, defaultMsg) => {
     if (!defaultMsg) defaultMsg = '';

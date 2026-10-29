@@ -14,7 +14,6 @@ const checkMsgKeyOnLyUrl = '/businessMsg/checkMsgKey';
 const checkMsgNameOnLyUrl = '';
 
 const getLangListUrl = '/sys/i18n/lang/list';
-const getAllMsgUrl = '/businessMsg/queryMsgListByType/2';
 const getOneMsgUrl = '/businessMsg/queryMsgDetailById/';
 
 export default{
@@ -66,10 +65,6 @@ export default{
   //获取语言列表
   getLangListAPI: function (params) {
     return axios.post(getLangListUrl, params, { apiTitle: "获取语言列表" }).then(res => res.data);
-  },
-  // 获取所有消息
-  getAllMsgAPI: function (params) {
-    return axios.post(getAllMsgUrl, params, { apiTitle: "获取所有消息" }).then(res => res.data);
   },
   // 获取单个消息
   getOneMsgAPI: function (params) {

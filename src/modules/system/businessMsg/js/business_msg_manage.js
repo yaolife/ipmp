@@ -702,14 +702,6 @@ export default {
       business_msg = business_msg.filter((item) => item.businessMsgId !== msgId);
       localStorage.setItem('business_msg', JSON.stringify(business_msg));
     },
-    //更新所有消息缓存
-    updateAllCache() {
-      businessMsgAPI.getAllMsgAPI().then((res) => {
-        if (res.code === '0') {
-          localStorage.setItem('business_msg', JSON.stringify(res.data));
-        }
-      })
-    },
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.throttleFunc);
