@@ -209,6 +209,8 @@ export default {
         .then(res => {
           if (requestId !== this._treeRequestId) return;
           if (!this.isSuccessCode(res && res.code)) throw new Error((res && res.msg) || this.$t("cm.fail"));
+          // 完整树已经用于定位选中节点时，不再用根节点把列表盖掉。
+          if (!this.treeLazy) return;
           this.treeLazy = true;
           this.treeRenderKey += 1;
           this.treeData = normalizeTree(res.data);
@@ -272,8 +274,8 @@ export default {
       return this._fullTreePromise;
     },
     /** 切换为普通树后再过滤，确保能够搜到尚未展开的深层节点。 */
-    showFullTree(requestId) {
-      this.loading = true;
+    showFullTree(requestId, silent) {
+      if (!silent) this.loading = true;
       return this.getFullTree().then(tree => {
         if (requestId !== this._treeRequestId) return;
         if (this.treeLazy) {
@@ -290,7 +292,7 @@ export default {
       }).catch(error => {
         if (requestId === this._treeRequestId) this.$message.error(error.message || this.$t("cm.fail"));
       }).finally(() => {
-        if (requestId === this._treeRequestId) this.loading = false;
+        if (!silent && requestId === this._treeRequestId) this.loading = false;
       });
     },
     /** 索引懒加载节点及其模型别名，供场景选中和展示命令快速查找。 */
@@ -343,7 +345,7 @@ export default {
           if (!matched) return null;
           this.currentNodeId = matched.id;
           this.currentMeshId = getNodeMeshId(matched) || normalizeMeshId(meshId);
-          return this.showFullTree(requestId).then(() => matched);
+          return this.showFullTree(requestId, true).then(() => matched);
         }).catch(error => {
           if (selectionId === this._selectionRequestId && !this._isDestroyed) {
             this.$message.error(error.message || this.$t("cm.fail"));
