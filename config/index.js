@@ -30,7 +30,8 @@ const BIZ_PROXY_PATHS = [
     "/fupportInfo",
     "/sdims",
     "/system",
-    "/opgview"
+    "/opgview",
+    "/station"
 ];
 function createBizProxies(prefix, stripPrefix) {
     const table = {};
