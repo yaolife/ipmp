@@ -1,7 +1,7 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <div class="lof-page" v-loading="pageLoading || segmentDetailLoading">
+      <div class="lof-page lof-quantitative-page" v-loading="pageLoading || segmentDetailLoading">
         <div class="card">
           <div class="card-header">
             <div class="card-title">定量评估设置</div>
@@ -457,7 +457,14 @@
                 </div>
                 <div class="form-group">
                   <label>杨氏模量 Etw (Pa)</label>
-                  <input type="number" v-model.number="thermo.Etw" @input="scheduleRecalc">
+                  <material-elastic-modulus-input
+                    ref="thermoModulus"
+                    v-model="thermo.Etw"
+                    :material="thermoMaterial"
+                    :temperature="thermo.TP"
+                    :context-key="segmentId"
+                    @change="scheduleRecalc"
+                  ></material-elastic-modulus-input>
                 </div>
                 <div class="form-group">
                   <label>套管材料密度 ρtw (kg/m³)</label>
@@ -706,6 +713,7 @@
 
 <script>
 import LofTraceDrawer from "./components/LofTraceDrawer";
+import MaterialElasticModulusInput from "./components/MaterialElasticModulusInput";
 import directoryMixin from "./directoryMixin";
 import api from "./api";
 import {
@@ -923,7 +931,7 @@ function defaultParams() {
 
 export default {
   mixins: [directoryMixin],
-  components: { LofTraceDrawer },
+  components: { LofTraceDrawer, MaterialElasticModulusInput },
   data() {
     return {
       paramTab: "pipe",
@@ -931,6 +939,7 @@ export default {
       hfa: defaultHfa(),
       other: defaultOtherMechanisms(),
       thermo: defaultThermo(),
+      thermoMaterial: "",
       sbc: defaultSbc(),
       hfaCountOptions: HFA_COUNT_OPTIONS,
       sbcFittings: SBC_FITTINGS,
@@ -986,6 +995,7 @@ export default {
     riskBadgeClass: riskBadgeClass,
     onSegmentChange(id) {
       this.invalidateSegmentRequests();
+      this.thermoMaterial = "";
       this.tm01AssessmentId = "";
       this.history = [];
       this.historyCurrent = 1;
@@ -1000,7 +1010,7 @@ export default {
       this.sbcResult = { lof: null, level: "-" };
       this.mainLof = 0;
       this.hasEvaluationResult = false;
-      this.loadSegmentDetail(id);
+      this._segmentDetailPromise = this.loadSegmentDetail(id);
       if (id) {
         this.loadLatestTm01();
         this.loadHistoryPage();
@@ -1041,6 +1051,7 @@ export default {
       this.thermo.T = this.params.thickness;
       this.thermo.P = this.params.pressure;
       this.thermo.TP = this.params.temperature;
+      this.thermoMaterial = detail.material || "";
       this.thermo.rhoF = this.params.rho;
       this.thermo.v = this.params.v;
       const thermowellViscosity = pickNum(detail.fluidViscosity, null);
@@ -1365,8 +1376,12 @@ export default {
     loadHistoryDetail(row) {
       if (!row || !row.id) return;
       const isCurrent = this.captureSegmentRequest("historyDetail");
-      api.getTm02Detail(row.id).then(res => {
-        if (!isCurrent()) return;
+      // 先等本管段详情回填结束，避免慢详情覆盖刚选择的历史工况和材料输入。
+      Promise.resolve(this._segmentDetailPromise).then(() => {
+        if (!isCurrent()) return null;
+        return api.getTm02Detail(row.id);
+      }).then(res => {
+        if (!isCurrent() || !res) return;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "历史详情加载失败");
           return;
@@ -1380,6 +1395,8 @@ export default {
     },
     applyHistoryInputs(inputs) {
       if (!inputs) return;
+      // 历史值是当时的计算输入，不允许未结束的材料查询或温度监听重新覆盖。
+      if (this.$refs.thermoModulus) this.$refs.thermoModulus.restoreHistory();
       const segment = inputs.segmentParameters || {};
       const hfa = inputs.highFrequencyAcoustic || {};
       const sbc = inputs.sbc || {};
@@ -1597,3 +1614,15 @@ export default {
   }
 };
 </script>
+
+<style>
+/* 限定在定量评估页，避免输入框的内边距撑出网格并遮住相邻字段。 */
+.lof-quantitative-page .form-row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lof-quantitative-page .form-group { min-width: 0; }
+.lof-quantitative-page .form-group input,
+.lof-quantitative-page .form-group select,
+.lof-quantitative-page .form-group textarea { box-sizing: border-box; max-width: 100%; }
+@media (max-width: 800px) {
+  .lof-quantitative-page .form-row-2 { grid-template-columns: 1fr; }
+}
+</style>

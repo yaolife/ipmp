@@ -886,7 +886,7 @@
         <el-table-column prop="unsNo" label="UNS编号" min-width="110" show-overflow-tooltip></el-table-column>
         <el-table-column prop="productForm" label="产品形式" min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="yieldStrength" label="屈服强度(MPa)" width="125"></el-table-column>
-        <el-table-column prop="elasticModulus" label="弹性模量" width="105"></el-table-column>
+        <el-table-column prop="elasticModulus" label="弹性模量(Pa)" width="120"></el-table-column>
         <el-table-column label="操作" width="80" fixed="right" align="center">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click.stop="applyMaterialMatch(scope.row)">选择</el-button>

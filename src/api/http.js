@@ -48,7 +48,8 @@ var BIZ_API_PATHS = [
   "/fupportInfo",
   "/sdims",
   "/system",
-  "/opgview"
+  "/opgview",
+  "/station"
 ];
 
 function getRequestPathname(url) {

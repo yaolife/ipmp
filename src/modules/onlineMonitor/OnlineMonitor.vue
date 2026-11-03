@@ -4,6 +4,7 @@
     :class="{ 'is-fill': fill, 'is-panel': panel }"
     v-loading="trendLoading"
   >
+    <div v-if="demoData" class="demo-data-notice">当前为接口演示样例，采样时间以样例返回为准</div>
     <div class="monitor-toolbar">
       <el-autocomplete
         v-model="pointName"
@@ -258,15 +259,13 @@
 
 <script>
 import { createTrendGroup } from "./trendEngine";
+import { mergeRealtimeSamples, REALTIME_WINDOW_MS } from "./trendSamples";
 import {
   getPoint,
-  getTag,
   exportTrendExcel,
   isCancel,
   createCancelSource
 } from "./api";
-
-var AUTO_POINT_LIMIT = 30;
 
 function okCode(code) {
   return code === 0 || code === "0";
@@ -342,11 +341,14 @@ export default {
         text: ""
       },
       trendGroup: null,
-      _inflightKey: "",
-      _cancel: null,
-      _autoSeq: 0,
-      _autoTimer: null,
-      _loadedKey: ""
+      inflightKey: "",
+      cancelRequest: null,
+      autoTimer: null,
+      loadedKey: "",
+      requestSeq: 0,
+      monitorDestroyed: false,
+      demoData: false,
+      realtimeSamples: []
     };
   },
   watch: {
@@ -376,12 +378,14 @@ export default {
     window.addEventListener("resize", this._onResize);
   },
   beforeDestroy() {
+    this.monitorDestroyed = true;
+    this.requestSeq++;
     this.clearPolling();
-    if (this._autoTimer) {
-      clearTimeout(this._autoTimer);
+    if (this.autoTimer) {
+      clearTimeout(this.autoTimer);
     }
-    if (this._cancel) {
-      this._cancel();
+    if (this.cancelRequest) {
+      this.cancelRequest();
     }
     if (window.trend_Util && this.trendGroup) {
       window.trend_Util.stopFlush(this.trendGroup);
@@ -404,10 +408,10 @@ export default {
     },
     scheduleAutoLoad() {
       var self = this;
-      if (this._autoTimer) {
-        clearTimeout(this._autoTimer);
+      if (this.autoTimer) {
+        clearTimeout(this.autoTimer);
       }
-      this._autoTimer = setTimeout(function() {
+      this.autoTimer = setTimeout(function() {
         self.autoLoadPoints();
       }, 120);
     },
@@ -421,71 +425,28 @@ export default {
       if (!primary && !extra) {
         return;
       }
-      if (loadKey === this._loadedKey) {
+      if (loadKey === this.loadedKey) {
         return;
       }
-      this._loadedKey = loadKey;
-      var keys = [];
-      if (primary) {
-        keys.push(primary);
-      }
-      if (extra && extra !== primary) {
-        keys.push(extra);
-      }
-      var seq = ++this._autoSeq;
-      this.searchByKeys(keys, 0, seq);
-    },
-    searchByKeys(keys, index, seq) {
-      var self = this;
-      if (seq !== this._autoSeq) {
-        return;
-      }
-      if (index >= keys.length) {
-        this.emptyText = "暂无数据";
-        return;
-      }
-      getTag(keys[index])
-        .then(function(res) {
-          if (seq !== self._autoSeq) {
-            return;
-          }
-          var rows = self.normalizeTags(res);
-          if (!rows.length) {
-            self.searchByKeys(keys, index + 1, seq);
-            return;
-          }
-          if (rows.length > AUTO_POINT_LIMIT) {
-            rows = rows.slice(0, AUTO_POINT_LIMIT);
-          }
-          self.applyPointRows(rows);
-        })
-        .catch(function() {
-          if (seq !== self._autoSeq) {
-            return;
-          }
-          self.searchByKeys(keys, index + 1, seq);
+      this.loadedKey = loadKey;
+      this.clearPolling();
+      if (this.cancelRequest) this.cancelRequest();
+      this.requestSeq++;
+      this.inflightKey = "";
+      this.getSelectedPoint().pointName.forEach(name => this.trendGroup.removePoint(name));
+      this.trendPointListData = [];
+      this.pointOriginalList = [];
+      this.realtimeSamples = [];
+      this.demoData = false;
+      var keys = (primary + (extra && extra !== primary ? ";" + extra : ""))
+        .split(/[;,]/)
+        .map(function(name) { return name.trim(); })
+        .filter(function(name, index, names) {
+          return name && names.indexOf(name) === index;
         });
-    },
-    normalizeTags(res) {
-      if (!res || !okCode(res.code) || !res.data) {
-        return [];
-      }
-      var list = Array.isArray(res.data) ? res.data : [];
-      return list.filter(function(row) {
-        return row && (row.tagName || row.GN);
-      });
-    },
-    applyPointRows(rows) {
       var pointList = {
-        pointID: rows.map(function(row) {
-          if (row.id != null && row.id !== "") {
-            return row.id;
-          }
-          return row.tagName || row.GN;
-        }),
-        pointName: rows.map(function(row) {
-          return row.tagName || row.GN || "";
-        })
+        pointID: keys,
+        pointName: keys
       };
       if (this.typeSelected === "实时") {
         this.ifShowPause = true;
@@ -653,70 +614,160 @@ export default {
     },
     obtainPoint(pointList, startTime, endTime) {
       var self = this;
-      if (!pointList || !pointList.pointID || !pointList.pointID.length) {
-        return;
-      }
-      var key = this.idsKey(pointList);
-      if (this._inflightKey) {
-        if (this._inflightKey === key) {
-          return;
-        }
-        if (this.isSubset(key, this._inflightKey)) {
-          return;
-        }
-        if (this._cancel) {
-          this._cancel();
-        }
-      }
-      this._inflightKey = key;
+      if (!pointList || !pointList.pointName || !pointList.pointName.length) return;
+      var history = this.typeSelected !== "实时";
+      var range = history ? [startTime, endTime] : this.getRealtimeRange();
+      if (!range[0] || !range[1]) range = this.getDefaultHistoryRange();
+      range = range.map(value => this.formatQueryTime(new Date(this.parseTime(value))));
+      var key = this.idsKey(pointList) + "|" + history + "|" + range.join("|");
+      if (this.inflightKey === key) return;
+      // 同一实时轮询未结束时不重入；切换模式、节点或历史区间则取消旧请求。
+      if (this.inflightKey && !history && this.inflightKey.indexOf(this.idsKey(pointList) + "|false|") === 0) return;
+      if (this.cancelRequest) this.cancelRequest();
+      var seq = ++this.requestSeq;
+      this.inflightKey = key;
       var source = createCancelSource();
-      this._cancel = function() {
-        source.cancel("abort");
-      };
-      var payload = { ids: pointList.pointID.join(",") };
-      if (startTime) {
-        payload.startTime = startTime;
+      this.cancelRequest = function() { source.cancel("abort"); };
+      this.trendLoading = history;
+      var payload = { names: pointList.pointName.join(";") };
+      if (history) {
+        payload.startTime = range[0];
+        payload.endTime = range[1];
+        payload.interval = this.getSampleInterval(range[0], range[1]);
       }
-      if (endTime) {
-        payload.endTime = endTime;
-      }
-      if (this.typeSelected !== "实时") {
-        this.trendLoading = true;
-      }
-      getPoint(payload, source.token)
-        .then(function(result) {
-          if (self._inflightKey !== key) {
-            return;
+      getPoint(payload, source.token, history).then(function(result) {
+        if (self.monitorDestroyed || seq !== self.requestSeq) return;
+        var body = result && result.data;
+        if (!result || !okCode(result.code) || !body || String(body.code) !== "200" || !Array.isArray(body.data)) {
+          throw new Error((result && result.msg) || "趋势数据响应格式不正确");
+        }
+        self.demoData = !!body.demo;
+        // 实时响应仅含最新值，先累计再绘制；历史响应是一段完整数据，直接替换，不能混入实时缓存。
+        if (!history) {
+          self.realtimeSamples = mergeRealtimeSamples(self.realtimeSamples, body.data);
+        }
+        var adapted = self.adaptTrendData(history ? body.data : self.realtimeSamples, history);
+        self.reloadDatas = adapted.reloadDatas;
+        self.coordData = adapted.coordData;
+        window.thisVue = self;
+        window.trendGroup = self.trendGroup;
+        // 趋势接口返回的点名才是实际可绘制测点；详情nodeName可能是管段名，不能用于匹配曲线。
+        var names = adapted.reloadDatas.data.map(function(row) { return row.GN; });
+        // 演示数据保留原始采样时间，显示窗口围绕样例，不把旧时间伪装为当前实测。
+        var displayRange = range;
+        if (body.demo && adapted.firstTimestamp != null) {
+          displayRange = [self.formatQueryTime(new Date(adapted.firstTimestamp - 300000)),
+            self.formatQueryTime(new Date(adapted.lastTimestamp + 300000))];
+          // 趋势引擎会按dateHistory再次过滤历史点；演示窗口与样例时间对齐，避免固定样例被当前日期筛掉。
+          if (history) {
+            self.dateHistory = displayRange.slice();
+            self.historyCache = displayRange.slice();
+            self.timeRadioButton = "自定义";
           }
-          if (!result || !okCode(result.code) || self.isPayloadEmpty(result.data)) {
-            if (self.typeSelected !== "实时") {
-              self.$message.warning(
-                (result && (result.msg || result.message)) || "数据为空"
-              );
-            }
-            self.clearCanvasPrompt();
-            return;
-          }
-          self.reloadDatas = result.data.reloadDatas;
-          self.coordData = result.data.coordData;
-          window.thisVue = self;
-          window.trendGroup = self.trendGroup;
-          var names = self.resolveNames(pointList, result.data);
-          self.trendGroup.addPointList(names, startTime, endTime);
-        })
-        .catch(function(error) {
-          if (isCancel(error)) {
-            return;
-          }
+        }
+        if (!adapted.reloadDatas.data.length) {
+          // 详情节点名可能与返回测点名不同，无数据时清除当前实际曲线，避免误显示上次结果。
+          self.getSelectedPoint().pointName.forEach(function(name) { self.trendGroup.removePoint(name); });
+          self.trendPointListData = [];
+          // 保留已选名称供用户调整时间后重查；表格和曲线不保留旧数值。
+          self.emptyText = "所选条件暂无数据";
+          return;
+        }
+        self.trendGroup.addPointList(names, displayRange[0], displayRange[1]);
+      }).catch(function(error) {
+        if (isCancel(error) || self.monitorDestroyed || seq !== self.requestSeq) return;
+        self.emptyText = "趋势数据加载失败";
+        self.$message.error(error.message || "趋势数据加载失败");
+        self.clearPolling();
+        self.ifShowPause = false;
+      }).then(function() {
+        if (seq === self.requestSeq && !self.monitorDestroyed) {
+          self.inflightKey = "";
+          self.cancelRequest = null;
           self.trendLoading = false;
-        })
-        .then(function() {
-          if (self._inflightKey === key) {
-            self._inflightKey = "";
-            self._cancel = null;
-            self.trendLoading = false;
-          }
+        }
+      });
+    },
+    getRealtimeRange() {
+      var end = new Date();
+      var start = new Date(end.getTime() - REALTIME_WINDOW_MS);
+      return [this.formatQueryTime(start), this.formatQueryTime(end)];
+    },
+    formatQueryTime(date) {
+      var pad = function(value) {
+        return value < 10 ? "0" + value : String(value);
+      };
+      return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" +
+        pad(date.getDate()) + " " + pad(date.getHours()) + ":" +
+        pad(date.getMinutes()) + ":" + pad(date.getSeconds());
+    },
+    getDefaultHistoryRange() {
+      var end = new Date();
+      return [this.formatQueryTime(new Date(end.getTime() - 86400000)), this.formatQueryTime(end)];
+    },
+    parseTime(value) {
+      if (value instanceof Date) return value.getTime();
+      if (typeof value === "number") return value;
+      if (value == null || value === "") return NaN;
+      return new Date(String(value).replace(/-/g, "/")).getTime();
+    },
+    getSampleInterval(startTime, endTime) {
+      var span = Math.floor((this.parseTime(endTime) - this.parseTime(startTime)) / 1000);
+      return isFinite(span) ? Math.max(1, Math.ceil(span / 2000)) : 60;
+    },
+    adaptTrendData(points, useServerStatistics = true) {
+      var rows = [];
+      var series = Object.create(null);
+      var statistics = Object.create(null);
+      (points || []).forEach(function(point) {
+        if (!point) return;
+        var name = point.pointName;
+        if (!name || point.value == null || String(point.value).trim() === "") return;
+        var numeric = Number(point.value);
+        var x = point.timestamp ? new Date(String(point.timestamp).replace(/-/g, "/")).getTime() : NaN;
+        if (!isFinite(numeric) || !isFinite(x)) return;
+        var values = series[name] || (series[name] = []);
+        values.push({ x: x, y: numeric });
+        statistics[name] = point;
+      });
+      var firstTimestamp = null;
+      var lastTimestamp = null;
+      Object.keys(series).forEach(function(name) {
+        var values = series[name];
+        values.sort(function(a, b) { return a.x - b.x; });
+        var minPoint = values[0];
+        var maxPoint = values[0];
+        var sum = 0;
+        values.forEach(function(item) {
+          if (item.y < minPoint.y) minPoint = item;
+          if (item.y > maxPoint.y) maxPoint = item;
+          sum += item.y;
         });
+        var statistic = statistics[name];
+        var finiteOr = function(value, fallback) {
+          // 实时接口统计只覆盖当前最新值；累计曲线的统计必须按当前缓存重新计算。
+          return useServerStatistics && value != null && value !== "" && isFinite(Number(value)) ? Number(value) : fallback;
+        };
+        var padding = Math.max(Math.abs(minPoint.y) * 0.05, 0.5);
+        var upper = finiteOr(statistic.upperLimit, maxPoint.y === minPoint.y ? maxPoint.y + padding : maxPoint.y);
+        var lower = finiteOr(statistic.lowerLimit, maxPoint.y === minPoint.y ? minPoint.y - padding : minPoint.y);
+        if (upper <= lower) { upper += padding; lower -= padding; }
+        firstTimestamp = firstTimestamp == null ? values[0].x : Math.min(firstTimestamp, values[0].x);
+        lastTimestamp = lastTimestamp == null ? values[values.length - 1].x : Math.max(lastTimestamp, values[values.length - 1].x);
+        rows.push({
+          ID: statistic.pointId || name, GN: name, TV: upper, BV: lower,
+          AVGV: finiteOr(statistic.average, sum / values.length), AV: values[values.length - 1].y,
+          MAXV: finiteOr(statistic.maximum, maxPoint.y), MAXVDATE: maxPoint.x,
+          MINV: finiteOr(statistic.minimum, minPoint.y), MINDATE: minPoint.x,
+          ATV: upper, ABV: lower, FM: 2, RT: 0, LW: 2, CO: "#00c2ec"
+        });
+      });
+      return {
+        firstTimestamp: firstTimestamp,
+        lastTimestamp: lastTimestamp,
+        reloadDatas: { beginTime: "", endTime: "", data: rows },
+        coordData: { value: { value: series } }
+      };
     },
     clearCanvasPrompt() {
       if (this.trendGroup && this.trendGroup.opTrend) {
@@ -744,9 +795,10 @@ export default {
       if (range && range.length >= 2 && range[0] && range[1]) {
         return [range[0], range[1]];
       }
-      return [undefined, undefined];
+      return this.getDefaultHistoryRange();
     },
     typeSelectChang() {
+      this.realtimeSamples = [];
       if (!this.trendPointListData.length && this.typeSelected === "实时") {
         this.$message.warning("暂无测点，请先添加测点。");
         this.typeSelected = "回溯";
@@ -758,6 +810,8 @@ export default {
       } else {
         this.ifShowPause = false;
         this.clearPolling();
+        var range = this.getTrendQueryTimeRange();
+        this.obtainPoint(this.getSelectedPoint(), range[0], range[1]);
       }
     },
     startPolling(pointList) {
@@ -812,6 +866,9 @@ export default {
       }
       var range = this.getTrendQueryTimeRange();
       if (range[0] && range[1]) {
+        // 时间查询、快捷范围和前后滚动均为历史查询，不能继续读取最新值接口。
+        this.typeSelected = "回溯";
+        this.realtimeSamples = [];
         this.clearPolling();
         this.ifShowPause = false;
         this.obtainPoint(this.getSelectedPoint(), range[0], range[1]);
@@ -825,8 +882,8 @@ export default {
       this.obtainPoint(this.getSelectedPoint(), range[0], range[1]);
     },
     changeTime() {
-      var range = this.getTrendQueryTimeRange();
-      this.obtainPoint(this.getSelectedPoint(), range[0], range[1]);
+      // 画布框选同样查询选定区间，复用历史入口以停止实时轮询并切换接口。
+      this.dateHistoryChange();
     },
     timeScrolling(forward) {
       if (!this.dateHistory || this.dateHistory.length < 2) {
@@ -919,29 +976,9 @@ export default {
         });
     },
     pointNameSearchAsync(queryString, callback) {
-      if (!queryString) {
-        callback([]);
-        return;
-      }
-      getTag(queryString)
-        .then(function(res) {
-          var rows = [];
-          if (res && okCode(res.code) && Array.isArray(res.data)) {
-            rows = res.data.map(function(row) {
-              return {
-                value: row.tagName,
-                address: row.ED,
-                id: row.id,
-                GN: row.tagName,
-                ID: row.id
-              };
-            });
-          }
-          callback(rows);
-        })
-        .catch(function() {
-          callback([]);
-        });
+      if (!queryString) { callback([]); return; }
+      var name = queryString.trim();
+      callback([{ value: name, address: "", id: name, GN: name, ID: name }]);
     },
     pointNameHandleSelect(item) {
       var pointList = this.getSelectedPoint();
@@ -964,6 +1001,7 @@ export default {
       }
     },
     bothRemovePoint(gn) {
+      this.realtimeSamples = this.realtimeSamples.filter(function(point) { return point.pointName !== gn; });
       if (this.trendGroup) {
         this.trendGroup.removePoint(gn);
       }
@@ -1058,7 +1096,7 @@ export default {
       this.lockManualRange();
       var num = Number(value);
       row.TV = num;
-      this.redrawLimit(row.GN, { AT: row.AT, AB: row.AB, TV: num, ATV: num });
+      this.redrawLimit(row.GN, { AT: row.AT, AB: row.AB, TV: num, ATV: num, rangeManuallySet: true });
     },
     changeBV(row) {
       var value = row.ABV;
@@ -1076,7 +1114,7 @@ export default {
       this.lockManualRange();
       var num = Number(value);
       row.BV = num;
-      this.redrawLimit(row.GN, { AT: row.AT, AB: row.AB, BV: num, ABV: num });
+      this.redrawLimit(row.GN, { AT: row.AT, AB: row.AB, BV: num, ABV: num, rangeManuallySet: true });
     },
     changeAT(row) {
       var value = row.AT;
@@ -1297,6 +1335,19 @@ export default {
 .monitor-toolbar {
   flex-shrink: 0;
   padding: 8px 8px 4px;
+}
+.demo-data-notice {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  color: #8a5a00;
+  background: #fff4d6;
+  border-bottom: 1px solid #f0d58a;
+  font-size: 12px;
+}
+.online-monitor.is-panel .demo-data-notice {
+  color: #ffe4a3;
+  background: rgba(128, 87, 0, 0.28);
+  border-bottom-color: rgba(255, 210, 110, 0.3);
 }
 .point-search {
   width: 280px;

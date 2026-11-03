@@ -1,32 +1,15 @@
 import axios from "axios";
 import http from "@/api/http";
 
-export function getPoint(data, cancelToken) {
+export function getPoint(data, cancelToken, history) {
   return http
-    .post("/opgview/getPoint", data, {
+    .post(history ? "/station/getKnsHv" : "/station/getKnsRv", data, {
       apiTitle: "趋势测点数据",
       cancelToken: cancelToken,
       headers: {
         "Content-Type": "application/json"
       }
     })
-    .then(function(res) {
-      return res.data;
-    });
-}
-
-export function getTag(tagName) {
-  return http
-    .post(
-      "/opgview/getTag",
-      { tagName: tagName },
-      {
-        apiTitle: "测点关键词搜索",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    )
     .then(function(res) {
       return res.data;
     });

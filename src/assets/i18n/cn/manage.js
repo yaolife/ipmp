@@ -402,7 +402,7 @@ export const lang = {
     equipment_type: "配套设备类型",
     span_reference: "跨度参考 (m)",
     material_grade: "管材牌号",
-    elastic_modulus: "弹性模量 E (MPa)",
+    elastic_modulus: "弹性模量 E (Pa)",
     poisson_ratio: "泊松比 ν",
     material_density: "管材密度 (kg/m³)",
     yield_strength: "屈服强度 (MPa)",

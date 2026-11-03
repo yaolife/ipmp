@@ -137,13 +137,13 @@
               </div>
             </el-tab-pane>
             <el-tab-pane label="弹性模量 E" name="elastic" lazy>
-              <el-alert type="info" :closable="false" show-icon title="按温度维护弹性模量，表格单位为 GPa；温度超出已有数据范围时不外推。" class="curve-help"></el-alert>
+              <el-alert type="info" :closable="false" show-icon title="按温度维护弹性模量，单位统一为 Pa；已有数值按 Pa 使用，不换算；温度超出数据范围时不外推。" class="curve-help"></el-alert>
               <div class="curve-section">
-                <div class="curve-section-heading"><div><strong>弹性模量 E（GPa）</strong><span>ASME BPVC Section II Part D · Table TM-1</span></div></div>
+                <div class="curve-section-heading"><div><strong>弹性模量 E（Pa）</strong><span>ASME BPVC Section II Part D · Table TM-1</span></div></div>
                 <div class="curve-table-wrap">
                   <table class="material-curve-table">
                     <thead><tr><th class="condition-column">参数</th><th v-for="temperature in elasticTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
-                    <tbody><tr><th class="condition-column">E (GPa)</th><td v-for="temperature in elasticTemperatures" :key="temperature"><el-input-number :value="getElasticCell(temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setElasticCell(temperature, $event)"></el-input-number></td></tr></tbody>
+                    <tbody><tr><th class="condition-column">E (Pa)</th><td v-for="temperature in elasticTemperatures" :key="temperature"><el-input-number :value="getElasticCell(temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setElasticCell(temperature, $event)"></el-input-number></td></tr></tbody>
                   </table>
                 </div>
                 <div class="curve-preview">
@@ -190,7 +190,7 @@ const MATERIAL_FIELDS = [
   ["materialGrade", "管材牌号"], ["unsNo", "UNS编号"], ["category", "材料大类"],
   ["subcategory", "材料子类"], ["productForm", "产品形式"], ["specificationNo", "规范号"],
   ["pNo", "P-No"], ["groupNo", "Group No."], ["tensileStrength", "抗拉强度Su(MPa)", "number"],
-  ["yieldStrength", "屈服强度Sy(MPa)", "number"], ["elasticModulus", "弹性模量E(MPa)", "number"],
+  ["yieldStrength", "屈服强度Sy(MPa)", "number"], ["elasticModulus", "弹性模量E(Pa)", "number"],
   ["poissonRatio", "泊松比", "number"], ["materialDensity", "材料密度(kg/m³)", "number"],
   ["fatigueLimit", "疲劳极限(MPa)", "number"],
   ["minDesignTemperature", "最低设计温度(℃)", "number"], ["maxDesignTemperature", "最高设计温度(℃)", "number"],
@@ -292,7 +292,7 @@ export default {
         { prop: "materialGrade", label: "管材牌号" }, { prop: "unsNo", label: "UNS编号" }, { prop: "category", label: "材料大类" },
         { prop: "subcategory", label: "材料子类" }, { prop: "productForm", label: "产品形式" }, { prop: "specificationNo", label: "规范号" },
         { prop: "pNo", label: "P-No" }, { prop: "groupNo", label: "Group No." }, { prop: "tensileStrength", label: "常温抗拉强度 Su (MPa)", type: "number" },
-        { prop: "yieldStrength", label: "常温屈服强度 Sy (MPa)", type: "number" }, { prop: "elasticModulus", label: "常温弹性模量 E (MPa)", type: "number" },
+        { prop: "yieldStrength", label: "常温屈服强度 Sy (MPa)", type: "number" }, { prop: "elasticModulus", label: "常温弹性模量 E (Pa)", type: "number" },
         { prop: "poissonRatio", label: "泊松比", type: "number" }, { prop: "materialDensity", label: "常温密度 ρ (kg/m³)", type: "number" },
         { prop: "fatigueLimit", label: "疲劳极限 (MPa)", type: "number" }, { prop: "minDesignTemperature", label: "最低设计温度 (℃)", type: "number" },
         { prop: "maxDesignTemperature", label: "最高设计温度 (℃)", type: "number" }, { prop: "remarks", label: "备注", span: 24 }
@@ -534,7 +534,7 @@ export default {
     },
     previewElastic() {
       const result = this.interpolateCurve(this.form.elasticModulusCurveValues, this.preview.designTemperature);
-      this.previewResult.elastic = result === null ? "温度超出数据范围或缺少相邻温度数据" : `E (${this.preview.designTemperature}℃) = ${result.toFixed(3)} GPa`;
+      this.previewResult.elastic = result === null ? "温度超出数据范围或缺少相邻温度数据" : `E (${this.preview.designTemperature}℃) = ${result.toFixed(3)} Pa`;
     },
     save() {
       if (this.materialDetailLoading) return;

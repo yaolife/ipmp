@@ -414,7 +414,7 @@ export const lang = {
   equipment_type: 'Equipment Type',
   span_reference: 'Span Reference (m)',
   material_grade: 'Material Grade',
-  elastic_modulus: 'Elastic Modulus E (MPa)',
+  elastic_modulus: 'Elastic Modulus E (Pa)',
   poisson_ratio: 'Poisson Ratio ν',
   material_density: 'Material Density (kg/m³)',
   yield_strength: 'Yield Strength (MPa)',

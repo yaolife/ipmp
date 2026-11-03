@@ -46,6 +46,13 @@ export default {
         return draftsApi.getLatestEnabledModelTree();
     },
     getResourceDirectoryDetail: draftsApi.getResourceDirectoryDetail,
+    matchMaterialLibrary: draftsApi.matchMaterialLibrary,
+    getMaterialElasticModulus: function(id, temperature) {
+        return axios.get('/data-material-libraries/' + encodeURIComponent(id) + '/elastic-modulus', {
+            params: { temperature: temperature },
+            apiTitle: '按运行温度查询已选材料弹性模量(Pa)'
+        }).then(unwrap);
+    },
     evaluate: function(params) {
         return axios.post(tm01BaseUrl + '/evaluate', params, {
             apiTitle: '执行定性评估'

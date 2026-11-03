@@ -600,6 +600,10 @@
               return p && p.x != null && p.x >= s0 && p.x <= s1;
             });
           }
+          // 页面已把实时最新值累计为时间序列；清除绘图缓存，让本轮累计样本参与重绘。
+          if (typeof thisVue !== "undefined" && thisVue && thisVue.typeSelected === "实时") {
+            t1.data = [];
+          }
           t1.trendData = trendDataUse;
           if (trendDataUse.length > 0) {
             if (trendDataUse[0].x < globalMinX) {
@@ -696,8 +700,9 @@
           globalMaxX < fromMsFinal ||
           globalMinX > toMsFinal
         ) {
-          startTime_ = new Date(globalMinX);
-          endTime_ = new Date(globalMaxX);
+          // 单个旧采样也需要非零时间轴，否则横坐标比例除以零，无法显示点标记。
+          startTime_ = new Date(globalMinX === globalMaxX ? globalMinX - 300000 : globalMinX);
+          endTime_ = new Date(globalMinX === globalMaxX ? globalMaxX + 300000 : globalMaxX);
         }
       }
       that.opTrend.from = startTime_;
@@ -850,12 +855,13 @@
           // TV/BV 保持接口最新值；ATV/ABV 若用户已手动修改则优先保留（实时刷新时不被回写覆盖）
           var apiTV = normalizeLimit(obj.TV);
           var apiBV = normalizeLimit(obj.BV);
+          // 自动量程随查询结果更新；只有用户编辑过上下限时才沿用旧范围，避免历史值被实时范围裁掉。
           var keepATV =
-            objC.ATV !== undefined && objC.ATV !== null && objC.ATV !== ""
+            objC.rangeManuallySet && objC.ATV !== undefined && objC.ATV !== null && objC.ATV !== ""
               ? normalizeLimit(objC.ATV)
               : apiTV;
           var keepABV =
-            objC.ABV !== undefined && objC.ABV !== null && objC.ABV !== ""
+            objC.rangeManuallySet && objC.ABV !== undefined && objC.ABV !== null && objC.ABV !== ""
               ? normalizeLimit(objC.ABV)
               : apiBV;
           // 保留用户勾选状态：KEY(表格) 与 CK(canvas隐藏标记) 必须成对同步
@@ -876,6 +882,7 @@
           obj.BV = apiBV;
           obj.ATV = keepATV;
           obj.ABV = keepABV;
+          obj.rangeManuallySet = !!objC.rangeManuallySet;
           obj.AT = objC.AT;
           obj.AB = objC.AB;
           obj.LW = objC.LW;
@@ -2740,6 +2747,8 @@
             this.topLimit,
             this.lowLimit
           );
+        } else if (this.data != null && this.data.length === 1 && !this.hide) {
+          this.drawSingleSample(this.data[0], y);
         } else if (this.trendData != null && this.trendData.length > 0) {
           this.data = this.opTrend.drawLineAndGenerateData(
             this.trendData,
@@ -2751,8 +2760,27 @@
             this.lowLimit,
             this.hide
           );
+          // 单个采样没有线段可连，用点标记表示真实样本，避免被误认为没有返回数据。
+          if (this.data.length === 1 && this.data[0][1] != null && !this.hide) {
+            this.drawSingleSample(this.data[0], y);
+          }
           this.trendData = [];
         }
+      };
+      this.drawSingleSample = function(sample, y) {
+        if (!sample || sample[1] == null) {
+          return;
+        }
+        var sampleX = this.opTrend.getCanvasX(sample[0]) +
+          this.opTrend.canvasX + this.opTrend.margin_padding;
+        var sampleY = this.opTrend.getCanvasY(
+          sample[1], this.topLimit, this.lowLimit
+        );
+        sampleY = this.opTrend.drawLineLimit(sampleY, y);
+        this.opTrend.canvas_context.beginPath();
+        this.opTrend.canvas_context.fillStyle = this.color;
+        this.opTrend.canvas_context.arc(sampleX, sampleY, 3, 0, Math.PI * 2);
+        this.opTrend.canvas_context.fill();
       };
       // 绘制限高限低线
       this.drawAlarmLine = function() {
@@ -2986,8 +3014,8 @@
           y2 + side
         );
 
-        // 如果启用了标尺，绘制标尺及刻度数字
-        if ($TREND_GAUGE) {
+        // 标尺为可选全局配置，未设置时不绘制，避免中断整张趋势图。
+        if (window.$TREND_GAUGE) {
           this.drawGauge(x, temp, canvasY, height);
         }
       };
