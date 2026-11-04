@@ -21,6 +21,17 @@
         <button
           type="button"
           class="sap-source-tab"
+          :class="{ active: sourceTab === 'branch' }"
+          @click="openBranchPipe"
+        >小支管</button>
+        <button
+          type="button"
+          class="sap-source-tab"
+          @click="openIdoc"
+        >idoc</button>
+        <button
+          type="button"
+          class="sap-source-tab"
           :class="{ active: sourceTab === 'other' }"
           @click="sourceTab = 'other'"
         >其他</button>
@@ -120,6 +131,10 @@
 import api from "../api";
 
 const emptyFilters = () => ({ aufnr: "", qmnum: "", ktext: "", asttx: "" });
+
+// 内网测试环境外链。小支管打开支管库；idoc 按管道号检索，管道号中的横杠去掉。
+const BRANCH_PIPE_URL = "https://nspd-t/#/xzgDatabaseTabs";
+const IDOC_SEARCH_URL = "https://idoc-bcm-d/#/portal/home/search_quick";
 
 // 与管道详情共用，所有分页均由后端执行，不把完整SAP记录集加载到浏览器。
 export default {
@@ -257,6 +272,25 @@ export default {
     },
     formatCell(row, column, value) {
       return value === null || value === undefined || value === "" ? "-" : value;
+    },
+    openBranchPipe() {
+      this.sourceTab = "branch";
+      this.$nextTick(() => {
+        const open = () => window.open(BRANCH_PIPE_URL, "_blank", "noopener,noreferrer");
+        if (typeof window !== "undefined" && window.requestAnimationFrame) {
+          window.requestAnimationFrame(open);
+          return;
+        }
+        open();
+      });
+    },
+    openIdoc() {
+      const keywords = (this.nodeName || "").replace(/-/g, "");
+      const url = IDOC_SEARCH_URL
+        + "?t=" + Date.now()
+        + "&keywords=" + encodeURIComponent(keywords)
+        + "&searchMore=1";
+      window.open(url, "_blank", "noopener,noreferrer");
     },
     changePage(current) {
       this.current = current;
