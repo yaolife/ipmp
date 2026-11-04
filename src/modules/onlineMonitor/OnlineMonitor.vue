@@ -122,7 +122,6 @@
         class="trend-point-table"
         :class="{ 'is-empty': !trendPointListData || !trendPointListData.length }"
         :data="trendPointListData"
-        :height="trendPointListHeight"
         empty-text="暂无数据"
         size="mini"
         style="width: 100%"
@@ -323,7 +322,6 @@ export default {
       pointOriginalList: [],
       pointVisibilityByGN: {},
       trendPointLayoutSig: "",
-      trendPointListHeight: 68,
       trendBgColor: "#000000",
       emptyText: "暂无数据",
       ifShowPause: false,
@@ -1203,16 +1201,14 @@ export default {
       this.setTrendPointListHeight();
     },
     setTrendPointListHeight() {
-      var count = this.trendPointListData ? this.trendPointListData.length : 0;
-      var rows = count > 0 ? count : 1;
-      var maxRows = 5;
-      if (rows > maxRows) {
-        rows = maxRows;
-      }
-      this.trendPointListHeight = 36 + rows * 32;
       var self = this;
       this.$nextTick(function() {
         self.layoutTrend();
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(function() {
+            self.layoutTrend();
+          });
+        }
       });
     },
     openMark(time) {
@@ -1378,6 +1374,47 @@ export default {
 .online-monitor /deep/ .trend-point-table.el-table {
   flex: 0 0 auto !important;
   width: 100%;
+  height: auto !important;
+  max-height: none !important;
+}
+.online-monitor /deep/ .trend-point-table .el-table__header-wrapper,
+.online-monitor /deep/ .trend-point-table .el-table__body-wrapper {
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none;
+}
+.online-monitor /deep/ .trend-point-table .el-table__body-wrapper::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.online-monitor /deep/ .trend-point-table th,
+.online-monitor /deep/ .trend-point-table td {
+  padding: 1px 0 !important;
+}
+.online-monitor /deep/ .trend-point-table .el-table__header th {
+  height: 26px !important;
+}
+.online-monitor /deep/ .trend-point-table .el-table__body td {
+  height: 26px !important;
+}
+.online-monitor /deep/ .trend-point-table .cell {
+  line-height: 18px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.online-monitor /deep/ .trend-point-table .el-input--mini .el-input__inner {
+  height: 22px;
+  line-height: 22px;
+  padding: 0 6px;
+}
+.online-monitor /deep/ .trend-point-table .el-color-picker--mini {
+  height: 22px;
+  line-height: 22px;
+}
+.online-monitor /deep/ .trend-point-table .el-color-picker--mini .el-color-picker__trigger {
+  height: 22px;
+  width: 22px;
 }
 .online-monitor /deep/ .trend-point-table.is-empty.el-table {
   height: auto !important;
@@ -1429,7 +1466,7 @@ export default {
   border: 1px solid rgba(104, 190, 254, 0.35);
   border-radius: 6px;
   color: #e8f4ff;
-  overflow: hidden;
+  overflow: auto;
 }
 .online-monitor.is-panel .monitor-toolbar {
   padding: 10px 12px 8px;
@@ -1530,13 +1567,13 @@ export default {
 .online-monitor.is-panel /deep/ .trend-point-table.el-table tr,
 .online-monitor.is-panel /deep/ .trend-point-table.el-table tr:nth-child(even),
 .online-monitor.is-panel /deep/ .trend-point-table.el-table td {
-  background-color: transparent;
+  background-color: transparent !important;
   color: #b7d4e8;
   border-bottom-color: rgba(104, 190, 254, 0.18);
 }
 .online-monitor.is-panel /deep/ .trend-point-table.el-table thead tr,
 .online-monitor.is-panel /deep/ .trend-point-table.el-table thead tr th {
-  background-color: #0c2c45;
+  background-color: #0c2c45 !important;
   color: rgba(255, 255, 255, 0.55);
   border-bottom-color: rgba(104, 190, 254, 0.28);
 }
@@ -1552,13 +1589,15 @@ export default {
 .online-monitor.is-panel /deep/ .trend-point-table .el-input__inner {
   color: #b7d4e8;
 }
-.online-monitor.is-panel /deep/ .trend-point-table.el-table.el-table--enable-row-hover .el-table__body tr:hover > td,
-.online-monitor.is-panel /deep/ .trend-point-table.el-table .el-table__body tr.hover-row > td {
-  background-color: rgba(0, 194, 236, 0.14);
+.online-monitor.is-panel /deep/ .trend-point-table.el-table--enable-row-hover .el-table__body tr:hover > td,
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body tr.hover-row > td,
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body tr.hover-row.current-row > td,
+.online-monitor.is-panel /deep/ .trend-point-table .el-table__body tr.current-row > td {
+  background-color: rgba(0, 194, 236, 0.16) !important;
 }
 .online-monitor.is-panel /deep/ .trend-point-table .el-table__body-wrapper::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 0;
+  height: 0;
 }
 .online-monitor.is-panel /deep/ .trend-point-table .el-table__body-wrapper::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.28);
