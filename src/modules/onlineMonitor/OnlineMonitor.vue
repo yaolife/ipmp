@@ -135,7 +135,14 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="GN" label="点名" align="center" min-width="90" show-overflow-tooltip></el-table-column>
+        <el-table-column
+          prop="GN"
+          label="点名"
+          align="center"
+          width="120"
+          show-overflow-tooltip
+          class-name="point-name-cell"
+        ></el-table-column>
         <el-table-column prop="ED" label="描述" align="center" min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column label="颜色" align="center" width="58">
           <template slot-scope="scope">
@@ -171,54 +178,64 @@
             <span>{{ formatNum(scope.row.AVGV) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="上限" align="center" min-width="70">
+        <el-table-column label="上限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
             <el-input
               v-model="scope.row.ATV"
               size="mini"
               @focus="focusLimit(scope.row, 'TV')"
+              @blur="blurLimit"
               @change="changeTV(scope.row)"
             ></el-input>
           </template>
         </el-table-column>
-        <el-table-column label="下限" align="center" min-width="70">
+        <el-table-column label="下限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
             <el-input
               v-model="scope.row.ABV"
               size="mini"
               @focus="focusLimit(scope.row, 'BV')"
+              @blur="blurLimit"
               @change="changeBV(scope.row)"
             ></el-input>
           </template>
         </el-table-column>
-        <el-table-column label="高限" align="center" min-width="70">
+        <el-table-column label="高限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
             <el-input
               v-model="scope.row.AT"
               size="mini"
               @focus="focusLimit(scope.row, 'AT')"
+              @blur="blurLimit"
               @change="changeAT(scope.row)"
             ></el-input>
           </template>
         </el-table-column>
-        <el-table-column label="低限" align="center" min-width="70">
+        <el-table-column label="低限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
             <el-input
               v-model="scope.row.AB"
               size="mini"
               @focus="focusLimit(scope.row, 'AB')"
+              @blur="blurLimit"
               @change="changeAB(scope.row)"
             ></el-input>
           </template>
         </el-table-column>
-        <el-table-column label="线宽" align="center" min-width="60">
+        <el-table-column label="线宽" align="center" min-width="60" class-name="limit-cell">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.LW" size="mini" @change="changeLW(scope.row)"></el-input>
+            <el-input
+              v-model="scope.row.LW"
+              size="mini"
+              @focus="focusLimit(scope.row, 'LW')"
+              @blur="blurLimit"
+              @change="changeLW(scope.row)"
+            ></el-input>
           </template>
         </el-table-column>
         <el-table-column v-if="typeSelected === '回溯'" label="删除" align="center" width="52">
           <template slot-scope="scope">
-            <i class="el-icon-delete delete-btn" @click="trendPointDelete(scope.row)"></i>
+            <i class="el-icon-delete delete-btn" title="删除" @click="trendPointDelete(scope.row)"></i>
           </template>
         </el-table-column>
       </el-table>
@@ -320,6 +337,8 @@ export default {
       autoRange: false,
       trendPointListData: [],
       pointOriginalList: [],
+      removedPointNames: {},
+      editingLimit: null,
       pointVisibilityByGN: {},
       trendPointLayoutSig: "",
       trendBgColor: "#000000",
@@ -427,6 +446,7 @@ export default {
         return;
       }
       this.loadedKey = loadKey;
+      this.removedPointNames = {};
       this.clearPolling();
       if (this.cancelRequest) this.cancelRequest();
       this.requestSeq++;
@@ -501,7 +521,10 @@ export default {
           row.KEY = checked;
           row.CK = !checked;
           return row;
+        }).filter(function(row) {
+          return !(row && row.GN && self.removedPointNames && self.removedPointNames[row.GN]);
         });
+        self.keepEditingLimit(normalized);
         self.pointOriginalList = normalized;
         self.trendPointListData = normalized.slice();
       });
@@ -999,6 +1022,10 @@ export default {
       }
     },
     bothRemovePoint(gn) {
+      if (!this.removedPointNames) {
+        this.removedPointNames = {};
+      }
+      this.$set(this.removedPointNames, gn, true);
       this.realtimeSamples = this.realtimeSamples.filter(function(point) { return point.pointName !== gn; });
       if (this.trendGroup) {
         this.trendGroup.removePoint(gn);
@@ -1014,6 +1041,14 @@ export default {
       }
     },
     trendPointDelete(row) {
+      if (!row || !row.GN) {
+        return;
+      }
+      if (this.cancelRequest) {
+        this.cancelRequest();
+      }
+      this.requestSeq += 1;
+      this.inflightKey = "";
       this.bothRemovePoint(row.GN);
       this.onTrendPointListDataChange();
     },
@@ -1043,6 +1078,7 @@ export default {
       }
     },
     focusLimit(row, field) {
+      this.editingLimit = { gn: row.GN, field: field };
       if (field === "TV") {
         this.defaultTV = row.ATV != null && row.ATV !== "" ? row.ATV : row.TV;
       } else if (field === "BV") {
@@ -1052,6 +1088,31 @@ export default {
       } else if (field === "AB") {
         this.defaultAB = row.AB;
       }
+    },
+    blurLimit() {
+      var self = this;
+      setTimeout(function() {
+        var active = document.activeElement;
+        if (!active || active.tagName !== "INPUT" || !self.$el.contains(active)) {
+          self.editingLimit = null;
+        }
+      }, 0);
+    },
+    keepEditingLimit(rows) {
+      var edit = this.editingLimit;
+      var active = document.activeElement;
+      if (!edit || !active || active.tagName !== "INPUT") {
+        return;
+      }
+      var prop = { TV: "ATV", BV: "ABV", AT: "AT", AB: "AB", LW: "LW" }[edit.field];
+      if (!prop) {
+        return;
+      }
+      rows.forEach(function(row) {
+        if (row && row.GN === edit.gn) {
+          row[prop] = active.value;
+        }
+      });
     },
     lockManualRange() {
       if (this.trendGroup && this.trendGroup.adaptive) {
@@ -1403,10 +1464,26 @@ export default {
   padding-left: 4px;
   padding-right: 4px;
 }
+.online-monitor /deep/ .trend-point-table td.point-name-cell .cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.online-monitor /deep/ .trend-point-table td.limit-cell .cell {
+  display: block;
+  overflow: visible;
+  line-height: normal;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+.online-monitor /deep/ .trend-point-table td.limit-cell .el-input {
+  width: 100%;
+}
 .online-monitor /deep/ .trend-point-table .el-input--mini .el-input__inner {
   height: 22px;
   line-height: 22px;
-  padding: 0 6px;
+  padding: 0 2px;
+  text-align: center;
 }
 .online-monitor /deep/ .trend-point-table .el-color-picker--mini {
   height: 22px;
@@ -1588,6 +1665,7 @@ export default {
 }
 .online-monitor.is-panel /deep/ .trend-point-table .el-input__inner {
   color: #b7d4e8;
+  text-align: center;
 }
 .online-monitor.is-panel /deep/ .trend-point-table.el-table--enable-row-hover .el-table__body tr:hover > td,
 .online-monitor.is-panel /deep/ .trend-point-table .el-table__body tr.hover-row > td,
