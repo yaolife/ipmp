@@ -85,7 +85,7 @@
           size="small"
           :height="useFill ? fillHeight : null"
           :max-height="useFill ? null : 440"
-          empty-text="暂无关联数据"
+          empty-text="暂无数据"
           class="sap-table"
         >
           <el-table-column

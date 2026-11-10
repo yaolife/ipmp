@@ -135,6 +135,7 @@
                     <template slot-scope="scope">
                       <el-input
                         v-model="scope.row.name"
+                        @blur="checkPrivateAttributeNames"
                         size="small"
                         placeholder="key"
                       ></el-input>
@@ -212,25 +213,9 @@
                     }}</el-button>
                     <span class="file-hint">{{ imageFileHint }}</span>
                   </div>
-                  <el-input
-                    v-model="form.imagePaths"
-                    size="small"
-                    class="path-input"
-                    :placeholder="$t('lang.image_path_placeholder')"
-                  ></el-input>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="section-block">
-            <div class="section-title">{{ $t("lang.remark_section") }}</div>
-            <el-input
-              type="textarea"
-              v-model="form.remark"
-              :rows="4"
-              :placeholder="$t('lang.remark_placeholder')"
-            ></el-input>
           </div>
         </el-tab-pane>
 
@@ -274,19 +259,6 @@
           <div class="section-block">
             <div class="section-title">{{ $t("lang.status_source") }}</div>
             <el-row :gutter="24" class="form-grid">
-              <el-col :span="8">
-                <div class="field">
-                  <label>{{ $t("lang.data_source") }}</label>
-                  <el-select v-model="form.dataSource" size="small" clearable>
-                    <el-option
-                      v-for="opt in dataSourceOptions"
-                      :key="opt.value"
-                      :label="opt.label"
-                      :value="opt.value"
-                    ></el-option>
-                  </el-select>
-                </div>
-              </el-col>
               <el-col :span="8">
                 <div class="field">
                   <label>{{ $t("lang.update_time") }}</label>
@@ -847,6 +819,7 @@
           </span>
           <online-monitor
             :key="'dir-' + directoryId"
+            :active="activeTab === 'monitor'"
             :point-keyword="form.nodeName"
             :extra-keyword="form.pipeStandardKks"
           ></online-monitor>
@@ -1171,33 +1144,10 @@ function emptyForm() {
     name: "",
     kksCode: "",
     pipeStandardKks: "",
-    unitName: "",
-    systemNo: "",
-    safetyArea: "",
-    roomNo: "",
-    islandType: "",
-    responsiblePerson: "",
     pipelineNo: "",
-    flowCoord: "",
-    flowDrawingNo: "",
     isoCode: "",
-    installDrawingNo: "",
-    installInnerCode: "",
-    parentSystemNo: "",
-    systemCode: "",
     levelNo: "",
-    systemName: "",
-    parentLocationNo: "",
-    locationNo: "",
-    locationDepth: "",
-    locationName: "",
-    deviceNo: "",
-    orientation: "",
-    plantUnit: "",
-    processName: "",
     drawingNo: "",
-    remark: "",
-    imagePaths: "",
     startPoint: "",
     endPoint: "",
     operatingPressure: "",
@@ -1208,12 +1158,9 @@ function emptyForm() {
     outerDiameter: "",
     wallThickness: "",
     material: "",
-    centerElevation: "",
     workingMedium: "",
     flowVelocity: "",
     maxVelocity: "",
-    thermalDisplacement: "",
-    dataSource: "",
     modifyDate: "",
     fluidDensity: "",
     isChokedFlow: "",
@@ -1352,49 +1299,20 @@ export default {
           disabled: true
         },
         { key: "pipeStandardKks", label: "lang.kks_code" },
-        { key: "specCode", label: "lang.spec_code" },
-        { key: "unitName", label: "lang.belong_unit", required: true },
-        { key: "systemNo", label: "lang.system_no" },
-        { key: "safetyArea", label: "lang.safety_area" },
-        { key: "roomNo", label: "lang.room_no" },
-        { key: "islandType", label: "lang.island_type", type: "select" },
-        { key: "responsiblePerson", label: "lang.pipe_owner" }
+        { key: "specCode", label: "lang.spec_code" }
       ],
       locationFields: [
         { key: "pipelineNo", label: "lang.pipeline_on_line" },
         { key: "startPoint", label: "lang.pipeline_start" },
         { key: "endPoint", label: "lang.pipeline_end" },
-        { key: "flowCoord", label: "lang.flow_coord" },
-        { key: "flowDrawingNo", label: "lang.flow_drawing_no" },
-        { key: "isoCode", label: "lang.iso_drawing_no" },
-        { key: "installDrawingNo", label: "lang.install_drawing_no" },
-        { key: "installInnerCode", label: "lang.install_inner_code" }
+        { key: "isoCode", label: "lang.iso_drawing_no" }
       ],
       hierarchyFields: [
-        {
-          key: "parentSystemNo",
-          label: "lang.parent_system_no",
-          placeholder: "如 6VVP"
-        },
-        { key: "systemCode", label: "lang.system_no", placeholder: "如 VVP" },
         {
           key: "levelNo",
           label: "lang.system_depth",
           placeholder: "层级深度"
         },
-        {
-          key: "systemName",
-          label: "lang.system_name_label",
-          placeholder: "如 主蒸汽系统"
-        },
-        { key: "parentLocationNo", label: "lang.parent_location_no" },
-        { key: "locationNo", label: "lang.location_no" },
-        { key: "locationDepth", label: "lang.location_depth" },
-        { key: "locationName", label: "lang.location_name" },
-        { key: "deviceNo", label: "lang.device_no" },
-        { key: "orientation", label: "lang.orientation", placeholder: "如 N/E/S/W" },
-        { key: "plantUnit", label: "lang.plant_unit" },
-        { key: "processName", label: "lang.process_name" },
         { key: "drawingNo", label: "lang.drawing_no" }
       ],
       technicalFields: [
@@ -1406,10 +1324,8 @@ export default {
         { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm" },
         { key: "wallThickness", label: "lang.pipe_wall_thickness_mm" },
         { key: "material", label: "lang.pipe_material" },
-        { key: "centerElevation", label: "lang.pipe_center_elevation" },
         { key: "workingMedium", label: "lang.fluid_medium" },
-        { key: "maxVelocity", label: "lang.flow_velocity" },
-        { key: "thermalDisplacement", label: "lang.thermal_displacement" }
+        { key: "maxVelocity", label: "lang.flow_velocity" }
       ]
     };
   },
@@ -1424,12 +1340,6 @@ export default {
       if (layout === "weld") return getWeldLofSections();
       if (layout === "thermowell") return getThermowellLofSections();
       return getDefaultLofSections();
-    },
-    islandOptions() {
-      return [
-        { label: this.$t("lang.conventional_island"), value: "常规岛" },
-        { label: this.$t("lang.nuclear_island"), value: "核岛" }
-      ];
     },
     yesNoOptions() {
       return [
@@ -1483,13 +1393,6 @@ export default {
         { label: this.$t("lang.weld_socket"), value: "承插焊" },
         { label: this.$t("lang.weld_flange"), value: "法兰焊" },
         { label: this.$t("lang.weld_other"), value: "其他" }
-      ];
-    },
-    dataSourceOptions() {
-      return [
-        { label: this.$t("lang.source_3d"), value: "三维模型导入" },
-        { label: this.$t("lang.source_base"), value: "基础库同步" },
-        { label: this.$t("lang.source_manual"), value: "手动录入" }
       ];
     },
     relationTypeOptions() {
@@ -1595,7 +1498,6 @@ export default {
     },
     getFieldOptions(item) {
       if (item.options === "frequencySupport") return frequencySupportOptions;
-      if (item.key === "islandType") return this.islandOptions;
       if (item.key === "componentType") return this.componentTypeOptions;
       if (item.options === "yesNo") return this.yesNoOptions;
       if (item.options === "level") return this.levelOptions;
@@ -1621,7 +1523,6 @@ export default {
       if (!form.pipelineName) form.pipelineName = detail.pipelineName || "";
       if (!form.nodeName) form.nodeName = detail.nodeName || "";
       if (!form.specCode) form.specCode = detail.specCode || "";
-      if (!form.systemCode) form.systemCode = detail.systemNo || "";
       if (!form.pipeStandardKks) {
         form.pipeStandardKks = detail.pipeStandardKks || detail.kksCode || "";
       }
@@ -1786,9 +1687,6 @@ export default {
             this.maintenanceRecords = this.normalizeMaintenance(
               this.detail.maintenanceRecords
             );
-            if (this.detail.imagePaths) {
-              this.form.imagePaths = this.detail.imagePaths;
-            }
           } else {
             this.detail = {};
             this.resetLocalState();
@@ -1853,7 +1751,18 @@ export default {
       this.$refs.imageInput && this.$refs.imageInput.click();
     },
     addPrivateAttr() {
+      if (!this.checkPrivateAttributeNames()) return;
       this.privateAttrs.push({ name: "", value: "" });
+    },
+    /** 检查当前管道的属性名称，提示重复项并保留用户输入以便修改。 */
+    checkPrivateAttributeNames() {
+      try {
+        this.buildPrivateAttributes();
+        return true;
+      } catch (error) {
+        this.$message.warning(error.message);
+        return false;
+      }
     },
     removePrivateAttr(index) {
       this.privateAttrs.splice(index, 1);
@@ -2028,13 +1937,24 @@ export default {
       if (val === null || val === undefined) return "";
       return val;
     },
+    /** 按现有规则整理属性，并在保存前校验去除首尾空格后的非空名称。 */
     buildPrivateAttributes() {
-      return (this.privateAttrs || [])
+      const attributes = (this.privateAttrs || [])
         .map(item => ({
           name: String(this.toText(item && item.name) || "").trim(),
           value: String(this.toText(item && item.value)),
         }))
         .filter(item => item.name || item.value);
+      const names = new Set();
+      attributes.forEach(item => {
+        // 空名称保持原有可选语义，不把多个待填写行当作重复属性。
+        if (!item.name) return;
+        if (names.has(item.name)) {
+          throw new Error("私有属性名称不能重复：" + item.name);
+        }
+        names.add(item.name);
+      });
+      return attributes;
     },
     buildAttachmentIds() {
       return (this.imagePreviews || [])
@@ -2535,16 +2455,6 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.path-input {
-  flex: 1;
-  min-width: 200px;
-  /deep/ .el-input__inner {
-    height: 36px;
-    line-height: 36px;
-    border-color: #e2e8f0;
-    border-radius: 6px;
-  }
 }
 .toolbar-row {
   display: flex;

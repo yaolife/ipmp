@@ -137,6 +137,7 @@
         <online-monitor
           fill
           panel
+          :active="visible && activeTab === 'monitor'"
           :key="'panel-' + (form.nodeName || nodeName)"
           :point-keyword="form.nodeName || nodeName"
           :extra-keyword="form.pipeStandardKks"
@@ -176,9 +177,6 @@
               <img v-if="img.url" :src="img.url" alt="" />
               <span v-else>{{ img.name }}</span>
             </div>
-          </div>
-          <div v-else-if="section.kind === 'remark'" class="remark-value">
-            {{ displayVal(form.remark) }}
           </div>
           <div v-else class="info-grid">
             <div
@@ -378,32 +376,10 @@ function emptyForm() {
     pipelineName: "",
     componentType: "",
     pipeStandardKks: "",
-    unitName: "",
-    systemNo: "",
-    safetyArea: "",
-    roomNo: "",
-    islandType: "",
-    responsiblePerson: "",
     pipelineNo: "",
-    flowCoord: "",
-    flowDrawingNo: "",
     isoCode: "",
-    installDrawingNo: "",
-    installInnerCode: "",
-    parentSystemNo: "",
-    systemCode: "",
     levelNo: "",
-    systemName: "",
-    parentLocationNo: "",
-    locationNo: "",
-    locationDepth: "",
-    locationName: "",
-    deviceNo: "",
-    orientation: "",
-    plantUnit: "",
-    processName: "",
     drawingNo: "",
-    remark: "",
     startPoint: "",
     endPoint: "",
     operatingPressure: "",
@@ -414,12 +390,9 @@ function emptyForm() {
     outerDiameter: "",
     wallThickness: "",
     material: "",
-    centerElevation: "",
     workingMedium: "",
     maxVelocity: "",
-    thermalDisplacement: "",
     dataStatus: "已发布",
-    dataSource: "",
     modifyDate: "",
     fluidDensity: "",
     isChokedFlow: "",
@@ -533,37 +506,16 @@ export default {
         { key: "pipelineName", label: "lang.component_name" },
         { key: "componentType", label: "lang.component_type", type: "select" },
         { key: "pipeStandardKks", label: "lang.kks_code" },
-        { key: "specCode", label: "lang.spec_code" },
-        { key: "unitName", label: "lang.belong_unit" },
-        { key: "systemNo", label: "lang.system_no" },
-        { key: "safetyArea", label: "lang.safety_area" },
-        { key: "roomNo", label: "lang.room_no" },
-        { key: "islandType", label: "lang.island_type", type: "select" },
-        { key: "responsiblePerson", label: "lang.pipe_owner" }
+        { key: "specCode", label: "lang.spec_code" }
       ],
       locationFields: [
         { key: "pipelineNo", label: "lang.pipeline_on_line" },
         { key: "startPoint", label: "lang.pipeline_start" },
         { key: "endPoint", label: "lang.pipeline_end" },
-        { key: "flowCoord", label: "lang.flow_coord" },
-        { key: "flowDrawingNo", label: "lang.flow_drawing_no" },
-        { key: "isoCode", label: "lang.iso_drawing_no" },
-        { key: "installDrawingNo", label: "lang.install_drawing_no" },
-        { key: "installInnerCode", label: "lang.install_inner_code" }
+        { key: "isoCode", label: "lang.iso_drawing_no" }
       ],
       hierarchyFields: [
-        { key: "parentSystemNo", label: "lang.parent_system_no" },
-        { key: "systemCode", label: "lang.system_no" },
         { key: "levelNo", label: "lang.system_depth" },
-        { key: "systemName", label: "lang.system_name_label" },
-        { key: "parentLocationNo", label: "lang.parent_location_no" },
-        { key: "locationNo", label: "lang.location_no" },
-        { key: "locationDepth", label: "lang.location_depth" },
-        { key: "locationName", label: "lang.location_name" },
-        { key: "deviceNo", label: "lang.device_no" },
-        { key: "orientation", label: "lang.orientation" },
-        { key: "plantUnit", label: "lang.plant_unit" },
-        { key: "processName", label: "lang.process_name" },
         { key: "drawingNo", label: "lang.drawing_no" }
       ],
       technicalFields: [
@@ -575,14 +527,11 @@ export default {
         { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm" },
         { key: "wallThickness", label: "lang.pipe_wall_thickness_mm" },
         { key: "material", label: "lang.pipe_material" },
-        { key: "centerElevation", label: "lang.pipe_center_elevation" },
         { key: "workingMedium", label: "lang.fluid_medium" },
-        { key: "maxVelocity", label: "lang.flow_velocity" },
-        { key: "thermalDisplacement", label: "lang.thermal_displacement" }
+        { key: "maxVelocity", label: "lang.flow_velocity" }
       ],
       statusFields: [
         { key: "dataStatus", label: "lang.data_status", type: "select", options: "dataStatus" },
-        { key: "dataSource", label: "lang.data_source", type: "select", options: "dataSource" },
         { key: "modifyDate", label: "lang.update_time" }
       ]
     };
@@ -621,7 +570,6 @@ export default {
         { titleKey: "lang.hierarchy_locate", fields: this.hierarchyFields },
         { titleKey: "lang.private_attrs", kind: "attrs" },
         { titleKey: "lang.image_upload_path", kind: "images" },
-        { titleKey: "lang.remark_section", kind: "remark" }
       ];
     },
     visiblePrivateAttrs() {
@@ -639,12 +587,6 @@ export default {
     },
     componentTypeOptions() {
       return getComponentTypeOptions(this.$t.bind(this));
-    },
-    islandOptions() {
-      return [
-        { label: this.$t("lang.conventional_island"), value: "常规岛" },
-        { label: this.$t("lang.nuclear_island"), value: "核岛" }
-      ];
     },
     yesNoOptions() {
       return [
@@ -704,13 +646,6 @@ export default {
         { label: this.$t("lang.status_pending"), value: "待审核" },
         { label: this.$t("lang.status_disabled"), value: "已停用" }
       ];
-    },
-    dataSourceOptions() {
-      return [
-        { label: this.$t("lang.source_3d"), value: "三维模型导入" },
-        { label: this.$t("lang.source_base"), value: "基础库同步" },
-        { label: this.$t("lang.source_manual"), value: "手动录入" }
-      ];
     }
   },
   watch: {
@@ -762,7 +697,6 @@ export default {
     },
     getFieldOptions(item) {
       if (!item) return [];
-      if (item.key === "islandType") return this.islandOptions;
       if (item.key === "componentType") return this.componentTypeOptions;
       if (item.options === "yesNo") return this.yesNoOptions;
       if (item.options === "level") return this.levelOptions;
@@ -772,7 +706,6 @@ export default {
       if (item.options === "thermowellType") return this.thermowellTypeOptions;
       if (item.options === "weldTypeLof") return this.weldTypeLofOptions;
       if (item.options === "dataStatus") return this.dataStatusOptions;
-      if (item.options === "dataSource") return this.dataSourceOptions;
       return [];
     },
     formatField(item) {
@@ -803,7 +736,6 @@ export default {
       if (!form.pipelineName) form.pipelineName = detail.pipelineName || "";
       if (!form.nodeName) form.nodeName = detail.nodeName || "";
       if (!form.specCode) form.specCode = detail.specCode || "";
-      if (!form.systemCode) form.systemCode = detail.systemNo || "";
       if (!form.pipeStandardKks) {
         form.pipeStandardKks = detail.pipeStandardKks || detail.kksCode || "";
       }
@@ -1138,13 +1070,6 @@ export default {
   min-width: 0;
   font-size: 14px;
   color: #ffffff;
-  word-break: break-all;
-}
-.remark-value {
-  font-size: 14px;
-  line-height: 22px;
-  color: #ffffff;
-  white-space: pre-wrap;
   word-break: break-all;
 }
 .image-row {

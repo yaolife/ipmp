@@ -1,17 +1,20 @@
 <template>
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
-      <div class="lof-page lof-ledger" v-loading="pageLoading">
+      <div class="lof-page lof-ledger">
         <div class="ledger-layout">
           <div class="card ledger-tree-card">
             <div class="card-header">
               <div class="card-title">系统筛选树</div>
               <el-button size="mini" @click="resetTreeFilter">重置</el-button>
             </div>
-            <div class="card-body ledger-tree-body">
+            <div class="card-body ledger-tree-body" v-loading="treeLoading">
               <el-tree
                 ref="directoryTree"
+                :key="treeRenderKey"
                 :data="directoryTree"
+                lazy
+                :load="loadTreeNode"
                 node-key="id"
                 :props="treeProps"
                 :expand-on-click-node="false"
@@ -68,10 +71,12 @@
                   <el-option label="已完成振动校核" :value="3"></el-option>
                 </el-select>
                 <el-button type="primary" size="small" @click="search">查询</el-button>
+                <el-button size="small" @click="resetSearch">重置</el-button>
               </div>
             </div>
-            <div class="card-body ledger-table-body">
+            <div class="card-body ledger-table-body" v-loading="pageLoading">
               <el-table
+                ref="ledgerTable"
                 :data="records"
                 height="100%"
                 border
@@ -306,7 +311,9 @@ export default {
       batchAnalyzing: false,
       exporting: false,
       directoryTree: [],
-      treeProps: { children: "children", label: "nodeName" },
+      treeLoading: false,
+      treeRenderKey: 0,
+      treeProps: { children: "children", label: "nodeName", isLeaf: "leaf" },
       selectedNode: null,
       selectedRows: [],
       records: [],
@@ -314,6 +321,7 @@ export default {
       query: {
         current: 1,
         size: 20,
+        directoryNodeId: null,
         segmentIds: null,
         keyword: "",
         riskLevel: null,
@@ -368,28 +376,57 @@ export default {
     }
   },
   created() {
-    this.loadTree();
     this.loadPage();
+  },
+  beforeDestroy() {
+    // 页面离开后使未完成的请求失效，避免旧数据或提示回填到下次页面。
+    this._ledgerDestroyed = true;
+    this._pageRequestId = (this._pageRequestId || 0) + 1;
   },
   methods: {
     isSuccessCode: isSuccessCode,
     unwrapList: unwrapList,
     loadTree() {
-      // 三维台账列表只查询最新启用模型，因此筛选树必须使用同一模型树的节点主键。
-      api.getLatestEnabledModelTree().then(res => {
+      // 重新挂载懒加载树，只查询最新启用模型的根节点，展开时才查直接子节点。
+      this.directoryTree = [];
+      this.treeRenderKey += 1;
+    },
+    loadTreeNode(node, resolve) {
+      const generation = this.treeRenderKey;
+      const root = node.level === 0;
+      if (root) this.treeLoading = true;
+      const request = root
+        ? api.getLatestEnabledModelTreeRoots()
+        : api.getLatestEnabledModelTreeChildren(node.data.id);
+      return request.then(res => {
+        if (this._ledgerDestroyed || generation !== this.treeRenderKey) return;
         if (!this.isSuccessCode(res && res.code)) {
+          // 不将临时请求失败标记为叶子节点，用户可以再次展开重试。
+          node.loading = false;
           this.$message.error((res && res.msg) || "系统筛选树加载失败");
           return;
         }
-        this.directoryTree = Array.isArray(res.data) ? res.data : this.unwrapList(res.data);
+        resolve(Array.isArray(res.data) ? res.data : []);
+        if (this.selectedNode && this.$refs.directoryTree) {
+          this.$refs.directoryTree.setCurrentKey(this.selectedNode.id);
+        }
       }).catch(error => {
+        if (this._ledgerDestroyed || generation !== this.treeRenderKey) return;
+        node.loading = false;
         this.$message.error(this.errorMessage(error, "系统筛选树加载失败"));
+      }).finally(() => {
+        if (!this._ledgerDestroyed && generation === this.treeRenderKey && root) this.treeLoading = false;
       });
     },
     loadPage() {
+      const requestId = (this._pageRequestId || 0) + 1;
+      this._pageRequestId = requestId;
       this.selectedRows = [];
+      if (this.$refs.ledgerTable) this.$refs.ledgerTable.clearSelection();
       this.pageLoading = true;
-      api.pageLedger(this.query).then(res => {
+      // 固定本次筛选快照，快速切换节点或重置后仅允许最后一次请求更新列表。
+      return api.pageLedger(Object.assign({}, this.query)).then(res => {
+        if (this._ledgerDestroyed || requestId !== this._pageRequestId) return;
         this.pageLoading = false;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "三维台账加载失败");
@@ -399,6 +436,7 @@ export default {
         this.records = this.unwrapList(data);
         this.total = Number(data.total || this.records.length || 0);
       }).catch(error => {
+        if (this._ledgerDestroyed || requestId !== this._pageRequestId) return;
         this.pageLoading = false;
         this.$message.error(this.errorMessage(error, "三维台账加载失败"));
       });
@@ -417,6 +455,7 @@ export default {
       this.loadPage();
     },
     onSortChange(sort) {
+      if (this._resettingSort) return;
       this.query.mainLofSort = sort.order === "ascending"
         ? "asc"
         : (sort.order === "descending" ? "desc" : "");
@@ -427,26 +466,25 @@ export default {
     },
     onTreeNodeClick(node) {
       this.selectedNode = node;
-      const ids = this.collectAssessmentObjectIds(node);
-      // 选择没有业务节点后代的普通目录时传一个不存在的占位值，避免空集合被解释为“查询全部”。
-      this.query.segmentIds = ids.length ? ids : ["__EMPTY_TREE_SELECTION__"];
+      // 后端按节点查询完整后代范围，不能根据当前已展开的子节点推断范围。
+      this.query.directoryNodeId = node.id;
+      this.query.segmentIds = null;
       this.search();
     },
-    collectAssessmentObjectIds(node) {
-      const ids = [];
-      const visit = item => {
-        if (!item) return;
-        // componentType有值表示已识别的业务对象；不再限定必须为0-管道。
-        if (item.componentType != null && item.id != null) {
-          ids.push(String(item.id));
-        }
-        (item.children || []).forEach(visit);
-      };
-      visit(node);
-      return ids;
+    resetSearch() {
+      this.query.keyword = "";
+      this.query.riskLevel = null;
+      this.query.completeness = null;
+      this.query.analysisStatus = null;
+      this.query.mainLofSort = "";
+      this._resettingSort = true;
+      if (this.$refs.ledgerTable) this.$refs.ledgerTable.clearSort();
+      this._resettingSort = false;
+      this.resetTreeFilter();
     },
     resetTreeFilter() {
       this.selectedNode = null;
+      this.query.directoryNodeId = null;
       this.query.segmentIds = null;
       if (this.$refs.directoryTree) {
         this.$refs.directoryTree.setCurrentKey(null);
@@ -717,6 +755,7 @@ export default {
 
 .ledger-filters {
   display: flex;
+  flex-wrap: wrap;
   min-width: 0;
   flex: 1;
   justify-content: flex-end;

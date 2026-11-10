@@ -1064,10 +1064,15 @@
 
     this.setHtmlCss = function(xys) {
       var _canvas = document.getElementById(this.trendcontainer);
+      var canvas_width = Math.floor(Number(this.containerWidthFn()));
+      var canvas_height = Math.floor(Number(this.containerHeightFn()));
+      // 标签隐藏或卸载时容器会暂时归零，保留现有画布和数据，显示后再由布局事件重绘。
+      if (!_canvas || !isFinite(canvas_width) || !isFinite(canvas_height) ||
+          canvas_width <= 0 || canvas_height <= 0) {
+        return false;
+      }
       this.canvas_context = _canvas.getContext("2d");
       this.opTrend.canvas_context = this.canvas_context;
-      var canvas_width = this.containerWidthFn();
-      var canvas_height = this.containerHeightFn();
       _canvas.width = canvas_width;
       _canvas.height = canvas_height;
       this.opTrend.canvasWidth = canvas_width;
@@ -1081,6 +1086,7 @@
       // 此处xys传递只用在了点击测点表格最大值最小值的定位上
       trend_Util.setCanvasClick(xys, this);
       trend_Util.setCanvasFun(this);
+      return true;
     };
     /**
      * 重新绘制
@@ -2352,22 +2358,36 @@
       }
     };
     this.repaint = function(name) {
-      // 重绘
+      // 尚未获得有效布局时只接收数据，避免零尺寸画布触发drawImage异常及后续坐标计算。
+      if (!this.canvas_context || !this.canvas_context.canvas ||
+          this.canvas_context.canvas.width <= 0 || this.canvas_context.canvas.height <= 0 ||
+          !isFinite(this.canvasWidth) || !isFinite(this.canvasHeight) ||
+          this.canvasWidth <= 0 || this.canvasHeight <= 0) {
+        return;
+      }
       this.from = new Date(this.from);
       this.to = new Date(this.to);
-      this.drawBack();
+      if (!this.drawBack()) {
+        return;
+      }
       this.drawTrend(name);
       this.canvasXAxis.draw(this);
     };
     this.drawBack = function() {
+      var width = Math.floor(this.canvasWidth + this.margin_padding * 2);
+      var height = Math.floor(this.canvasHeight + this.margin_top + this.margin_bottom);
+      if (!this.canvas_context || !isFinite(width) || !isFinite(height) ||
+          width <= 0 || height <= 0) {
+        return false;
+      }
       if (
         !this.backCanvas ||
+        this.backCanvas.width !== width || this.backCanvas.height !== height ||
         (this.backCanvas && this.widthRatioATemp != this.widthRatioA)
       ) {
         var _canvas = document.createElement("canvas");
-        _canvas.width = this.canvasWidth + this.margin_padding * 2;
-        _canvas.height =
-          this.canvasHeight + this.margin_top + this.margin_bottom;
+        _canvas.width = width;
+        _canvas.height = height;
         var _context = _canvas.getContext("2d");
         // 背景
         this.borderRect.draw(this, _context);
@@ -2396,6 +2416,7 @@
         this.canvasWidth + this.margin_padding * 2,
         this.canvasHeight + this.margin_top + this.margin_bottom
       );
+      return true;
     };
 
     // 绘制趋势标记

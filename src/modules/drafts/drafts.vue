@@ -20,7 +20,7 @@
                     v-model="filterText"
                     :placeholder="$t('lang.resource_search_placeholder')"
                     maxlength="32"
-                    suffix-icon="el-icon-search"
+                    :suffix-icon="filterText ? '' : 'el-icon-search'"
                     size="small"
                     clearable
                   >
@@ -312,6 +312,17 @@ export default drafts;
 }
 .custom-tree-node {
   font-size: 14px;
+}
+// 覆盖资源树公共样式的图标偏移，确保清除图标的显示位置与点击区域一致。
+.cud-commom-tree-left .cud__tree--left .tree-search-box {
+  /deep/ .el-input__suffix {
+    right: 5px;
+  }
+  /deep/ .el-icon-search {
+    line-height: 32px;
+    transform: none;
+    pointer-events: none;
+  }
 }
 .resource-tree-box {
   position: relative;

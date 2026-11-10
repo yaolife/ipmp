@@ -86,15 +86,15 @@ export default {
     filterText(val) {
       this.filterText = (val || "").trim();
       clearTimeout(this._treeSearchTimer);
+      // 输入变化即作废旧请求，防止清除后的目录被延迟返回的搜索结果覆盖。
+      this._treeSearchRequestId = (this._treeSearchRequestId || 0) + 1;
+      if (!this.filterText) {
+        this.treeLazy = true;
+        this.treeRenderKey += 1;
+        this.getTreeList();
+        return;
+      }
       this._treeSearchTimer = setTimeout(() => {
-        if (!this.filterText) {
-          // 取消正在返回的全量搜索请求，避免清空搜索后旧结果再次覆盖懒加载树。
-          this._treeSearchRequestId = (this._treeSearchRequestId || 0) + 1;
-          this.treeLazy = true;
-          this.treeRenderKey += 1;
-          this.getTreeList();
-          return;
-        }
         this.loadFullTreeForSearch();
       }, 250);
     }
@@ -203,6 +203,9 @@ export default {
       return null;
     },
     getTreeList(options) {
+      // 根节点加载与全量搜索共用请求序号，只有最后一次操作可以更新目录。
+      const requestId = (this._treeSearchRequestId || 0) + 1;
+      this._treeSearchRequestId = requestId;
       const keepCurrent = options && options.keepCurrent;
       const skipList = options && options.skipList;
       const prevId = keepCurrent && this.currentNode ? this.currentNode.id : "";
@@ -210,6 +213,7 @@ export default {
       api
         .getLatestEnabledModelTreeRoots()
         .then(res => {
+          if (requestId !== this._treeSearchRequestId) return;
           this.treeLoading = false;
           if (this.isSuccessCode(res && res.code)) {
             this.treeData = Array.isArray(res.data) ? res.data : [];
@@ -246,6 +250,7 @@ export default {
           });
         })
         .catch(() => {
+          if (requestId !== this._treeSearchRequestId) return;
           this.treeLoading = false;
           this.treeData = [];
           this.currentNode = null;

@@ -297,6 +297,10 @@ function formatClock(date) {
 export default {
   name: "OnlineMonitor",
   props: {
+    active: {
+      type: Boolean,
+      default: true
+    },
     pointKeyword: {
       type: String,
       default: ""
@@ -369,6 +373,15 @@ export default {
     };
   },
   watch: {
+    active(value) {
+      if (value) {
+        this.setTrendPointListHeight();
+      } else {
+        // 隐藏后即使恢复到相同尺寸，也必须重新建立画布布局。
+        this._canvasLayoutWidth = 0;
+        this._canvasLayoutHeight = 0;
+      }
+    },
     pointKeyword: {
       immediate: true,
       handler() {
@@ -385,14 +398,23 @@ export default {
   mounted() {
     window.thisVue = this;
     this.$nextTick(() => {
+      if (this.monitorDestroyed) return;
       this.initTrend();
       this.scheduleAutoLoad();
-      setTimeout(this._onResize, 300);
+      this.setTrendPointListHeight();
     });
     this._onResize = () => {
       this.layoutTrend();
     };
     window.addEventListener("resize", this._onResize);
+    // 切换详情Tab或收起侧栏不会触发window.resize，监听实际容器以便显示后恢复绘图。
+    if (window.ResizeObserver && this.$refs.canvasBox) {
+      this._canvasResizeObserver = new window.ResizeObserver(this._onResize);
+      this._canvasResizeObserver.observe(this.$refs.canvasBox);
+    } else {
+      // 内网旧版浏览器可能不支持ResizeObserver；只在尺寸变化或布局未就绪时重绘。
+      this._canvasLayoutTimer = window.setInterval(this._onResize, 500);
+    }
   },
   beforeDestroy() {
     this.monitorDestroyed = true;
@@ -414,6 +436,14 @@ export default {
       window.trendGroup = null;
     }
     window.removeEventListener("resize", this._onResize);
+    if (this._canvasResizeObserver) {
+      this._canvasResizeObserver.disconnect();
+      this._canvasResizeObserver = null;
+    }
+    if (this._canvasLayoutTimer) {
+      window.clearInterval(this._canvasLayoutTimer);
+      this._canvasLayoutTimer = null;
+    }
   },
   methods: {
     formatNum(value) {
@@ -543,8 +573,7 @@ export default {
       });
       this.trendGroup.containerHeightFn = function() {
         var el = self.$refs.canvasBox;
-        var height = el && el.clientHeight ? el.clientHeight : 280;
-        return Math.max(180, height);
+        return el ? el.clientHeight : 0;
       };
       this.trendGroup.containerWidthFn = function() {
         var el = self.$refs.canvasBox;
@@ -555,14 +584,28 @@ export default {
       this.trendGroup.addPointList("初始化", now - 10 * 60 * 1000, now);
     },
     layoutTrend() {
-      if (!this.trendGroup || !this.$refs.canvasBox) {
+      if (this.monitorDestroyed || !this.active || !this.trendGroup || !this.$refs.canvasBox) {
         return;
       }
-      if (!this.$refs.canvasBox.clientWidth) {
+      var width = this.$refs.canvasBox.clientWidth;
+      var height = this.$refs.canvasBox.clientHeight;
+      if (width <= 0 || height <= 0) {
+        this._canvasLayoutWidth = 0;
+        this._canvasLayoutHeight = 0;
+        return;
+      }
+      var plot = this.trendGroup.opTrend;
+      var canvas = plot && plot.canvas_context && plot.canvas_context.canvas;
+      if (this._canvasLayoutWidth === width && this._canvasLayoutHeight === height &&
+          canvas && canvas.width === width && canvas.height === height &&
+          plot.canvasWidth > 0 && plot.canvasHeight > 0) {
         return;
       }
       this.trendGroup.isResize = true;
-      this.trendGroup.setHtmlCss();
+      if (this.trendGroup.setHtmlCss()) {
+        this._canvasLayoutWidth = width;
+        this._canvasLayoutHeight = height;
+      }
     },
     idsKey(pointList) {
       return (pointList.pointID || [])

@@ -45,6 +45,8 @@ export default {
     getLatestEnabledModelTree: function() {
         return draftsApi.getLatestEnabledModelTree();
     },
+    getLatestEnabledModelTreeRoots: draftsApi.getLatestEnabledModelTreeRoots,
+    getLatestEnabledModelTreeChildren: draftsApi.getLatestEnabledModelTreeChildren,
     getResourceDirectoryDetail: draftsApi.getResourceDirectoryDetail,
     matchMaterialLibrary: draftsApi.matchMaterialLibrary,
     getMaterialElasticModulus: function(id, temperature) {

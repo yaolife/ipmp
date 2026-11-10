@@ -67,97 +67,111 @@
         </el-row>
       </el-card>
 
-      <el-dialog :title="editing ? '编辑' : '新增'" :visible.sync="dialogVisible" :width="libraryType === 'material' ? '96%' : '760px'" :fullscreen="libraryType === 'material'" append-to-body>
-        <template v-if="libraryType === 'material'">
-          <div class="material-editor-toolbar">
-            <div>
-              <strong>{{ form.materialGrade || '新材料' }}</strong>
-              <span>{{ form.productForm || '' }} <template v-if="form.unsNo">| UNS {{ form.unsNo }}</template></span>
-            </div>
-            <el-button type="primary" size="small" :loading="saving || materialDetailLoading" :disabled="materialDetailLoading" @click="save">保存</el-button>
+      <el-dialog :title="editing ? '编辑' : '新增'" :visible.sync="dialogVisible" :width="libraryType === 'material' ? '96%' : '760px'" :fullscreen="libraryType === 'material'" :class="{ 'material-library-dialog': libraryType === 'material' }" append-to-body>
+        <div v-if="libraryType === 'material'" slot="title" class="material-dialog-title">
+          <div class="material-title-icon"><i class="el-icon-collection"></i></div>
+          <div>
+            <strong>{{ editing ? '编辑材料' : '新增材料' }}</strong>
+            <span>{{ form.materialGrade || '材料数据库' }}<template v-if="form.unsNo"> · UNS {{ form.unsNo }}</template></span>
           </div>
+        </div>
+        <!-- 弹窗关闭即释放编辑区，避免上次已访问的曲线控件在再次新增时参与全量更新。 -->
+        <template v-if="dialogVisible && libraryType === 'material'">
           <el-tabs v-model="materialTab" class="material-editor-tabs" v-loading="materialDetailLoading">
             <el-tab-pane label="基本信息" name="basic">
-              <el-form ref="form" :model="form" label-width="170px" size="small" class="library-form material-basic-form">
-                <el-row :gutter="16">
-                  <el-col v-for="field in materialBaseFields" :key="field.prop" :span="field.span || 8">
-                    <el-form-item :label="field.label">
-                      <el-input v-if="field.type !== 'number'" v-model="form[field.prop]" :placeholder="field.placeholder || '请输入'"></el-input>
-                      <el-input-number v-else v-model="form[field.prop]" :controls="false" :precision="field.precision === undefined ? 3 : field.precision" style="width:100%"></el-input-number>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
+              <el-form ref="form" :model="form" :rules="materialCreateRules" label-position="top" size="small" class="library-form material-basic-form">
+                <section v-for="section in materialBasicSections" :key="section.key" class="material-form-section">
+                  <div class="material-section-heading">
+                    <span class="material-section-index">{{ section.index }}</span>
+                    <div><h3>{{ section.title }}</h3><p>{{ section.description }}</p></div>
+                  </div>
+                  <el-row :gutter="24" class="material-field-row">
+                    <el-col v-for="field in section.fields" :key="field.prop" :xs="24" :sm="field.span === 24 ? 24 : 12" :lg="field.span || 8">
+                      <el-form-item :label="field.label" :prop="field.prop">
+                        <el-input v-if="field.prop === 'remarks'" v-model="form.remarks" type="textarea" :rows="2" placeholder="可填写材料来源、适用条件或其他说明"></el-input>
+                        <el-input v-else-if="field.type !== 'number'" v-model="form[field.prop]" :placeholder="'请输入' + field.label"></el-input>
+                        <el-input-number v-else v-model="form[field.prop]" :controls="false" :precision="field.precision === undefined ? 3 : field.precision" placeholder="请输入数值"></el-input-number>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </section>
               </el-form>
             </el-tab-pane>
             <el-tab-pane label="力学性能（S / Sm / Su / Sy）" name="mechanical" lazy>
-              <el-alert type="info" :closable="false" show-icon title="参数按温度维护；温度范围列 -30~40℃ 在该温区内使用同一数值。尺寸/厚度留空表示通用，仅作为默认条件。" class="curve-help"></el-alert>
-              <div v-for="property in mechanicalProperties" :key="property.key" class="curve-section">
-                <div class="curve-section-heading">
-                  <div><strong>{{ property.title }}</strong><span>{{ property.source }}</span></div>
-                  <div class="curve-actions">
-                    <el-button size="mini" icon="el-icon-plus" @click="addMechanicalRow(property.key)">添加行</el-button>
-                    <el-button size="mini" type="danger" icon="el-icon-delete" :disabled="!curveRows(property.key).length" @click="removeMechanicalRow(property.key)">删除末行</el-button>
+              <template v-if="materialTab === 'mechanical'">
+                <el-alert type="info" :closable="false" show-icon title="参数按温度维护；温度范围列 -30~40℃ 在该温区内使用同一数值。尺寸/厚度留空表示通用，仅作为默认条件。" class="curve-help"></el-alert>
+                <div v-for="property in mechanicalProperties" :key="property.key" class="curve-section">
+                  <div class="curve-section-heading">
+                    <div><strong>{{ property.title }}</strong><span>{{ property.source }}</span></div>
+                    <div class="curve-actions">
+                      <el-button size="mini" icon="el-icon-plus" @click="addMechanicalRow(property.key)">添加行</el-button>
+                      <el-button size="mini" type="danger" icon="el-icon-delete" :disabled="!curveRows(property.key).length" @click="removeMechanicalRow(property.key)">删除末行</el-button>
+                    </div>
+                  </div>
+                  <div class="curve-table-wrap">
+                    <table class="material-curve-table">
+                      <thead><tr><th class="condition-column">尺寸/厚度 (mm)</th><th v-for="temperature in property.temperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
+                      <tbody>
+                        <tr v-for="(row, rowIndex) in curveRows(property.key)" :key="property.key + '-' + rowIndex">
+                          <td class="condition-column"><el-input :value="row && row.sizeCondition" size="mini" placeholder="通用" @input="setSizeCondition(row, $event)" @change="validateSizeCondition(row)"></el-input></td>
+                          <td v-for="temperature in property.temperatures" :key="temperature"><el-input-number :value="getCurveCell(row, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setCurveCell(row, temperature, $event)"></el-input-number></td>
+                        </tr>
+                        <tr v-if="!curveRows(property.key).length"><td :colspan="property.temperatures.length + 1" class="curve-empty">暂无数据行，点击“添加行”维护</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="curve-preview">
+                    <strong>{{ property.title }}预览</strong>
+                    <el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
+                    <el-input-number v-model="preview.thickness" size="small" :controls="false" :precision="3" placeholder="厚度(mm)"></el-input-number>
+                    <el-button size="small" type="primary" @click="previewMechanical(property.key)">计算</el-button>
+                    <span>{{ previewResult.mechanical && previewResult.mechanical[property.key] || '输入温度和厚度后查看插值结果' }}</span>
                   </div>
                 </div>
-                <div class="curve-table-wrap">
-                  <table class="material-curve-table">
-                    <thead><tr><th class="condition-column">尺寸/厚度 (mm)</th><th v-for="temperature in property.temperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
-                    <tbody>
-                      <tr v-for="(row, rowIndex) in curveRows(property.key)" :key="property.key + '-' + rowIndex">
-                        <td class="condition-column"><el-input :value="row && row.sizeCondition" size="mini" placeholder="通用" @input="setSizeCondition(row, $event)" @change="validateSizeCondition(row)"></el-input></td>
-                        <td v-for="temperature in property.temperatures" :key="temperature"><el-input-number :value="getCurveCell(row, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setCurveCell(row, temperature, $event)"></el-input-number></td>
-                      </tr>
-                      <tr v-if="!curveRows(property.key).length"><td :colspan="property.temperatures.length + 1" class="curve-empty">暂无数据行，点击“添加行”维护</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="curve-preview">
-                  <strong>{{ property.title }}预览</strong>
-                  <el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
-                  <el-input-number v-model="preview.thickness" size="small" :controls="false" :precision="3" placeholder="厚度(mm)"></el-input-number>
-                  <el-button size="small" type="primary" @click="previewMechanical(property.key)">计算</el-button>
-                  <span>{{ previewResult.mechanical && previewResult.mechanical[property.key] || '输入温度和厚度后查看插值结果' }}</span>
-                </div>
-              </div>
+              </template>
             </el-tab-pane>
             <el-tab-pane label="热物性（α / k / ρ）" name="thermal" lazy>
-              <el-alert type="info" :closable="false" show-icon title="按材料温度录入热膨胀系数、导热系数和密度。空单元格表示该温度点没有数据。" class="curve-help"></el-alert>
-              <div class="curve-section">
-                <div class="curve-section-heading"><div><strong>热物性</strong><span>α：×10⁻⁶/℃；k：W/(m·℃)；ρ：kg/m³</span></div></div>
-                <div class="curve-table-wrap">
-                  <table class="material-curve-table">
-                    <thead><tr><th class="condition-column">参数</th><th v-for="temperature in thermalTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
-                    <tbody><tr v-for="property in thermalProperties" :key="property.key"><th class="condition-column">{{ property.label }}</th><td v-for="temperature in thermalTemperatures" :key="temperature"><el-input-number :value="getThermalCell(property.key, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setThermalCell(property.key, temperature, $event)"></el-input-number></td></tr></tbody>
-                  </table>
+              <template v-if="materialTab === 'thermal'">
+                <el-alert type="info" :closable="false" show-icon title="按材料温度录入热膨胀系数、导热系数和密度。空单元格表示该温度点没有数据。" class="curve-help"></el-alert>
+                <div class="curve-section">
+                  <div class="curve-section-heading"><div><strong>热物性</strong><span>α：×10⁻⁶/℃；k：W/(m·℃)；ρ：kg/m³</span></div></div>
+                  <div class="curve-table-wrap">
+                    <table class="material-curve-table">
+                      <thead><tr><th class="condition-column">参数</th><th v-for="temperature in thermalTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
+                      <tbody><tr v-for="property in thermalProperties" :key="property.key"><th class="condition-column">{{ property.label }}</th><td v-for="temperature in thermalTemperatures" :key="temperature"><el-input-number :value="getThermalCell(property.key, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setThermalCell(property.key, temperature, $event)"></el-input-number></td></tr></tbody>
+                    </table>
+                  </div>
+                  <div class="curve-preview">
+                    <strong>温度插值预览</strong><el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
+                    <el-button size="small" type="primary" @click="previewThermal">计算</el-button><span>{{ previewResult.thermal || '输入温度后查看可用参数' }}</span>
+                  </div>
                 </div>
-                <div class="curve-preview">
-                  <strong>温度插值预览</strong><el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
-                  <el-button size="small" type="primary" @click="previewThermal">计算</el-button><span>{{ previewResult.thermal || '输入温度后查看可用参数' }}</span>
-                </div>
-              </div>
+              </template>
             </el-tab-pane>
             <el-tab-pane label="弹性模量 E" name="elastic" lazy>
-              <el-alert type="info" :closable="false" show-icon title="按温度维护弹性模量，单位统一为 Pa；已有数值按 Pa 使用，不换算；温度超出数据范围时不外推。" class="curve-help"></el-alert>
-              <div class="curve-section">
-                <div class="curve-section-heading"><div><strong>弹性模量 E（Pa）</strong><span>ASME BPVC Section II Part D · Table TM-1</span></div></div>
-                <div class="curve-table-wrap">
-                  <table class="material-curve-table">
-                    <thead><tr><th class="condition-column">参数</th><th v-for="temperature in elasticTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
-                    <tbody><tr><th class="condition-column">E (Pa)</th><td v-for="temperature in elasticTemperatures" :key="temperature"><el-input-number :value="getElasticCell(temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setElasticCell(temperature, $event)"></el-input-number></td></tr></tbody>
-                  </table>
+              <template v-if="materialTab === 'elastic'">
+                <el-alert type="info" :closable="false" show-icon title="按温度维护弹性模量，单位统一为 Pa；已有数值按 Pa 使用，不换算；温度超出数据范围时不外推。" class="curve-help"></el-alert>
+                <div class="curve-section">
+                  <div class="curve-section-heading"><div><strong>弹性模量 E（Pa）</strong><span>ASME BPVC Section II Part D · Table TM-1</span></div></div>
+                  <div class="curve-table-wrap">
+                    <table class="material-curve-table">
+                      <thead><tr><th class="condition-column">参数</th><th v-for="temperature in elasticTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
+                      <tbody><tr><th class="condition-column">E (Pa)</th><td v-for="temperature in elasticTemperatures" :key="temperature"><el-input-number :value="getElasticCell(temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setElasticCell(temperature, $event)"></el-input-number></td></tr></tbody>
+                    </table>
+                  </div>
+                  <div class="curve-preview">
+                    <strong>温度插值预览</strong><el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
+                    <el-button size="small" type="primary" @click="previewElastic">计算</el-button><span>{{ previewResult.elastic || '输入温度后查看插值结果' }}</span>
+                  </div>
                 </div>
-                <div class="curve-preview">
-                  <strong>温度插值预览</strong><el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
-                  <el-button size="small" type="primary" @click="previewElastic">计算</el-button><span>{{ previewResult.elastic || '输入温度后查看插值结果' }}</span>
-                </div>
-              </div>
+              </template>
             </el-tab-pane>
           </el-tabs>
         </template>
-        <el-form v-else ref="form" :model="form" label-width="150px" size="small" class="library-form">
-          <el-row :gutter="16">
+        <el-form v-else-if="dialogVisible" ref="form" :model="form" :rules="operatingRules" label-width="150px" size="small" class="library-form">
+          <el-row :gutter="16" class="library-field-row">
             <el-col v-for="field in formFields" :key="field.prop" :span="field.span || 12">
-              <el-form-item :label="field.label">
+              <el-form-item :label="field.label" :prop="field.prop">
                 <el-select v-if="field.type === 'unit'" v-model="form[field.prop]" placeholder="请选择机组" style="width:100%">
                   <el-option label="5号机" :value="5"></el-option>
                 </el-select>
@@ -172,10 +186,13 @@
             </el-col>
           </el-row>
         </el-form>
-        <span slot="footer">
-          <el-button size="small" @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" size="small" :loading="saving || materialDetailLoading" :disabled="materialDetailLoading" @click="save">保存</el-button>
-        </span>
+        <div slot="footer" class="library-editor-footer">
+          <span v-if="libraryType === 'material'" class="material-footer-note">基本信息与各温度参数将一起保存</span>
+          <div>
+            <el-button size="small" @click="dialogVisible = false">取消</el-button>
+            <el-button type="primary" size="small" :loading="saving || materialDetailLoading" :disabled="materialDetailLoading" @click="save">保存</el-button>
+          </div>
+        </div>
       </el-dialog>
     </div>
   </div>
@@ -313,6 +330,32 @@ export default {
     };
   },
   computed: {
+    // 运行工况新增和编辑都校验匹配标识，其他业务字段仍保持可选。
+    operatingRules() {
+      if (this.libraryType !== "operating") return {};
+      return {
+        conditionCode: [{ required: true, whitespace: true, message: "请输入工况编码", trigger: "blur" }],
+        unitNo: [{ required: true, type: "number", message: "请选择所属机组", trigger: "change" }]
+      };
+    },
+    // 材料必填限制仍仅用于新增，保持已有材料编辑规则。
+    materialCreateRules() {
+      if (this.libraryType !== "material" || this.editing) return {};
+      return {
+        materialGrade: [{ required: true, whitespace: true, message: "请输入管材牌号", trigger: "blur" }],
+        subcategory: [{ required: true, whitespace: true, message: "请输入材料子类", trigger: "blur" }]
+      };
+    },
+    // 仅调整基础字段的展示分组，字段名称、数值精度及保存请求保持原有契约。
+    materialBasicSections() {
+      return [
+        { key: "identity", index: "01", title: "材料标识", description: "维护材料牌号、分类及规范信息", keys: ["materialGrade", "unsNo", "category", "subcategory", "productForm", "specificationNo", "pNo", "groupNo"] },
+        { key: "properties", index: "02", title: "常温性能", description: "按字段标注的单位填写材料性能参数", keys: ["tensileStrength", "yieldStrength", "elasticModulus", "poissonRatio", "materialDensity", "fatigueLimit"] },
+        { key: "conditions", index: "03", title: "适用温度与备注", description: "维护设计温度范围及补充说明", keys: ["minDesignTemperature", "maxDesignTemperature", "remarks"] }
+      ].map(section => Object.assign({}, section, {
+        fields: section.keys.map(key => this.materialBaseFields.find(field => field.prop === key))
+      }));
+    },
     fields() { return this.libraryType === "material" ? MATERIAL_FIELDS : OPERATING_FIELDS; },
     columns() {
       return this.fields.map(item => ({
@@ -340,6 +383,13 @@ export default {
     }
   },
   watch: {
+    dialogVisible(visible) {
+      if (!visible) {
+        // 已关闭的详情请求不得回填到下次新增或编辑会话中。
+        this.materialDetailRequestId += 1;
+        this.materialDetailLoading = false;
+      }
+    },
     "$route.path"() {
       this.switchType();
       this.$nextTick(this.initMaxHeight);
@@ -351,7 +401,10 @@ export default {
     this.throttleFunc = throttle(this.initMaxHeight, 500);
     window.addEventListener("resize", this.throttleFunc);
   },
-  beforeDestroy() { window.removeEventListener("resize", this.throttleFunc); },
+  beforeDestroy() {
+    this.materialDetailRequestId += 1;
+    window.removeEventListener("resize", this.throttleFunc);
+  },
   methods: {
     // 机组编号仅在列表展示时转换名称，筛选和保存仍使用数字编号。
     formatUnitNo(row, column, value) {
@@ -537,7 +590,24 @@ export default {
       this.previewResult.elastic = result === null ? "温度超出数据范围或缺少相邻温度数据" : `E (${this.preview.designTemperature}℃) = ${result.toFixed(3)} Pa`;
     },
     save() {
-      if (this.materialDetailLoading) return;
+      if (this.saving || this.materialDetailLoading) return;
+      if (this.libraryType === "operating" || (this.libraryType === "material" && !this.editing)) {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            this.persistForm();
+          } else {
+            // 用户可能在曲线页签保存，校验失败时回到基本信息展示具体缺失项。
+            if (this.libraryType === "material") this.materialTab = "basic";
+            this.$message.warning(this.libraryType === "material" ? "请填写管材牌号和材料子类" : "请填写工况编码和所属机组");
+          }
+        });
+        return;
+      }
+      this.persistForm();
+    },
+    /** 校验通过后按原有协议提交整份材料或运行工况表单。 */
+    persistForm() {
+      if (this.saving) return;
       this.saving = true;
       const request = this.editing ? api.update(this.libraryType, this.form) : api.create(this.libraryType, this.form);
       request.then(res => {
@@ -588,16 +658,53 @@ export default {
 .pipeline-data-library-page { padding-bottom: 20px; }
 .library-actions { text-align: right; margin-bottom: 12px; }
 .library-pagination { padding: 16px 0 4px; text-align: right; }
+.library-field-row { display:flex; flex-wrap:wrap; }
+.library-field-row::before, .library-field-row::after { display:none; }
+.library-form /deep/ .el-form-item__error { position:absolute; top:100%; left:0; padding-top:4px; line-height:16px; }
 .library-form /deep/ .el-input-number { text-align: left; }
 .library-form /deep/ .el-input-number .el-input__inner { text-align: left; }
 /deep/ .cud-office-table th > .cell,
 /deep/ .cud-office-table td > .cell { display: block; text-align: center; }
 /deep/ .cud-office-table th > .cell { white-space: nowrap; word-break: keep-all; }
-.material-editor-toolbar { display:flex; align-items:center; justify-content:space-between; padding:0 0 12px; border-bottom:1px solid #ebeef5; }
-.material-editor-toolbar > div { display:flex; flex-direction:column; gap:4px; }
-.material-editor-toolbar strong { font-size:16px; color:#303133; }
-.material-editor-toolbar span { color:#909399; font-size:12px; }
-.material-editor-tabs { margin-top:8px; }
+.library-editor-footer { display:flex; align-items:center; justify-content:flex-end; }
+.material-library-dialog /deep/ .el-dialog.is-fullscreen { display:flex; flex-direction:column; overflow:hidden; background:#f4f6fa; }
+.material-library-dialog /deep/ .el-dialog__header { padding:18px 32px; border-bottom:1px solid #e5eaf1; background:#fff; }
+.material-library-dialog /deep/ .el-dialog__headerbtn { top:24px; right:28px; }
+.material-library-dialog /deep/ .el-dialog__body { flex:1; min-height:0; padding:0 32px; overflow:auto; }
+.material-library-dialog /deep/ .el-dialog__footer { padding:14px 32px; border-top:1px solid #e5eaf1; background:#fff; }
+.material-dialog-title { display:flex; align-items:center; padding-right:32px; }
+.material-title-icon { width:40px; height:40px; margin-right:12px; border-radius:10px; background:#edf3fc; color:#315c98; display:flex; align-items:center; justify-content:center; font-size:21px; }
+.material-dialog-title > div:last-child { min-width:0; }
+.material-dialog-title strong { display:block; color:#263449; font-size:18px; line-height:26px; font-weight:600; }
+.material-dialog-title span { display:block; color:#8491a3; font-size:12px; line-height:20px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.material-editor-tabs { max-width:1280px; margin:0 auto; }
+.material-editor-tabs /deep/ .el-tabs__header { margin:0 0 20px; padding-top:8px; }
+.material-editor-tabs /deep/ .el-tabs__item { height:48px; line-height:48px; font-weight:500; }
+.material-editor-tabs /deep/ .el-tabs__nav-wrap::after { height:1px; background:#dfe5ee; }
+.material-basic-form { padding-bottom:8px; }
+.material-form-section { padding:20px 24px 2px; margin-bottom:16px; background:#fff; border:1px solid #e3e9f1; border-radius:8px; box-shadow:0 2px 6px rgba(25,47,80,.025); }
+.material-section-heading { display:flex; align-items:center; margin-bottom:18px; }
+.material-section-index { display:flex; align-items:center; justify-content:center; width:30px; height:30px; margin-right:10px; border-radius:6px; background:#eef3fa; color:#416695; font-size:12px; font-weight:600; }
+.material-section-heading h3 { margin:0; color:#2c3e55; font-size:15px; line-height:22px; font-weight:600; }
+.material-section-heading p { margin:2px 0 0; color:#8a96a6; font-size:12px; line-height:18px; }
+.material-field-row { display:flex; flex-wrap:wrap; }
+.material-field-row::before,
+.material-field-row::after { display:none; }
+.material-basic-form /deep/ .el-form-item { margin-bottom:20px; }
+.material-basic-form /deep/ .el-form-item__label { float:none; display:block; padding:0 0 7px; color:#536174; font-size:13px; line-height:20px; font-weight:500; white-space:normal; }
+.material-basic-form /deep/ .el-form-item__content { margin-left:0; line-height:36px; }
+// 全局主题将错误提示改为普通文档流；本表单在输入框下方预留提示空间，避免校验改变列高。
+.material-basic-form /deep/ .el-form-item__error { position:absolute; top:100%; left:0; padding-top:4px; line-height:16px; }
+.material-basic-form /deep/ .el-input-number { width:100%; line-height:34px; }
+.material-basic-form /deep/ .el-input__inner { height:36px; line-height:36px; padding:0 12px; border-color:#dce3ed; border-radius:5px; color:#303f53; }
+.material-basic-form /deep/ .el-textarea__inner { padding:9px 12px; border-color:#dce3ed; border-radius:5px; font-family:inherit; }
+.material-basic-form /deep/ .el-input__inner:hover,
+.material-basic-form /deep/ .el-textarea__inner:hover { border-color:#a9bbd1; }
+.material-basic-form /deep/ .el-input__inner:focus,
+.material-basic-form /deep/ .el-textarea__inner:focus { border-color:#416fa8; box-shadow:0 0 0 2px rgba(65,111,168,.08); }
+.material-library-dialog .library-editor-footer { max-width:1280px; margin:auto; justify-content:space-between; }
+.material-footer-note { color:#8a96a6; font-size:12px; }
+.material-library-dialog .library-editor-footer .el-button { min-width:88px; }
 .curve-help { margin-bottom:12px; }
 .curve-section { margin:0 0 20px; border:1px solid #ebeef5; border-radius:4px; background:#fff; }
 .curve-section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#f7f9fc; border-bottom:1px solid #ebeef5; }
@@ -620,7 +727,10 @@ export default {
 @media (max-width:768px) {
   .curve-section-heading { align-items:flex-start; flex-direction:column; }
   .curve-preview { align-items:flex-start; }
-  .material-basic-form /deep/ .el-form-item__label { width:120px !important; }
-  .material-basic-form /deep/ .el-form-item__content { margin-left:120px !important; }
+  .material-library-dialog /deep/ .el-dialog__header { padding:14px 16px; }
+  .material-library-dialog /deep/ .el-dialog__body { padding:0 12px; }
+  .material-library-dialog /deep/ .el-dialog__footer { padding:12px 16px; }
+  .material-form-section { padding:16px 16px 0; }
+  .material-footer-note { max-width:45%; line-height:18px; }
 }
 </style>
