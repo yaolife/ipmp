@@ -648,7 +648,13 @@ export default {
         })
         .catch(err => {
           this.loading = false;
-          this.$message.error((err && err.msg) || this.$t("cm.fail"));
+          // HTTP 错误仍可能携带业务提示，保留具体原因便于定位导入失败。
+          const responseData = err && err.response && err.response.data;
+          this.$message.error(
+            (responseData && responseData.msg) ||
+              (err && err.msg) ||
+              this.$t("cm.fail")
+          );
         });
     }
   },
