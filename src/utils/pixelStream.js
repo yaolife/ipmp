@@ -20,12 +20,20 @@ export const PIXEL_STREAM_EVENT = {
   SHOW_ONLINE_MONITORING: "ShowOnlineMonitoring",
   SHOW_CASE: "ShowCase",
   EXIT_SHOW_CASE: "ExitShowCase",
-  OPEN_VIDEO_MONITOR: "openVideoMonitor"
+  OPEN_VIDEO_MONITOR: "openVideoMonitor",
+  GET_CURRENT_STATE: "GetCurrentState",
+  RETURN_CURRENT_STATE: "ReturnCurrentState"
 };
 
 export const PIXEL_STREAM_MENU = {
   PIPELINE_NETWORK_PLANT: "PipelineNetwork_Plant",
   NONE: "None"
+};
+
+export const PIXEL_STREAM_STATE = {
+  NONE: "None",
+  PIPELINE_NETWORK: "PipelineNetwork",
+  SHOW_CASE: "ShowCase"
 };
 
 function parseUeMessage(detail) {
@@ -61,6 +69,42 @@ function normalizeMenuKey(data) {
     return unwrapQuoted(data.menu || data.name || data.key || data.data || "");
   }
   return unwrapQuoted(data);
+}
+
+function normalizeCurrentState(data) {
+  if (data == null || data === "") return "";
+  if (typeof data === "string") {
+    const text = unwrapQuoted(data);
+    if (!text) return "";
+    if (text.charAt(0) === "{" || text.charAt(0) === "[") {
+      try {
+        return normalizeCurrentState(JSON.parse(text));
+      } catch (e) {
+        return canonicalizeCurrentState(text);
+      }
+    }
+    return canonicalizeCurrentState(text);
+  }
+  if (typeof data === "object") {
+    const nested =
+      data.CurrentState != null
+        ? data.CurrentState
+        : data.currentState != null
+          ? data.currentState
+          : data.state != null
+            ? data.state
+            : null;
+    if (nested != null) return normalizeCurrentState(nested);
+  }
+  return "";
+}
+
+function canonicalizeCurrentState(value) {
+  const text = unwrapQuoted(value);
+  if (/^none$/i.test(text)) return PIXEL_STREAM_STATE.NONE;
+  if (/^pipelinenetwork$/i.test(text)) return PIXEL_STREAM_STATE.PIPELINE_NETWORK;
+  if (/^showcase$/i.test(text)) return PIXEL_STREAM_STATE.SHOW_CASE;
+  return text;
 }
 
 function normalizeMeshId(data) {
@@ -131,8 +175,10 @@ class PixelStreamClient {
     this.selectedMeshId = "";
     this.pendingDetail = null;
     this.lastMenu = "";
+    this.lastCurrentState = "";
     this.EVENTS = PIXEL_STREAM_EVENT;
     this.MENUS = PIXEL_STREAM_MENU;
+    this.STATES = PIXEL_STREAM_STATE;
   }
 
   getUrl() {
@@ -141,6 +187,10 @@ class PixelStreamClient {
 
   normalizeMeshId(data) {
     return normalizeMeshId(data);
+  }
+
+  normalizeCurrentState(data) {
+    return normalizeCurrentState(data);
   }
 
   getNodeMeshId(node) {
@@ -177,6 +227,16 @@ class PixelStreamClient {
       setTimeout(function() {
         try {
           handler(menu);
+        } catch (e) {
+          console.error("[pixelStream] listener error:", e);
+        }
+      }, 0);
+    }
+    if (event === PIXEL_STREAM_EVENT.RETURN_CURRENT_STATE && this.lastCurrentState) {
+      const state = this.lastCurrentState;
+      setTimeout(function() {
+        try {
+          handler(state);
         } catch (e) {
           console.error("[pixelStream] listener error:", e);
         }
@@ -259,6 +319,9 @@ class PixelStreamClient {
     if (msg.event === PIXEL_STREAM_EVENT.SET_MENU) {
       msg.data = normalizeMenuKey(msg.data);
       this.lastMenu = msg.data;
+    } else if (msg.event === PIXEL_STREAM_EVENT.RETURN_CURRENT_STATE) {
+      msg.data = normalizeCurrentState(msg.data);
+      this.lastCurrentState = msg.data;
     } else if (
       msg.event === PIXEL_STREAM_EVENT.SELECT_MESH ||
       msg.event === PIXEL_STREAM_EVENT.CANCEL_SELECTED_MESH ||
@@ -443,6 +506,10 @@ class PixelStreamClient {
     return this.send(PIXEL_STREAM_EVENT.CANCEL_SELECTED_MESH, id);
   }
 
+  sendGetCurrentState() {
+    return this.send(PIXEL_STREAM_EVENT.GET_CURRENT_STATE, "");
+  }
+
   sendShowCase(modelNo) {
     const id = unwrapQuoted(modelNo);
     this.selectedMeshId = id;
@@ -475,6 +542,7 @@ export {
   PIXEL_STREAM_ID,
   normalizeMenuKey,
   normalizeMeshId,
+  normalizeCurrentState,
   getNodeMeshId,
   getPixelStreamUrl
 };

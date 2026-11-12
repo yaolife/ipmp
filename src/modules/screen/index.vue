@@ -127,6 +127,9 @@ export default {
       if (self.$pixelStream.lastMenu) {
         self.onSetMenu(self.$pixelStream.lastMenu);
       }
+      if (self.$pixelStream.ready) {
+        self.$pixelStream.sendGetCurrentState();
+      }
     });
   },
   activated() {
@@ -241,6 +244,7 @@ export default {
       }
       this.$pixelStream.ready = true;
       this.$pixelStream.send(this.$pixelStream.EVENTS.OPEN, {});
+      this.$pixelStream.sendGetCurrentState();
       const el = this.pixelStreamRef;
       this.applyPeerStreamLayout(el);
       if (el && typeof el.sendClientResolution === "function") {
@@ -296,6 +300,7 @@ export default {
       ps.on(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
       ps.on(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
       ps.on(ps.EVENTS.SET_MENU, this.onSetMenu);
+      ps.on(ps.EVENTS.RETURN_CURRENT_STATE, this.onReturnCurrentState);
       ps.on(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
       ps.on(ps.EVENTS.OPEN_VIDEO_MONITOR, this.onOpenVideoMonitor);
       ps.on("OpenVideoMonitor", this.onOpenVideoMonitor);
@@ -309,6 +314,7 @@ export default {
       ps.off(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
       ps.off(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
       ps.off(ps.EVENTS.SET_MENU, this.onSetMenu);
+      ps.off(ps.EVENTS.RETURN_CURRENT_STATE, this.onReturnCurrentState);
       ps.off(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
       ps.off(ps.EVENTS.OPEN_VIDEO_MONITOR, this.onOpenVideoMonitor);
       ps.off("OpenVideoMonitor", this.onOpenVideoMonitor);
@@ -368,6 +374,29 @@ export default {
     closeVideoMonitor() {
       this.videoMonitorVisible = false;
       this.videoMonitorUrl = "";
+    },
+    onReturnCurrentState(data) {
+      const state = this.$pixelStream.normalizeCurrentState(data);
+      const states = this.$pixelStream.STATES;
+      if (state === states.NONE) {
+        this.treeVisible = false;
+        this.detailVisible = false;
+        this.showcaseIconVisible = false;
+        this.$refs.treePanel && this.$refs.treePanel.clearCurrent();
+        return;
+      }
+      if (state === states.PIPELINE_NETWORK) {
+        this.treeVisible = true;
+        this.showcaseIconVisible = true;
+        this.detailVisible = false;
+        return;
+      }
+      if (state === states.SHOW_CASE) {
+        this.treeVisible = false;
+        this.detailVisible = false;
+        this.showcaseIconVisible = false;
+        this.$refs.treePanel && this.$refs.treePanel.clearCurrent();
+      }
     },
     onSetMenu(data) {
       const menu = String(data == null ? "" : data)

@@ -49,6 +49,7 @@ export default {
   created() {
     const ps = this.$pixelStream;
     ps.on(ps.EVENTS.SET_MENU, this.onSetMenu);
+    ps.on(ps.EVENTS.RETURN_CURRENT_STATE, this.onReturnCurrentState);
     ps.on(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
     ps.on(ps.EVENTS.SELECT_MESH, this.onUeSelectMesh);
     ps.on(ps.EVENTS.CANCEL_SELECTED_MESH, this.onUeCancelSelectedMesh);
@@ -63,6 +64,7 @@ export default {
   beforeDestroy() {
     const ps = this.$pixelStream;
     ps.off(ps.EVENTS.SET_MENU, this.onSetMenu);
+    ps.off(ps.EVENTS.RETURN_CURRENT_STATE, this.onReturnCurrentState);
     ps.off(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
     ps.off(ps.EVENTS.SELECT_MESH, this.onUeSelectMesh);
     ps.off(ps.EVENTS.CANCEL_SELECTED_MESH, this.onUeCancelSelectedMesh);
@@ -77,6 +79,26 @@ export default {
         this.$pixelStream.getNodeMeshId(node) ||
         this.$pixelStream.normalizeMeshId(fallback)
       );
+    },
+    onReturnCurrentState(data) {
+      const state = this.$pixelStream.normalizeCurrentState(data);
+      const states = this.$pixelStream.STATES;
+      if (state === states.NONE) {
+        this.visible = false;
+        this.showcaseIconVisible = false;
+        this.$refs.treePanel && this.$refs.treePanel.clearCurrent();
+        return;
+      }
+      if (state === states.PIPELINE_NETWORK) {
+        this.visible = true;
+        this.showcaseIconVisible = true;
+        return;
+      }
+      if (state === states.SHOW_CASE) {
+        this.visible = false;
+        this.showcaseIconVisible = false;
+        this.$refs.treePanel && this.$refs.treePanel.clearCurrent();
+      }
     },
     onSetMenu(data) {
       const menu = String(data == null ? "" : data)
