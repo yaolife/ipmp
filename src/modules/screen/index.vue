@@ -128,12 +128,6 @@ export default {
         self.onSetMenu(self.$pixelStream.lastMenu);
       }
     });
-    this._loadingHintTimer = setTimeout(function() {
-      if (!self.loaded) {
-        self.loadingHint =
-          "云渲染已连接信令但还未出画，请确认 YJ3DVP.exe 窗口有画面，并查看控制台是否有 WebSocket / WebRTC 报错";
-      }
-    }, 15000);
   },
   activated() {
     if (!this.pixelStreamRef) {
@@ -144,10 +138,6 @@ export default {
     this.applyPendingDetail();
   },
   beforeDestroy() {
-    if (this._loadingHintTimer) {
-      clearTimeout(this._loadingHintTimer);
-      this._loadingHintTimer = null;
-    }
     this.unbindUeEvents();
     this.unbindPeerStreamRef();
     window.removeEventListener("ipmp-showcase", this.onDomShowCase);
