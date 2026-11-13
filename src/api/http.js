@@ -49,7 +49,9 @@ var BIZ_API_PATHS = [
   "/sdims",
   "/system",
   "/opgview",
-  "/station"
+  "/station",
+  // 用户主题/字段/当前用户：内网测试带 /server-api，内网本地不带
+  "/user"
 ];
 
 function getRequestPathname(url) {

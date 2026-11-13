@@ -31,7 +31,9 @@ const BIZ_PROXY_PATHS = [
     "/sdims",
     "/system",
     "/opgview",
-    "/station"
+    "/station",
+    // 用户主题/字段/当前用户：本地不带 /server-api，需直连后端
+    "/user"
 ];
 function createBizProxies(prefix, stripPrefix) {
     const table = {};
