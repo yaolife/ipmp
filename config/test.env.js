@@ -21,8 +21,8 @@ module.exports = {
   ASC_ROOT: '"https://aep-t/SelectPersonandDept"',
   // 中台的地址
   AEP_REST_API_ROOT: '"https://aep-t.gnpjvc.cgnpc.com.cn"',
-  // 跳转地址前缀,投产前需改为本系统地址
-  DOMAIN_PATH: '"https://cuddemo4-d"',
+  // 跳转地址前缀：内网测试入口
+  DOMAIN_PATH: '"https://pims-yj-t"',
   // 认证方式 AEP:中台认证 PRO:授权系统认证 LOCAL:本地授权认证
   AUTH_TYPE: '"AEP"',
   // PSC地址前缀，用于前端请求PSC相关服务
