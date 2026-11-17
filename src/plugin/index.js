@@ -6,8 +6,10 @@ import http from '../api/http'
 import VueAxios from 'vue-axios'
 import i18nInput from "../components/i18n/i18n_input";
 import pixelStream from "../utils/pixelStream";
+import inputCheck from "../directive/inputCheck";
 
 export default function install(Vue) {
+  Vue.directive("input-check", inputCheck);
   // 动态多语言全局函数绑定
   Vue.mixin(i18nMixin)
   // $http请求全局绑定

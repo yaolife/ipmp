@@ -29,7 +29,6 @@
             <div class="card-header ledger-toolbar">
               <div class="card-title">管段台账</div>
               <div class="ledger-actions">
-                <el-button size="small" @click="locateInThreeDimension">三维定位</el-button>
                 <el-button
                   size="small"
                   :loading="batchAnalyzing"
@@ -46,14 +45,14 @@
                 >批量导出报告</el-button>
               </div>
               <div class="ledger-filters">
-                <el-input
+                <el-input v-input-check="{ maxLength: 255 }"
                   v-model.trim="query.keyword"
                   size="small"
                   clearable
                   placeholder="搜索 KKS / 管线 / 介质 / 支撑"
                   @keyup.enter.native="search"
                   @clear="search"
-                ></el-input>
+                 maxlength="255"></el-input>
                 <el-select v-model="query.riskLevel" size="small" clearable placeholder="风险等级" @change="search">
                   <el-option label="High" :value="2"></el-option>
                   <el-option label="Medium" :value="1"></el-option>
@@ -229,11 +228,11 @@
       >
         <el-form class="ledger-edit-form" :model="editForm" label-width="132px" size="small">
           <div class="ledger-edit-grid">
-            <el-form-item class="col-2" label="管线号"><el-input v-model="editForm.pipelineNo"></el-input></el-form-item>
-            <el-form-item class="col-2" label="管道名称"><el-input v-model="editForm.pipelineName"></el-input></el-form-item>
-            <el-form-item class="col-2" label="管道起始点"><el-input v-model="editForm.startPoint"></el-input></el-form-item>
-            <el-form-item class="col-2" label="管道终止点"><el-input v-model="editForm.endPoint"></el-input></el-form-item>
-            <el-form-item class="col-2" label="工作介质"><el-input v-model="editForm.workingMedium"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管线号"><el-input v-input-check="{ maxLength: 128 }" v-model="editForm.pipelineNo" maxlength="128"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管道名称"><el-input v-input-check="{ maxLength: 255 }" v-model="editForm.pipelineName" maxlength="255"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管道起始点"><el-input v-input-check="{ maxLength: 255 }" v-model="editForm.startPoint" maxlength="255"></el-input></el-form-item>
+            <el-form-item class="col-2" label="管道终止点"><el-input v-input-check="{ maxLength: 255 }" v-model="editForm.endPoint" maxlength="255"></el-input></el-form-item>
+            <el-form-item class="col-2" label="工作介质"><el-input v-input-check="{ maxLength: 128 }" v-model="editForm.workingMedium" maxlength="128"></el-input></el-form-item>
             <el-form-item class="col-2" label="介质类型">
               <el-select v-model="editForm.mediumType" clearable>
                 <el-option label="单相蒸汽" :value="0"></el-option>
@@ -242,15 +241,15 @@
                 <el-option label="多相流" :value="3"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item class="col-3" label="跨距(m)"><el-input-number v-model="editForm.spanReference" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="外径(mm)"><el-input-number v-model="editForm.outerDiameter" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="壁厚(mm)"><el-input-number v-model="editForm.wallThickness" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="运行压力(MPa)"><el-input-number v-model="editForm.operatingPressure" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="运行温度(℃)"><el-input-number v-model="editForm.operatingTemperature" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="介质密度(kg/m³)"><el-input-number v-model="editForm.fluidDensity" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="最大流速(m/s)"><el-input-number v-model="editForm.maxVelocity" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="低流量占比(%)"><el-input-number v-model="editForm.lowFlowRatio" :controls="false"></el-input-number></el-form-item>
-            <el-form-item class="col-3" label="年启停次数"><el-input-number v-model="editForm.annualStartStops" :controls="false"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="跨距(m)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.spanReference" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="外径(mm)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.outerDiameter" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="壁厚(mm)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.wallThickness" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="运行压力(MPa)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.operatingPressure" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="运行温度(℃)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.operatingTemperature" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="介质密度(kg/m³)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.fluidDensity" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="最大流速(m/s)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.maxVelocity" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="低流量占比(%)"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.lowFlowRatio" :controls="false" maxlength="32"></el-input-number></el-form-item>
+            <el-form-item class="col-3" label="年启停次数"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="editForm.annualStartStops" :controls="false" maxlength="32"></el-input-number></el-form-item>
             <el-form-item v-for="field in booleanFields" :key="field.key" class="col-3" :label="field.label">
               <el-select v-model="editForm[field.key]" clearable>
                 <el-option label="否" :value="0"></el-option>
@@ -538,13 +537,6 @@ export default {
         this.saving = false;
         this.$message.error(this.errorMessage(error, "管段参数保存失败"));
       });
-    },
-    locateInThreeDimension() {
-      if (!this.selectedNode) {
-        this.$message.info("请先在系统树中选择管段或系统节点");
-        return;
-      }
-      this.$message.info("三维定位需要三维引擎页面配合，当前已定位到所选系统范围");
     },
     /**
      * 仅对勾选的管段执行自动分析：先保存 TM01，再使用管段台账参数保存 TM02。

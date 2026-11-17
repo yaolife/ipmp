@@ -16,7 +16,7 @@
             <div class="cud__tree--left">
               <div class="cud-common-tree-content">
                 <div class="tree-search-box">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 255 }"
                     v-model="filterText"
                     :placeholder="$t('lang.resource_search_placeholder')"
                     maxlength="32"
@@ -113,7 +113,7 @@
           </el-card>
           <div v-show="!detailVisible">
           <el-card>
-            <query-form
+            <query-form :validate-input="true"
               :queryFormId="'pipeDatabase'"
               :queryFields="queryFields"
               :loading="loading"

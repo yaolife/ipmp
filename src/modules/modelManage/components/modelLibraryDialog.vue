@@ -13,7 +13,7 @@
       <div class="library-tree library-panel">
         <div class="tree-title">{{ $t("lang.resource_catalog") }}</div>
         <div class="tree-search-box">
-          <el-input
+          <el-input v-input-check="{ maxLength: 255 }"
             v-model="filterText"
             :placeholder="$t('lang.resource_search_placeholder')"
             maxlength="32"
@@ -48,14 +48,14 @@
       </div>
       <div class="library-main library-panel">
         <div class="library-toolbar">
-          <el-input
+          <el-input v-input-check="{ maxLength: 255 }"
             v-model="keyword"
             :placeholder="$t('lang.search_model_no_placeholder')"
             size="small"
             clearable
             class="library-keyword"
             @keyup.enter.native="search"
-          ></el-input>
+           maxlength="255"></el-input>
           <el-button type="primary" size="small" @click="search">{{
             $t("cm.query")
           }}</el-button>

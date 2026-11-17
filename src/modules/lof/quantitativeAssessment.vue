@@ -10,7 +10,7 @@
             <div class="form-row form-row-3">
               <div class="form-group">
                 <label>管段选择</label>
-                <el-select
+                <el-select v-input-check="{ maxLength: 255 }"
                   v-model="segmentId"
                   filterable
                   clearable
@@ -93,15 +93,15 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>外径 OD (mm)</label>
-                  <input type="number" v-model.number="params.od" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="params.od" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>壁厚 Thickness (mm)</label>
-                  <input type="number" v-model.number="params.thickness" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="params.thickness" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>跨距 Span (m)</label>
-                  <input type="number" step="0.1" v-model.number="params.span" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="params.span" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>支撑类型</label>
@@ -111,7 +111,7 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>一阶固有频率 fn (Hz)</label>
-                  <input type="number" step="0.1" v-model.number="params.fn" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="params.fn" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>X 计算值</label>
@@ -128,37 +128,37 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>压力 P (MPa)</label>
-                  <input type="number" step="0.001" v-model.number="hfa.P" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.001" v-model.number="hfa.P" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>温度 TP (℃)</label>
-                  <input type="number" step="0.1" v-model.number="hfa.TP" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="hfa.TP" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>声速 c (m/s)</label>
-                  <input type="number" step="0.1" v-model.number="hfa.c" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="hfa.c" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>分子量 Mw</label>
-                  <input type="number" v-model.number="hfa.Mw" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="hfa.Mw" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>主管外径 Dext (mm)</label>
-                  <input type="number" v-model.number="hfa.Dext" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="hfa.Dext" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>主管壁厚 T (mm)</label>
-                  <input type="number" v-model.number="hfa.T" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="hfa.T" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>质量流量 Q (kg/s)</label>
-                  <input type="number" step="0.01" v-model.number="hfa.Q" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="hfa.Q" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>流体密度 ρ (kg/m³)</label>
-                  <input type="number" step="0.01" v-model.number="hfa.rho" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="hfa.rho" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div class="form-row form-row-2 hfa-count-row">
@@ -182,7 +182,7 @@
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>声源名称</label>
-                    <input type="text" v-model="source.name" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 128 }" type="text" v-model="source.name" @input="scheduleRecalc" maxlength="128">
                   </div>
                   <div class="form-group">
                     <label>安装降噪构件</label>
@@ -194,7 +194,7 @@
                   </div>
                   <div class="form-group">
                     <label>降噪量 (dB)</label>
-                    <input type="number" v-model.number="source.reduction" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="source.reduction" @input="scheduleRecalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>存在音速流动条件</label>
@@ -208,15 +208,15 @@
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>上游压力 P1 (Pa)</label>
-                    <input type="number" v-model.number="source.upstreamPressure" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="source.upstreamPressure" @input="scheduleRecalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>下游压力 P2 (Pa)</label>
-                    <input type="number" v-model.number="source.downstreamPressure" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="source.downstreamPressure" @input="scheduleRecalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>上游温度 Te (K)</label>
-                    <input type="number" step="0.1" v-model.number="source.upstreamTemperature" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="source.upstreamTemperature" @input="scheduleRecalc" maxlength="32">
                   </div>
                 </div>
               </div>
@@ -228,22 +228,22 @@
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>不连续点名称</label>
-                    <input type="text" v-model="point.name" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 128 }" type="text" v-model="point.name" @input="scheduleRecalc" maxlength="128">
                   </div>
                   <div class="form-group">
                     <label>支管外径 dext (mm)</label>
-                    <input type="number" v-model.number="point.branchOuterDiameter" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="point.branchOuterDiameter" @input="scheduleRecalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>支管壁厚 t (mm)</label>
-                    <input type="number" v-model.number="point.branchThickness" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="point.branchThickness" @input="scheduleRecalc" maxlength="32">
                   </div>
                 </div>
                 <div class="parameter-subtitle">各声源到当前不连续点的距离</div>
                 <div class="form-row form-row-equal-4">
                   <div v-for="(source, sourceIndex) in hfa.sources" :key="'distance-' + index + '-' + sourceIndex" class="form-group">
                     <label>{{ source.name || ('声源 ' + (sourceIndex + 1)) }} 距离 Ldis (m)</label>
-                    <input type="number" min="0" step="0.001" v-model.number="point.sourceDistances[sourceIndex]" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" min="0" step="0.001" v-model.number="point.sourceDistances[sourceIndex]" @input="scheduleRecalc" maxlength="32">
                   </div>
                 </div>
                 <div class="form-row form-row-3">
@@ -316,7 +316,7 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>支管外径 d (mm)</label>
-                  <input type="number" v-model.number="sbc.od" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.od" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>支管壁厚等级 Sch</label>
@@ -324,17 +324,17 @@
                 </div>
                 <div class="form-group">
                   <label>支管总长度 L (mm)</label>
-                  <input type="number" v-model.number="sbc.l" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.l" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>阀门数量</label>
-                  <input type="number" min="0" step="1" v-model.number="sbc.valveCount" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" min="0" step="1" v-model.number="sbc.valveCount" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>主管外径 Dext (mm)</label>
-                  <input type="number" v-model.number="sbc.mainOd" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.mainOd" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>主管壁厚等级 Sch</label>
@@ -342,7 +342,7 @@
                 </div>
                 <div class="form-group">
                   <label>主管 LOF</label>
-                  <input type="number" min="0" max="1" step="0.01" v-model.number="sbc.mainLof" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" min="0" max="1" step="0.01" v-model.number="sbc.mainLof" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>支管在主管上的位置</label>
@@ -355,17 +355,17 @@
                 <div class="form-group"><label>ANSI 900 及以上阀门</label><select v-model="sbc.ansi900plus" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="false">否</option><option :value="true">是</option></select></div>
               </div>
               <div v-if="sbc.type === 2 || sbc.type === 3" class="form-row form-row-equal-4">
-                <div class="form-group"><label>第一侧/第一跨长度 (mm)</label><input type="number" v-model.number="sbc.firstSpanLength" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>第二侧/后续跨长度 (mm)</label><input type="number" v-model.number="sbc.subSpanLength" @input="scheduleRecalc"></div>
-                <div v-if="sbc.type === 2" class="form-group"><label>第二侧阀门数</label><input type="number" min="0" step="1" v-model.number="sbc.sideBValveCount" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>第一侧/第一跨长度 (mm)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.firstSpanLength" @input="scheduleRecalc" maxlength="32"></div>
+                <div class="form-group"><label>第二侧/后续跨长度 (mm)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.subSpanLength" @input="scheduleRecalc" maxlength="32"></div>
+                <div v-if="sbc.type === 2" class="form-group"><label>第二侧阀门数</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" min="0" step="1" v-model.number="sbc.sideBValveCount" @input="scheduleRecalc" maxlength="32"></div>
                 <template v-if="sbc.type === 3">
                   <div class="form-group"><label>第一跨有未支撑质量</label><select v-model="sbc.hasMass" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
                   <div class="form-group"><label>后续跨有未支撑质量</label><select v-model="sbc.hasMassSub" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
                 </template>
               </div>
               <div v-if="sbc.type === 4" class="form-row form-row-2">
-                <div class="form-group"><label>端部 A 长度 (mm)</label><input type="number" v-model.number="sbc.endALength" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>端部 B 长度 (mm)</label><input type="number" v-model.number="sbc.endBLength" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>端部 A 长度 (mm)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.endALength" @input="scheduleRecalc" maxlength="32"></div>
+                <div class="form-group"><label>端部 B 长度 (mm)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="sbc.endBLength" @input="scheduleRecalc" maxlength="32"></div>
               </div>
               <div class="result-box mt-12">
                 <div class="result-item" @click="openSbcMetric('lofGeom')"><div class="label">LOF_GEOM</div><div class="value">{{ fmt(sbcResult.lofGeom, 3) }}</div></div>
@@ -391,25 +391,25 @@
               <div class="form-row form-row-2">
                 <div class="form-group">
                   <label>压力 P (MPa)</label>
-                  <input type="number" step="0.01" v-model.number="thermo.P" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="thermo.P" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>温度 TP (℃)</label>
-                  <input type="number" step="0.1" v-model.number="thermo.TP" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="thermo.TP" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>外径 Dext (mm)</label>
-                  <input type="number" v-model.number="thermo.Dext" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.Dext" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>壁厚 T (mm)</label>
-                  <input type="number" v-model.number="thermo.T" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.T" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>Sch 等级</label>
-                  <input type="number" step="0.1" v-model.number="thermo.Sch" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="thermo.Sch" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>开孔补强情况</label>
@@ -423,15 +423,15 @@
               <div class="form-row form-row-3">
                 <div class="form-group">
                   <label>流体密度 ρf (kg/m³)</label>
-                  <input type="number" step="0.001" v-model.number="thermo.rhoF" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.001" v-model.number="thermo.rhoF" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>流速 v (m/s)</label>
-                  <input type="number" step="0.001" v-model.number="thermo.v" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.001" v-model.number="thermo.v" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>粘度 μ (Pa·s)</label>
-                  <input type="number" step="0.000001" v-model.number="thermo.mu" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.000001" v-model.number="thermo.mu" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div class="divider"></div>
@@ -447,13 +447,13 @@
                 </div>
                 <div class="form-group">
                   <label>支撑点到尖端长度 Ltw (m)</label>
-                  <input type="number" step="0.001" v-model.number="thermo.Ltw" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.001" v-model.number="thermo.Ltw" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div class="form-row form-row-3">
                 <div class="form-group">
                   <label>内孔直径 dtw (mm)</label>
-                  <input type="number" v-model.number="thermo.dtw" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.dtw" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>杨氏模量 Etw (Pa)</label>
@@ -468,44 +468,44 @@
                 </div>
                 <div class="form-group">
                   <label>套管材料密度 ρtw (kg/m³)</label>
-                  <input type="number" v-model.number="thermo.rhoTw" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.rhoTw" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div v-if="thermo.twType === 'straight'" class="form-row form-row-2">
                 <div class="form-group">
                   <label>直型外径 Dtw (mm)</label>
-                  <input type="number" v-model.number="thermo.Dtw" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.Dtw" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div v-if="thermo.twType === 'tapered'" class="form-row form-row-3">
                 <div class="form-group">
                   <label>底座外径 D1 (mm)</label>
-                  <input type="number" v-model.number="thermo.D1" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.D1" @input="scheduleRecalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>尖端外径 D2 (mm)</label>
-                  <input type="number" v-model.number="thermo.D2" @input="scheduleRecalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.D2" @input="scheduleRecalc" maxlength="32">
                 </div>
               </div>
               <div v-if="thermo.twType === 'stepped'">
                 <div class="form-row form-row-3">
                   <div class="form-group">
                     <label>底座外径 D1 (mm)</label>
-                    <input type="number" v-model.number="thermo.D1" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.D1" @input="scheduleRecalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>尖端外径 D2 (mm)</label>
-                    <input type="number" v-model.number="thermo.D2" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="thermo.D2" @input="scheduleRecalc" maxlength="32">
                   </div>
                 </div>
                 <div class="form-row form-row-2">
                   <div class="form-group">
                     <label>大直径段长度 L1 (m)</label>
-                    <input type="number" step="0.001" v-model.number="thermo.L1" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.001" v-model.number="thermo.L1" @input="scheduleRecalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>小直径段长度 L2 (m)</label>
-                    <input type="number" step="0.001" v-model.number="thermo.L2" @input="scheduleRecalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.001" v-model.number="thermo.L2" @input="scheduleRecalc" maxlength="32">
                   </div>
                 </div>
               </div>
@@ -541,8 +541,8 @@
             <div v-show="paramTab === 'other'" class="tab-panel">
               <div class="section-title">往复脉动</div>
               <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>设备功率 (kW)</label><input type="number" v-model.number="other.reciprocating.power" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>排放压力 (bar)</label><input type="number" v-model.number="other.reciprocating.pressure" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>设备功率 (kW)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.reciprocating.power" @input="scheduleRecalc" maxlength="32"></div>
+                <div class="form-group"><label>排放压力 (bar)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.reciprocating.pressure" @input="scheduleRecalc" maxlength="32"></div>
                 <div class="form-group"><label>设备具体信息已知</label><select v-model="other.reciprocating.equipmentKnown" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="1">是</option><option :value="0">否</option></select></div>
                 <div class="form-group"><label>通过 API 618 分析</label><select v-model="other.reciprocating.passApi618" @change="scheduleRecalc"><option :value="null" disabled>请选择</option><option :value="true">是</option><option :value="false">否</option></select></div>
               </div>
@@ -554,8 +554,8 @@
               </div>
               <div class="section-title">死支管涡激</div>
               <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>死支管外径 (mm)</label><input type="number" v-model.number="other.deadBranch.branchDiameter" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>死支管长度 (m)</label><input type="number" v-model.number="other.deadBranch.branchLength" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>死支管外径 (mm)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.deadBranch.branchDiameter" @input="scheduleRecalc" maxlength="32"></div>
+                <div class="form-group"><label>死支管长度 (m)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.deadBranch.branchLength" @input="scheduleRecalc" maxlength="32"></div>
                 <div class="form-group"><label>雷诺数 Re（自动）</label><input type="number" :value="other.deadBranch.reynolds" readonly></div>
                 <div class="form-group"><label>临界管径 dcrit (mm)（自动）</label><input type="number" :value="other.deadBranch.criticalDiameter" readonly></div>
                 <div class="form-group"><label>频率比 Fe/Fs（自动）</label><input type="number" step="0.001" :value="other.deadBranch.frequencyRatio" readonly></div>
@@ -564,7 +564,7 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group"><label>工况类型</label><select v-model="other.waterHammer.type" @change="scheduleRecalc"><option value="">请选择</option><option value="干气阀门快速打开">干气阀门快速打开</option><option value="液体或多相阀打开">液体或多相阀打开</option><option value="液体或多相阀关闭">液体或多相阀关闭</option></select></div>
                 <div class="form-group"><label>最大冲击力 Fmax（自动）</label><input type="number" :value="other.waterHammer.maxImpactForce" readonly></div>
-                <div class="form-group"><label>公称壁厚 (mm)</label><input type="number" v-model.number="other.waterHammer.nominalThickness" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>公称壁厚 (mm)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.waterHammer.nominalThickness" @input="scheduleRecalc" maxlength="32"></div>
                 <div class="form-group"><label>允许荷载 Flim（自动）</label><input type="number" :value="other.waterHammer.loadLimit" readonly></div>
               </div>
               <div class="section-title">空化闪蒸</div>
@@ -573,8 +573,8 @@
                 <div class="form-group" v-if="other.cavitation.pressureDropByValve !== 0"><label>阀门类型</label><select v-model="other.cavitation.valveType" @change="scheduleRecalc"><option value="">请选择</option><option value="球阀">球阀</option><option value="蝶阀">蝶阀</option><option value="截止阀">截止阀</option><option value="闸阀">闸阀</option></select></div>
               </div>
               <div class="form-row form-row-equal-4">
-                <div class="form-group"><label>上游压力 P1 (Pa)</label><input type="number" v-model.number="other.cavitation.upstreamPressure" @input="scheduleRecalc"></div>
-                <div class="form-group"><label>下游压力 P2 (Pa)</label><input type="number" v-model.number="other.cavitation.downstreamPressure" @input="scheduleRecalc"></div>
+                <div class="form-group"><label>上游压力 P1 (Pa)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.cavitation.upstreamPressure" @input="scheduleRecalc" maxlength="32"></div>
+                <div class="form-group"><label>下游压力 P2 (Pa)</label><input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" v-model.number="other.cavitation.downstreamPressure" @input="scheduleRecalc" maxlength="32"></div>
                 <div class="form-group"><label>饱和蒸汽压 Pv (Pa)（按温度自动）</label><input type="number" :value="other.cavitation.vaporPressure" readonly></div>
                 <div class="form-group"><label>压力恢复系数 FL（按阀门类型自动）</label><input type="number" step="0.001" :value="other.cavitation.pressureRecoveryFactor" readonly></div>
               </div>
@@ -648,7 +648,7 @@
               </div>
               <div class="form-group">
                 <label>评估备注</label>
-                <input type="text" v-model="remarks" placeholder="可填写本次定量评估说明">
+                <input v-input-check="{ maxLength: 1000, maxBytes: 1000, kind: 'multiline' }" type="text" v-model="remarks" placeholder="可填写本次定量评估说明" maxlength="1000">
               </div>
             </div>
 

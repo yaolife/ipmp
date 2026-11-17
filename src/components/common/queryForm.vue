@@ -92,11 +92,14 @@
                   size="small"
                   :clearable="true"
                   v-model="queryForm[item.name]"
+                  v-input-check="validateInput ? { maxLength: item.maxLength || 255, maxBytes: item.maxBytes } : null"
                   v-if="item.type === 'input'"
                   :placeholder="$t('cm.pleaseEnter')"
+                  :maxlength="item.maxLength"
                 ></el-input>
                 <!-- 下拉 -->
                 <el-select
+                  v-input-check="validateInput ? { maxLength: 255 } : null"
                   :popper-append-to-body="isFullscreen"
                   size="small"
                   :clearable="true"
@@ -125,6 +128,7 @@
                 </person-select>
                 <!--日期-->
                 <el-date-picker
+                  v-input-check="validateInput ? { maxLength: 32 } : null"
                   v-model="queryForm[item.name]"
                   type="date"
                   range-separator="-"
@@ -136,6 +140,7 @@
                 </el-date-picker>
                 <!-- 日期范围 -->
                 <el-date-picker
+                  v-input-check="validateInput ? { maxLength: 32 } : null"
                   v-model="queryForm[item.name]"
                   type="daterange"
                   range-separator="-"
@@ -148,6 +153,7 @@
                 </el-date-picker>
                 <!-- 年 -->
                 <el-date-picker
+                  v-input-check="validateInput ? { maxLength: 32 } : null"
                   v-model="queryForm[item.name]"
                   type="year"
                   format="yyyy"
@@ -158,6 +164,7 @@
                 </el-date-picker>
                 <!-- 月 -->
                 <el-date-picker
+                  v-input-check="validateInput ? { maxLength: 32 } : null"
                   v-model="queryForm[item.name]"
                   type="month"
                   format="MM"
@@ -168,6 +175,7 @@
                 </el-date-picker>
                 <!-- 级联 -->
                 <el-cascader
+                  v-input-check="validateInput ? { maxLength: 255 } : null"
                   v-model="queryForm[item.name]"
                   v-if="item.type === 'cascader'"
                   :options="item.fieldMap"
@@ -257,6 +265,8 @@ import { throttle } from "@/utils/funcUtil";
 export default {
   name: "queryForm",
   props: {
+    // 只有资产管理和分析治理调用方显式传入时启用，不改变框架其他页面。
+    validateInput: { type: Boolean, default: false },
     labelWidth: { type: String, default: "90px" },
     queryFormId: { type: String, require: true }, //唯一标识，保存用
     queryFields: { type: Array, require: true }, //查询字段列表

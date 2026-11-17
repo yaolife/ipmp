@@ -64,14 +64,14 @@
       class="upload-model-form"
     >
       <el-form-item :label="$t('lang.model_name')" prop="modelName">
-        <el-input
+        <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }"
           v-model="editForm.modelName"
           :placeholder="$t('lang.model_name_example')"
           maxlength="100"
         ></el-input>
       </el-form-item>
       <el-form-item :label="$t('lang.version_no')" prop="versionNo">
-        <el-input
+        <el-input v-input-check="{ maxLength: 64, maxBytes: 64 }"
           v-model="editForm.versionNo"
           :placeholder="$t('lang.version_no_example')"
           maxlength="32"

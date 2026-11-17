@@ -67,14 +67,14 @@
       <div class="form-section">
         <div class="form-section-title">{{ $t("lang.basic_info") }}</div>
         <el-form-item :label="$t('lang.component_name')" prop="componentName">
-          <el-input
+          <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }"
             v-model="editForm.componentName"
             :placeholder="$t('lang.component_name_example')"
             maxlength="100"
           ></el-input>
         </el-form-item>
         <el-form-item :label="$t('lang.remark')" prop="remark">
-          <el-input
+          <el-input v-input-check="{ maxLength: 500, maxBytes: 500, kind: 'multiline' }"
             type="textarea"
             v-model="editForm.remark"
             :placeholder="$t('lang.remark_placeholder')"

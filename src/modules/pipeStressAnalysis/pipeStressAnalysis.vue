@@ -2,7 +2,7 @@
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
       <el-card>
-        <query-form
+        <query-form :validate-input="true"
           :queryFormId="'pipeStressAnalysis'"
           :queryFields="queryFields"
           :loading="loading"
@@ -158,13 +158,13 @@
         size="small"
       >
         <el-form-item :label="$t('lang.analysis_name')" prop="analysisName">
-          <el-input v-model.trim="form.analysisName" maxlength="80"></el-input>
+          <el-input v-input-check="{ maxLength: 80 }" v-model.trim="form.analysisName" maxlength="80"></el-input>
         </el-form-item>
         <el-form-item :label="$t('lang.analysis_no')" prop="analysisNo">
-          <el-input v-model.trim="form.analysisNo" maxlength="40"></el-input>
+          <el-input v-input-check="{ maxLength: 40 }" v-model.trim="form.analysisNo" maxlength="40"></el-input>
         </el-form-item>
         <el-form-item :label="$t('lang.analysis_desc')" prop="description">
-          <el-input
+          <el-input v-input-check="{ maxLength: 200, kind: 'multiline' }"
             v-model.trim="form.description"
             type="textarea"
             :rows="3"
@@ -172,7 +172,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item :label="$t('lang.analyst')" prop="analyst">
-          <el-select v-model="form.analyst" filterable style="width: 100%">
+          <el-select v-input-check="{ maxLength: 255 }" v-model="form.analyst" filterable style="width: 100%">
             <el-option
               v-for="name in analystOptions"
               :key="name"
@@ -182,7 +182,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('lang.analysis_version')" prop="versionNo">
-          <el-input v-model.trim="form.versionNo" maxlength="20"></el-input>
+          <el-input v-input-check="{ maxLength: 20 }" v-model.trim="form.versionNo" maxlength="20"></el-input>
         </el-form-item>
         <el-form-item :label="$t('lang.status')" prop="status">
           <el-select v-model="form.status" style="width: 100%">

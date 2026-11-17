@@ -2,7 +2,7 @@
   <div class="cud-commom-form-style">
     <div class="cud__scroll--div">
       <el-card>
-        <query-form
+        <query-form :validate-input="true"
           :queryFormId="'fupportInfoForm'"
           :queryFields="queryFields"
           :loading="tableLoading"

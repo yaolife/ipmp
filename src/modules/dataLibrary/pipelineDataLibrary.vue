@@ -2,7 +2,7 @@
   <div class="cud-commom-form-style pipeline-data-library-page">
     <div class="cud__scroll--div">
       <el-card>
-        <query-form
+        <query-form :validate-input="true"
           :key="libraryType"
           :queryFormId="libraryType === 'material' ? 'materialLibrary' : 'operatingConditionLibrary'"
           :queryFields="queryFields"
@@ -88,9 +88,9 @@
                   <el-row :gutter="24" class="material-field-row">
                     <el-col v-for="field in section.fields" :key="field.prop" :xs="24" :sm="field.span === 24 ? 24 : 12" :lg="field.span || 8">
                       <el-form-item :label="field.label" :prop="field.prop">
-                        <el-input v-if="field.prop === 'remarks'" v-model="form.remarks" type="textarea" :rows="2" placeholder="可填写材料来源、适用条件或其他说明"></el-input>
-                        <el-input v-else-if="field.type !== 'number'" v-model="form[field.prop]" :placeholder="'请输入' + field.label"></el-input>
-                        <el-input-number v-else v-model="form[field.prop]" :controls="false" :precision="field.precision === undefined ? 3 : field.precision" placeholder="请输入数值"></el-input-number>
+                        <el-input v-input-check="{ maxLength: 1000, maxBytes: 1000, kind: 'multiline' }" v-if="field.prop === 'remarks'" v-model="form.remarks" type="textarea" :rows="2" placeholder="可填写材料来源、适用条件或其他说明" maxlength="1000"></el-input>
+                        <el-input v-input-check="{ maxLength: field.maxLength, maxBytes: field.maxBytes, kind: field.inputKind }" v-else-if="field.type !== 'number'" v-model="form[field.prop]" :placeholder="'请输入' + field.label" :maxlength="field.maxLength"></el-input>
+                        <el-input-number v-input-check="{ maxLength: field.maxLength, maxBytes: field.maxBytes, kind: 'number' }" v-else v-model="form[field.prop]" :controls="false" :precision="field.precision === undefined ? 3 : field.precision" placeholder="请输入数值" :maxlength="field.maxLength"></el-input-number>
                       </el-form-item>
                     </el-col>
                   </el-row>
@@ -113,8 +113,8 @@
                       <thead><tr><th class="condition-column">尺寸/厚度 (mm)</th><th v-for="temperature in property.temperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
                       <tbody>
                         <tr v-for="(row, rowIndex) in curveRows(property.key)" :key="property.key + '-' + rowIndex">
-                          <td class="condition-column"><el-input :value="row && row.sizeCondition" size="mini" placeholder="通用" @input="setSizeCondition(row, $event)" @change="validateSizeCondition(row)"></el-input></td>
-                          <td v-for="temperature in property.temperatures" :key="temperature"><el-input-number :value="getCurveCell(row, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setCurveCell(row, temperature, $event)"></el-input-number></td>
+                          <td class="condition-column"><el-input v-input-check="{ maxLength: 32, kind: 'expression' }" :value="row && row.sizeCondition" size="mini" placeholder="通用" @input="setSizeCondition(row, $event)" @change="validateSizeCondition(row)" maxlength="32"></el-input></td>
+                          <td v-for="temperature in property.temperatures" :key="temperature"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" :value="getCurveCell(row, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setCurveCell(row, temperature, $event)" maxlength="32"></el-input-number></td>
                         </tr>
                         <tr v-if="!curveRows(property.key).length"><td :colspan="property.temperatures.length + 1" class="curve-empty">暂无数据行，点击“添加行”维护</td></tr>
                       </tbody>
@@ -122,8 +122,8 @@
                   </div>
                   <div class="curve-preview">
                     <strong>{{ property.title }}预览</strong>
-                    <el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
-                    <el-input-number v-model="preview.thickness" size="small" :controls="false" :precision="3" placeholder="厚度(mm)"></el-input-number>
+                    <el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)" maxlength="32"></el-input-number>
+                    <el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="preview.thickness" size="small" :controls="false" :precision="3" placeholder="厚度(mm)" maxlength="32"></el-input-number>
                     <el-button size="small" type="primary" @click="previewMechanical(property.key)">计算</el-button>
                     <span>{{ previewResult.mechanical && previewResult.mechanical[property.key] || '输入温度和厚度后查看插值结果' }}</span>
                   </div>
@@ -138,11 +138,11 @@
                   <div class="curve-table-wrap">
                     <table class="material-curve-table">
                       <thead><tr><th class="condition-column">参数</th><th v-for="temperature in thermalTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
-                      <tbody><tr v-for="property in thermalProperties" :key="property.key"><th class="condition-column">{{ property.label }}</th><td v-for="temperature in thermalTemperatures" :key="temperature"><el-input-number :value="getThermalCell(property.key, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setThermalCell(property.key, temperature, $event)"></el-input-number></td></tr></tbody>
+                      <tbody><tr v-for="property in thermalProperties" :key="property.key"><th class="condition-column">{{ property.label }}</th><td v-for="temperature in thermalTemperatures" :key="temperature"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" :value="getThermalCell(property.key, temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setThermalCell(property.key, temperature, $event)" maxlength="32"></el-input-number></td></tr></tbody>
                     </table>
                   </div>
                   <div class="curve-preview">
-                    <strong>温度插值预览</strong><el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
+                    <strong>温度插值预览</strong><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)" maxlength="32"></el-input-number>
                     <el-button size="small" type="primary" @click="previewThermal">计算</el-button><span>{{ previewResult.thermal || '输入温度后查看可用参数' }}</span>
                   </div>
                 </div>
@@ -156,11 +156,11 @@
                   <div class="curve-table-wrap">
                     <table class="material-curve-table">
                       <thead><tr><th class="condition-column">参数</th><th v-for="temperature in elasticTemperatures" :key="temperature">{{ temperature }}℃</th></tr></thead>
-                      <tbody><tr><th class="condition-column">E (Pa)</th><td v-for="temperature in elasticTemperatures" :key="temperature"><el-input-number :value="getElasticCell(temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setElasticCell(temperature, $event)"></el-input-number></td></tr></tbody>
+                      <tbody><tr><th class="condition-column">E (Pa)</th><td v-for="temperature in elasticTemperatures" :key="temperature"><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" :value="getElasticCell(temperature)" size="mini" :controls="false" :precision="3" placeholder="" @input="setElasticCell(temperature, $event)" maxlength="32"></el-input-number></td></tr></tbody>
                     </table>
                   </div>
                   <div class="curve-preview">
-                    <strong>温度插值预览</strong><el-input-number v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)"></el-input-number>
+                    <strong>温度插值预览</strong><el-input-number v-input-check="{ maxLength: 32, kind: 'number' }" v-model="preview.designTemperature" size="small" :controls="false" :precision="3" placeholder="设计温度(℃)" maxlength="32"></el-input-number>
                     <el-button size="small" type="primary" @click="previewElastic">计算</el-button><span>{{ previewResult.elastic || '输入温度后查看插值结果' }}</span>
                   </div>
                 </div>
@@ -180,8 +180,8 @@
                   <el-option label="中" :value="1"></el-option>
                   <el-option label="高" :value="2"></el-option>
                 </el-select>
-                <el-input v-else-if="field.type !== 'number'" v-model="form[field.prop]" :placeholder="field.placeholder || '请输入'"></el-input>
-                <el-input-number v-else v-model="form[field.prop]" :controls="false" :min="field.min" :max="field.max" :precision="field.precision === undefined ? 3 : field.precision" style="width:100%"></el-input-number>
+                <el-input v-input-check="{ maxLength: field.maxLength, maxBytes: field.maxBytes, kind: field.inputKind }" v-else-if="field.type !== 'number'" v-model="form[field.prop]" :placeholder="field.placeholder || '请输入'" :maxlength="field.maxLength"></el-input>
+                <el-input-number v-input-check="{ maxLength: field.maxLength, maxBytes: field.maxBytes, kind: 'number' }" v-else v-model="form[field.prop]" :controls="false" :min="field.min" :max="field.max" :precision="field.precision === undefined ? 3 : field.precision" style="width:100%" :maxlength="field.maxLength"></el-input-number>
               </el-form-item>
             </el-col>
           </el-row>
@@ -204,24 +204,40 @@ import queryForm from "@/components/common/queryForm";
 import { calcHeight, throttle } from "@/utils/funcUtil";
 
 const MATERIAL_FIELDS = [
-  ["materialGrade", "管材牌号"], ["unsNo", "UNS编号"], ["category", "材料大类"],
-  ["subcategory", "材料子类"], ["productForm", "产品形式"], ["specificationNo", "规范号"],
-  ["pNo", "P-No"], ["groupNo", "Group No."], ["tensileStrength", "抗拉强度Su(MPa)", "number"],
-  ["yieldStrength", "屈服强度Sy(MPa)", "number"], ["elasticModulus", "弹性模量E(Pa)", "number"],
-  ["poissonRatio", "泊松比", "number"], ["materialDensity", "材料密度(kg/m³)", "number"],
-  ["fatigueLimit", "疲劳极限(MPa)", "number"],
-  ["minDesignTemperature", "最低设计温度(℃)", "number"], ["maxDesignTemperature", "最高设计温度(℃)", "number"],
-  ["remarks", "备注"]
+  { prop: "materialGrade", label: "管材牌号", maxLength: 255, maxBytes: 255 },
+  { prop: "unsNo", label: "UNS编号", maxLength: 64, maxBytes: 64 },
+  { prop: "category", label: "材料大类", maxLength: 100, maxBytes: 100 },
+  { prop: "subcategory", label: "材料子类", maxLength: 100, maxBytes: 100 },
+  { prop: "productForm", label: "产品形式", maxLength: 100, maxBytes: 100 },
+  { prop: "specificationNo", label: "规范号", maxLength: 100, maxBytes: 100 },
+  { prop: "pNo", label: "P-No", maxLength: 50, maxBytes: 50 },
+  { prop: "groupNo", label: "Group No.", maxLength: 50, maxBytes: 50 },
+  { prop: "tensileStrength", label: "抗拉强度Su(MPa)", type: "number", maxLength: 32 },
+  { prop: "yieldStrength", label: "屈服强度Sy(MPa)", type: "number", maxLength: 32 },
+  { prop: "elasticModulus", label: "弹性模量E(Pa)", type: "number", maxLength: 32 },
+  { prop: "poissonRatio", label: "泊松比", type: "number", maxLength: 32 },
+  { prop: "materialDensity", label: "材料密度(kg/m³)", type: "number", maxLength: 32 },
+  { prop: "fatigueLimit", label: "疲劳极限(MPa)", type: "number", maxLength: 32 },
+  { prop: "minDesignTemperature", label: "最低设计温度(℃)", type: "number", maxLength: 32 },
+  { prop: "maxDesignTemperature", label: "最高设计温度(℃)", type: "number", maxLength: 32 },
+  { prop: "remarks", label: "备注", maxLength: 1000, maxBytes: 1000, inputKind: "multiline" }
 ];
 const OPERATING_FIELDS = [
-  ["conditionCode", "工况编码"], ["unitNo", "所属机组", "unit"],
-  ["annualUnplannedStops", "年非计划停运次数", "number", 0], ["annualStartStops", "年启停次数", "number", 0],
-  ["periodicOperation", "是否周期性操作"], ["annualFastValveActions", "年快阀动作次数", "number", 0],
-  ["c2Level", "C2腐蚀侵蚀管控等级", "level"], ["lastInspectionDate", "上次探伤日期"],
-  ["corrosionRate", "腐蚀速率(mm/a)", "number"], ["coatingStatus", "涂层状态"],
-  ["chlorideContent", "氯离子含量(ppm)", "number"], ["c3Level", "C3周期负荷波动等级", "level"],
-  ["dailyLoadFluctuation", "日负荷波动率(%)", "number"], ["monthlyStartStop", "月度启停次数", "number"],
-  ["remarks", "备注"]
+  { prop: "conditionCode", label: "工况编码", maxLength: 255, maxBytes: 255 },
+  { prop: "unitNo", label: "所属机组", type: "unit", maxLength: 32 },
+  { prop: "annualUnplannedStops", label: "年非计划停运次数", type: "number", precision: 0, maxLength: 32 },
+  { prop: "annualStartStops", label: "年启停次数", type: "number", precision: 0, maxLength: 32 },
+  { prop: "periodicOperation", label: "是否周期性操作", maxLength: 50, maxBytes: 50 },
+  { prop: "annualFastValveActions", label: "年快阀动作次数", type: "number", precision: 0, maxLength: 32 },
+  { prop: "c2Level", label: "C2腐蚀侵蚀管控等级", type: "level", maxLength: 32 },
+  { prop: "lastInspectionDate", label: "上次探伤日期", maxLength: 50, maxBytes: 50 },
+  { prop: "corrosionRate", label: "腐蚀速率(mm/a)", type: "number", maxLength: 32 },
+  { prop: "coatingStatus", label: "涂层状态", maxLength: 100, maxBytes: 100 },
+  { prop: "chlorideContent", label: "氯离子含量(ppm)", type: "number", maxLength: 32 },
+  { prop: "c3Level", label: "C3周期负荷波动等级", type: "level", maxLength: 32 },
+  { prop: "dailyLoadFluctuation", label: "日负荷波动率(%)", type: "number", maxLength: 32 },
+  { prop: "monthlyStartStop", label: "月度启停次数", type: "number", maxLength: 32 },
+  { prop: "remarks", label: "备注", maxLength: 1000, maxBytes: 1000, inputKind: "multiline" }
 ];
 const TEMPERATURE_AXES = {
   s: ["-30~40", 65, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400, 425, 450, 475, 500, 525, 550, 575, 600, 625, 650],
@@ -306,13 +322,13 @@ export default {
       preview: { designTemperature: null, thickness: null },
       previewResult: { mechanical: {}, thermal: "", elastic: "" },
       materialBaseFields: [
-        { prop: "materialGrade", label: "管材牌号" }, { prop: "unsNo", label: "UNS编号" }, { prop: "category", label: "材料大类" },
-        { prop: "subcategory", label: "材料子类" }, { prop: "productForm", label: "产品形式" }, { prop: "specificationNo", label: "规范号" },
-        { prop: "pNo", label: "P-No" }, { prop: "groupNo", label: "Group No." }, { prop: "tensileStrength", label: "常温抗拉强度 Su (MPa)", type: "number" },
-        { prop: "yieldStrength", label: "常温屈服强度 Sy (MPa)", type: "number" }, { prop: "elasticModulus", label: "常温弹性模量 E (Pa)", type: "number" },
-        { prop: "poissonRatio", label: "泊松比", type: "number" }, { prop: "materialDensity", label: "常温密度 ρ (kg/m³)", type: "number" },
-        { prop: "fatigueLimit", label: "疲劳极限 (MPa)", type: "number" }, { prop: "minDesignTemperature", label: "最低设计温度 (℃)", type: "number" },
-        { prop: "maxDesignTemperature", label: "最高设计温度 (℃)", type: "number" }, { prop: "remarks", label: "备注", span: 24 }
+        { prop: "materialGrade", maxLength: 255, maxBytes: 255, label: "管材牌号" }, { prop: "unsNo", maxLength: 64, maxBytes: 64, label: "UNS编号" }, { prop: "category", maxLength: 100, maxBytes: 100, label: "材料大类" },
+        { prop: "subcategory", maxLength: 100, maxBytes: 100, label: "材料子类" }, { prop: "productForm", maxLength: 100, maxBytes: 100, label: "产品形式" }, { prop: "specificationNo", maxLength: 100, maxBytes: 100, label: "规范号" },
+        { prop: "pNo", maxLength: 50, maxBytes: 50, label: "P-No" }, { prop: "groupNo", maxLength: 50, maxBytes: 50, label: "Group No." }, { prop: "tensileStrength", maxLength: 32, label: "常温抗拉强度 Su (MPa)", type: "number" },
+        { prop: "yieldStrength", maxLength: 32, label: "常温屈服强度 Sy (MPa)", type: "number" }, { prop: "elasticModulus", maxLength: 32, label: "常温弹性模量 E (Pa)", type: "number" },
+        { prop: "poissonRatio", maxLength: 32, label: "泊松比", type: "number" }, { prop: "materialDensity", maxLength: 32, label: "常温密度 ρ (kg/m³)", type: "number" },
+        { prop: "fatigueLimit", maxLength: 32, label: "疲劳极限 (MPa)", type: "number" }, { prop: "minDesignTemperature", maxLength: 32, label: "最低设计温度 (℃)", type: "number" },
+        { prop: "maxDesignTemperature", maxLength: 32, label: "最高设计温度 (℃)", type: "number" }, { prop: "remarks", maxLength: 1000, maxBytes: 1000, label: "备注", span: 24 }
       ],
       mechanicalProperties: [
         { key: "s", title: "最大许用应力 S (MPa)", source: "ASME II-D Table 1A / 1B", temperatures: TEMPERATURE_AXES.s },
@@ -359,26 +375,26 @@ export default {
     fields() { return this.libraryType === "material" ? MATERIAL_FIELDS : OPERATING_FIELDS; },
     columns() {
       return this.fields.map(item => ({
-        prop: item[0],
-        label: item[1],
-        width: columnMinWidth(item[1]),
-        formatter: item[0] === "unitNo" ? this.formatUnitNo : (item[2] === "number" ? this.formatNumber : undefined)
+        prop: item.prop,
+        label: item.label,
+        width: columnMinWidth(item.label),
+        formatter: item.prop === "unitNo" ? this.formatUnitNo : (item.type === "number" ? this.formatNumber : undefined)
       }));
     },
-    formFields() { return this.fields.map(item => ({ prop: item[0], label: item[1], type: item[2], precision: item[3] })); },
+    formFields() { return this.fields; },
     pageTitle() { return this.libraryType === "material" ? "材料信息库" : "运行工况库"; },
     computedTableHeight() { return this.maxTableHeight; },
     queryFields() {
       if (this.libraryType === "operating") {
         return [
-          { name: "conditionCode", label: "工况编码", value: "", type: "input", display: true, order: 1 },
-          { name: "unitNo", label: "所属机组", value: "", type: "select", display: true, order: 2, fieldMap: [{ label: "5号机", value: 5 }] }
+          { name: "conditionCode", maxLength: 255, maxBytes: 255, label: "工况编码", value: "", type: "input", display: true, order: 1 },
+          { name: "unitNo", maxLength: 255, label: "所属机组", value: "", type: "select", display: true, order: 2, fieldMap: [{ label: "5号机", value: 5 }] }
         ];
       }
       return [
-        { name: "materialGrade", label: "管材牌号", value: "", type: "input", display: true, order: 1 },
-        { name: "unsNo", label: "UNS编号", value: "", type: "input", display: true, order: 2 },
-        { name: "category", label: "材料大类", value: "", type: "input", display: true, order: 3 }
+        { name: "materialGrade", maxLength: 255, maxBytes: 255, label: "管材牌号", value: "", type: "input", display: true, order: 1 },
+        { name: "unsNo", maxLength: 64, maxBytes: 64, label: "UNS编号", value: "", type: "input", display: true, order: 2 },
+        { name: "category", maxLength: 100, maxBytes: 100, label: "材料大类", value: "", type: "input", display: true, order: 3 }
       ];
     }
   },

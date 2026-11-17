@@ -19,10 +19,10 @@
     width="640px"
   >
     <div class="wfGroupItemBinding">
-      <el-input
+      <el-input v-input-check="{ maxLength: 255 }"
         v-model="filterText"
         :placeholder="this.$t('cm.filterPlaceholder')"
-      >
+       maxlength="255">
         <!-- <el-button slot="append" icon="el-icon-search"></el-button> -->
       </el-input>
       <div class="cud__mtb-10 ml-20 mr-20">

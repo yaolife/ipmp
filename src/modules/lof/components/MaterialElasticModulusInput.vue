@@ -1,7 +1,7 @@
 <template>
   <div class="material-elastic-input">
     <div class="material-elastic-control">
-      <input type="number" step="any" aria-label="杨氏模量 Etw (Pa)" :value="value" @input="onManualInput">
+      <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="any" aria-label="杨氏模量 Etw (Pa)" :value="value" @input="onManualInput" maxlength="32">
       <el-button size="small" plain :disabled="!contextKey" @click="openMatcher">按材料和温度取值</el-button>
     </div>
     <el-dialog title="按材料和温度取值" :visible.sync="dialogVisible" width="640px"
@@ -11,7 +11,7 @@
         <div class="material-elastic-field">
           <label>材料子类</label>
           <div class="material-elastic-search">
-            <el-input :value="keyword" size="small" placeholder="请输入材料子类" @input="onKeywordInput" @keyup.enter.native="searchMaterials"></el-input>
+            <el-input v-input-check="{ maxLength: 100, maxBytes: 100 }" :value="keyword" size="small" placeholder="请输入材料子类" @input="onKeywordInput" @keyup.enter.native="searchMaterials" maxlength="100"></el-input>
             <el-button size="small" :loading="searching" @click="searchMaterials">匹配材料</el-button>
           </div>
           <p class="material-elastic-hint">默认使用当前管道材质；套管材质不同时，可修改后重新匹配。</p>
