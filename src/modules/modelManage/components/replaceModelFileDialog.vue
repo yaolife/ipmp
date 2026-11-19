@@ -16,10 +16,10 @@
         <el-input :value="form.modelNo" disabled></el-input>
       </el-form-item>
       <el-form-item :label="$t('lang.model_transform_params')">
-        <el-input
+        <el-input v-input-check="{ maxLength: 1000, kind: 'expression' }"
           v-model="form.transform"
           :placeholder="$t('lang.model_transform_placeholder')"
-        ></el-input>
+         maxlength="1000"></el-input>
       </el-form-item>
     </el-form>
     <template v-if="hasCurrentFile">

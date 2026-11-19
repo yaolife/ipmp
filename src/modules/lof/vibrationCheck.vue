@@ -10,7 +10,7 @@
             <div class="form-row form-row-3">
               <div class="form-group">
                 <label>管段选择</label>
-                <el-select
+                <el-select v-input-check="{ maxLength: 255 }"
                   v-model="segmentId"
                   filterable
                   clearable
@@ -74,37 +74,37 @@
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>外径 Do (mm)</label>
-                    <input type="number" step="0.01" v-model.number="form.Do[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.Do[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>壁厚 tp (mm)</label>
-                    <input type="number" step="0.01" v-model.number="form.tp[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.tp[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>长度 Lp (mm)</label>
-                    <input type="number" step="1" v-model.number="form.Lp[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="1" v-model.number="form.Lp[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>阀门集中质量 mv (kg)</label>
-                    <input type="number" step="0.01" v-model.number="form.mv[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.mv[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                 </div>
                 <div class="form-row form-row-equal-4">
                   <div class="form-group">
                     <label>管材密度 ρp (kg/m³)</label>
-                    <input type="number" step="1" v-model.number="form.rho_p[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="1" v-model.number="form.rho_p[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>流体密度 ρf (kg/m³)</label>
-                    <input type="number" step="0.1" v-model.number="form.rho_f[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="form.rho_f[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>保温层密度 ρin (kg/m³)</label>
-                    <input type="number" step="1" v-model.number="form.rho_in[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="1" v-model.number="form.rho_in[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                   <div class="form-group">
                     <label>保温层厚度 tin (mm)</label>
-                    <input type="number" step="0.1" v-model.number="form.tin[index]" @input="scheduleCalc">
+                    <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="form.tin[index]" @input="scheduleCalc" maxlength="32">
                   </div>
                 </div>
               </div>
@@ -140,11 +140,11 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>运行温度 (℃)</label>
-                  <input type="number" step="0.1" v-model.number="form.operatingTemp" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="form.operatingTemp" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>运行温度下疲劳极限 Sa_T (MPa)</label>
-                  <input type="number" step="0.1" v-model.number="form.Sa_T" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="form.Sa_T" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group"></div>
                 <div class="form-group"></div>
@@ -154,15 +154,15 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>系数 C5</label>
-                  <input type="number" step="0.01" v-model.number="form.C5" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.C5" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>峰值/RMS 换算系数 C0</label>
-                  <input type="number" step="0.01" v-model.number="form.C0" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.C0" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>系数 β</label>
-                  <input type="number" step="0.01" v-model.number="form.beta" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.beta" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group"></div>
               </div>
@@ -171,11 +171,11 @@
               <div class="form-row form-row-equal-4">
                 <div class="form-group">
                   <label>实测峰值速度 Vpk(test) (mm/s)</label>
-                  <input type="number" step="0.01" v-model.number="form.measuredPeak" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.measuredPeak" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group">
                   <label>实测 RMS 速度 Vrms(test) (mm/s)</label>
-                  <input type="number" step="0.01" v-model.number="form.measuredRms" @input="scheduleCalc">
+                  <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="form.measuredRms" @input="scheduleCalc" maxlength="32">
                 </div>
                 <div class="form-group"></div>
                 <div class="form-group"></div>
@@ -267,19 +267,19 @@
             <div class="form-row form-row-equal-4">
               <div class="form-group">
                 <label>测点位置</label>
-                <input type="text" v-model="measure.position" placeholder="如：弯头外侧 / 支管根部">
+                <input v-input-check="{ maxLength: 128 }" type="text" v-model="measure.position" placeholder="如：弯头外侧 / 支管根部" maxlength="128">
               </div>
               <div class="form-group">
                 <label>实测峰值速度 Vpk(test) (mm/s)</label>
-                <input type="number" step="0.01" v-model.number="measure.vp" @input="onVpInput" @blur="autoFill('vp')">
+                <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="measure.vp" @input="onVpInput" @blur="autoFill('vp')" maxlength="32">
               </div>
               <div class="form-group">
                 <label>实测 RMS 速度 Vrms(test) (mm/s)</label>
-                <input type="number" step="0.01" v-model.number="measure.vr" @input="onVrInput" @blur="autoFill('vr')">
+                <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.01" v-model.number="measure.vr" @input="onVrInput" @blur="autoFill('vr')" maxlength="32">
               </div>
               <div class="form-group">
                 <label>实测主频 fmeas (Hz)</label>
-                <input type="number" step="0.1" v-model.number="measure.freq" @input="scheduleCalc">
+                <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="measure.freq" @input="scheduleCalc" maxlength="32">
               </div>
             </div>
             <div class="help-text">
@@ -328,7 +328,7 @@
               </div>
               <div class="form-group">
                 <label>实测挠度 δ(test) (μm)</label>
-                <input type="number" step="0.1" v-model.number="disp.deltaTest" @input="scheduleCalc">
+                <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="disp.deltaTest" @input="scheduleCalc" maxlength="32">
               </div>
               <div class="form-group"></div>
             </div>
@@ -402,11 +402,11 @@
             <div class="form-row form-row-equal-4">
               <div class="form-group">
                 <label>动应力实测值 σ_d (MPa)</label>
-                <input type="number" step="0.1" v-model.number="stress.actual" @input="scheduleStressCalc">
+                <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="stress.actual" @input="scheduleStressCalc" maxlength="32">
               </div>
               <div class="form-group">
                 <label>疲劳限值 σ_limit (MPa)</label>
-                <input type="number" step="0.1" v-model.number="stress.limit" @input="scheduleStressCalc">
+                <input v-input-check="{ maxLength: 32, kind: 'number' }" type="number" step="0.1" v-model.number="stress.limit" @input="scheduleStressCalc" maxlength="32">
               </div>
               <div class="form-group">
                 <label>判定结果</label>
@@ -428,7 +428,7 @@
             <div class="form-row form-row-2">
               <div class="form-group">
                 <label>评估备注</label>
-                <input type="text" v-model="remarks" placeholder="可填写现场振动校核说明">
+                <input v-input-check="{ maxLength: 1000, maxBytes: 1000, kind: 'multiline' }" type="text" v-model="remarks" placeholder="可填写现场振动校核说明" maxlength="1000">
               </div>
               <div class="form-group"></div>
             </div>

@@ -10,7 +10,7 @@
             <div class="form-row lof-form-row-4">
               <div class="form-group form-group-active-select">
                 <label>管段选择</label>
-                <el-select
+                <el-select v-input-check="{ maxLength: 255 }"
                   v-model="segmentId"
                   filterable
                   clearable
@@ -260,12 +260,12 @@
           <el-input :value="pendingRemark.score" disabled></el-input>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input
+          <el-input v-input-check="{ maxLength: 250, kind: 'multiline' }"
             type="textarea"
             :rows="4"
             v-model="pendingRemark.text"
             placeholder="请说明修正依据..."
-          ></el-input>
+           maxlength="250"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer">

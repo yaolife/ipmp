@@ -39,7 +39,7 @@
       <div v-show="sourceTab === 'sap'" class="sap-pane" v-loading="loading">
       <el-form class="sap-filters" :inline="true" :model="filters" size="small" @submit.native.prevent="search">
         <el-form-item v-for="field in filterFields" :key="field.prop" :label="field.label">
-          <el-input v-model="filters[field.prop]" clearable :placeholder="'请输入' + field.label" @keyup.enter.native="search"></el-input>
+          <el-input v-input-check="{ maxLength: 255 }" v-model="filters[field.prop]" clearable :placeholder="'请输入' + field.label" @keyup.enter.native="search" maxlength="255"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :disabled="loading || !nodeName" @click="search">搜索</el-button>

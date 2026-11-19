@@ -72,13 +72,13 @@
                       :value="opt.value"
                     ></el-option>
                   </el-select>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes }"
                     v-else
                     v-model="form[item.key]"
                     size="small"
                     :placeholder="item.placeholder || ''"
                     :disabled="!!item.disabled"
-                  ></el-input>
+                   :maxlength="item.maxLength"></el-input>
                 </div>
               </el-col>
             </el-row>
@@ -94,11 +94,11 @@
               >
                 <div class="field">
                   <label>{{ $t(item.label) }}</label>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes }"
                     v-model="form[item.key]"
                     size="small"
                     :placeholder="item.placeholder || ''"
-                  ></el-input>
+                   :maxlength="item.maxLength"></el-input>
                 </div>
               </el-col>
             </el-row>
@@ -114,11 +114,11 @@
               >
                 <div class="field">
                   <label>{{ $t(item.label) }}</label>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes }"
                     v-model="form[item.key]"
                     size="small"
                     :placeholder="item.placeholder || ''"
-                  ></el-input>
+                   :maxlength="item.maxLength"></el-input>
                 </div>
               </el-col>
             </el-row>
@@ -137,12 +137,12 @@
                     min-width="200"
                   >
                     <template slot-scope="scope">
-                      <el-input
+                      <el-input v-input-check="{ maxLength: 128 }"
                         v-model="scope.row.name"
                         @blur="checkPrivateAttributeNames"
                         size="small"
                         placeholder="key"
-                      ></el-input>
+                       maxlength="128"></el-input>
                     </template>
                   </el-table-column>
                   <el-table-column
@@ -150,11 +150,11 @@
                     min-width="200"
                   >
                     <template slot-scope="scope">
-                      <el-input
+                      <el-input v-input-check="{ maxLength: 1000, kind: 'multiline' }"
                         v-model="scope.row.value"
                         size="small"
                         placeholder="value"
-                      ></el-input>
+                       maxlength="1000"></el-input>
                     </template>
                   </el-table-column>
                   <el-table-column
@@ -238,17 +238,17 @@
               >
                 <div class="field">
                   <label>{{ $t(item.label) }}</label>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes }"
                     v-if="item.key !== 'material'"
                     v-model="form[item.key]"
                     size="small"
-                  ></el-input>
+                   :maxlength="item.maxLength"></el-input>
                   <div v-else class="material-match-field">
-                    <el-input
+                    <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes }"
                       v-model="form[item.key]"
                       size="small"
                       @keyup.enter.native="queryMaterialMatches"
-                    ></el-input>
+                     :maxlength="item.maxLength"></el-input>
                     <el-button
                       type="primary"
                       size="small"
@@ -309,20 +309,20 @@
                       :value="opt.value"
                     ></el-option>
                   </el-select>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes, kind: 'multiline' }"
                     v-else-if="item.type === 'textarea'"
                     type="textarea"
                     :rows="3"
                     v-model="form[item.key]"
                     :placeholder="item.placeholder || ''"
-                  ></el-input>
-                  <el-input
+                   :maxlength="item.maxLength"></el-input>
+                  <el-input v-input-check="{ maxLength: item.maxLength, maxBytes: item.maxBytes }"
                     v-else
                     v-model="form[item.key]"
                     size="small"
                     :type="item.type === 'number' ? 'number' : 'text'"
                     :placeholder="item.placeholder || ''"
-                  ></el-input>
+                   :maxlength="item.maxLength"></el-input>
                 </div>
               </el-col>
             </el-row>
@@ -337,14 +337,14 @@
           <div class="section-block">
             <div class="section-title">{{ $t("lang.related_segment_list") }}</div>
             <div class="toolbar-row">
-              <el-input
+              <el-input v-input-check="{ maxLength: 255 }"
                 v-model="segmentKeyword"
                 size="small"
                 clearable
                 prefix-icon="el-icon-search"
                 :placeholder="$t('lang.search_segment_placeholder')"
                 class="toolbar-search"
-              ></el-input>
+               maxlength="255"></el-input>
               <el-select
                 v-model="segmentTypeFilter"
                 size="small"
@@ -382,7 +382,7 @@
                 min-width="130"
               >
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.segmentNo" size="mini"></el-input>
+                  <el-input v-input-check="{ maxLength: 255 }" v-model="scope.row.segmentNo" size="mini" maxlength="255"></el-input>
                 </template>
               </el-table-column>
               <el-table-column
@@ -390,7 +390,7 @@
                 min-width="140"
               >
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.segmentName" size="mini"></el-input>
+                  <el-input v-input-check="{ maxLength: 255 }" v-model="scope.row.segmentName" size="mini" maxlength="255"></el-input>
                 </template>
               </el-table-column>
               <el-table-column
@@ -398,7 +398,7 @@
                 min-width="120"
               >
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.startPoint" size="mini"></el-input>
+                  <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }" v-model="scope.row.startPoint" size="mini" maxlength="255"></el-input>
                 </template>
               </el-table-column>
               <el-table-column
@@ -406,7 +406,7 @@
                 min-width="120"
               >
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.endPoint" size="mini"></el-input>
+                  <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }" v-model="scope.row.endPoint" size="mini" maxlength="255"></el-input>
                 </template>
               </el-table-column>
               <el-table-column
@@ -514,7 +514,7 @@
             <div class="toolbar-row filter-row">
               <div class="field compact">
                 <label>{{ $t("lang.start_date") }}</label>
-                <el-date-picker
+                <el-date-picker v-input-check="{ maxLength: 32 }"
                   v-model="maintenanceQuery.startDate"
                   type="date"
                   size="small"
@@ -523,7 +523,7 @@
               </div>
               <div class="field compact">
                 <label>{{ $t("lang.end_date") }}</label>
-                <el-date-picker
+                <el-date-picker v-input-check="{ maxLength: 32 }"
                   v-model="maintenanceQuery.endDate"
                   type="date"
                   size="small"
@@ -532,11 +532,11 @@
               </div>
               <div class="field compact">
                 <label>{{ $t("lang.maintenance_round") }}</label>
-                <el-input
+                <el-input v-input-check="{ maxLength: 128 }"
                   v-model="maintenanceQuery.round"
                   size="small"
                   :placeholder="$t('lang.round_placeholder')"
-                ></el-input>
+                 maxlength="128"></el-input>
               </div>
               <div class="field compact">
                 <label>{{ $t("lang.status") }}</label>
@@ -677,7 +677,7 @@
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.maintenance_date") }}</label>
-                  <el-date-picker
+                  <el-date-picker v-input-check="{ maxLength: 32 }"
                     v-model="maintenanceForm.date"
                     type="date"
                     size="small"
@@ -688,13 +688,13 @@
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.maintenance_round") }}</label>
-                  <el-input v-model="maintenanceForm.round" size="small"></el-input>
+                  <el-input v-input-check="{ maxLength: 128 }" v-model="maintenanceForm.round" size="small" maxlength="128"></el-input>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.report_no") }}</label>
-                  <el-input v-model="maintenanceForm.reportNo" size="small"></el-input>
+                  <el-input v-input-check="{ maxLength: 128 }" v-model="maintenanceForm.reportNo" size="small" maxlength="128"></el-input>
                 </div>
               </el-col>
               <el-col :span="6">
@@ -755,56 +755,56 @@
               <el-col :span="12">
                 <div class="field">
                   <label>{{ $t("lang.defect_desc") }}</label>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 1000, kind: 'multiline' }"
                     v-model="maintenanceForm.defect"
                     size="small"
                     :placeholder="$t('lang.defect_placeholder')"
-                  ></el-input>
+                   maxlength="1000"></el-input>
                 </div>
               </el-col>
               <el-col :span="12">
                 <div class="field">
                   <label>{{ $t("lang.reinspect_after") }}</label>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 1000, kind: 'multiline' }"
                     v-model="maintenanceForm.reinspect"
                     size="small"
                     :placeholder="$t('lang.reinspect_placeholder')"
-                  ></el-input>
+                   maxlength="1000"></el-input>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.measured_load") }}</label>
-                  <el-input v-model="maintenanceForm.measuredLoad" size="small"></el-input>
+                  <el-input v-input-check="{ maxLength: 32 }" v-model="maintenanceForm.measuredLoad" size="small" maxlength="32"></el-input>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.measured_scale") }}</label>
-                  <el-input v-model="maintenanceForm.measuredScale" size="small"></el-input>
+                  <el-input v-input-check="{ maxLength: 32 }" v-model="maintenanceForm.measuredScale" size="small" maxlength="32"></el-input>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.maintenance_unit") }}</label>
-                  <el-input v-model="maintenanceForm.unit" size="small"></el-input>
+                  <el-input v-input-check="{ maxLength: 128 }" v-model="maintenanceForm.unit" size="small" maxlength="128"></el-input>
                 </div>
               </el-col>
               <el-col :span="6">
                 <div class="field">
                   <label>{{ $t("lang.sign_name") }}</label>
-                  <el-input v-model="maintenanceForm.sign" size="small"></el-input>
+                  <el-input v-input-check="{ maxLength: 128 }" v-model="maintenanceForm.sign" size="small" maxlength="128"></el-input>
                 </div>
               </el-col>
               <el-col :span="24">
                 <div class="field">
                   <label>{{ $t("lang.inspect_content") }}</label>
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 1000, kind: 'multiline' }"
                     type="textarea"
                     :rows="3"
                     v-model="maintenanceForm.content"
                     :placeholder="$t('lang.inspect_content_placeholder')"
-                  ></el-input>
+                   maxlength="1000"></el-input>
                 </div>
               </el-col>
             </el-row>
@@ -843,7 +843,8 @@
     </div>
     <el-dialog
       title="选择材料库记录"
-      :visible.sync="materialMatchVisible"
+      :visible="materialMatchVisible"
+      @update:visible="onMaterialMatchVisibilityChange"
       width="960px"
       append-to-body
     >
@@ -871,7 +872,7 @@
         </el-table-column>
       </el-table>
       <span slot="footer">
-        <el-button size="small" @click="materialMatchVisible = false">取消</el-button>
+        <el-button size="small" @click="cancelMaterialMatches">取消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -914,80 +915,80 @@ function getDefaultLofSections() {
       title: "lang.lof_pipe_params",
       fields: [
         {
-          key: "pipeStandardKks",
+          key: "pipeStandardKks", maxLength: 255, maxBytes: 255,
           label: "lang.pipe_standard_kks",
           placeholder: "如 P-273-12.5-316LN"
         },
-        { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm", type: "number" },
-        { key: "wallThickness", label: "lang.pipe_wall_thickness_mm", type: "number" },
-        { key: "material", label: "lang.standard_material", placeholder: "如 316LN / 碳钢" },
-        { key: "designTemperature", label: "lang.design_temperature_c", type: "number" },
-        { key: "designPressure", label: "lang.design_pressure_mpa", type: "number" },
-        { key: "mediumType", label: "lang.medium_type", type: "select", options: "mediumType" },
-        { key: "fluidDensity", label: "lang.fluid_density", type: "number" },
-        { key: "equipmentType", label: "lang.equipment_type", placeholder: "如 主蒸汽隔离阀 / 给水泵" },
-        { key: "spanReference", label: "lang.span_reference", type: "number" }
+        { key: "outerDiameter", maxLength: 32, label: "lang.pipe_outer_diameter_mm", type: "number" },
+        { key: "wallThickness", maxLength: 32, label: "lang.pipe_wall_thickness_mm", type: "number" },
+        { key: "material", maxLength: 128, maxBytes: 128, label: "lang.standard_material", placeholder: "如 316LN / 碳钢" },
+        { key: "designTemperature", maxLength: 32, label: "lang.design_temperature_c", type: "number" },
+        { key: "designPressure", maxLength: 32, label: "lang.design_pressure_mpa", type: "number" },
+        { key: "mediumType", maxLength: 32, label: "lang.medium_type", type: "select", options: "mediumType" },
+        { key: "fluidDensity", maxLength: 32, label: "lang.fluid_density", type: "number" },
+        { key: "equipmentType", maxLength: 128, maxBytes: 128, label: "lang.equipment_type", placeholder: "如 主蒸汽隔离阀 / 给水泵" },
+        { key: "spanReference", maxLength: 32, label: "lang.span_reference", type: "number" }
       ]
     },
     {
       title: "lang.lof_material_info",
       fields: [
-        { key: "materialGrade", label: "lang.material_grade", placeholder: "如 316LN" },
-        { key: "elasticModulus", label: "lang.elastic_modulus", type: "number" },
-        { key: "poissonRatio", label: "lang.poisson_ratio", type: "number" },
-        { key: "materialDensity", label: "lang.material_density", type: "number" },
-        { key: "yieldStrength", label: "lang.yield_strength", type: "number" },
-        { key: "fatigueLimit", label: "lang.fatigue_limit", type: "number" },
+        { key: "materialGrade", maxLength: 128, maxBytes: 128, label: "lang.material_grade", placeholder: "如 316LN" },
+        { key: "elasticModulus", maxLength: 32, label: "lang.elastic_modulus", type: "number" },
+        { key: "poissonRatio", maxLength: 32, label: "lang.poisson_ratio", type: "number" },
+        { key: "materialDensity", maxLength: 32, label: "lang.material_density", type: "number" },
+        { key: "yieldStrength", maxLength: 32, label: "lang.yield_strength", type: "number" },
+        { key: "fatigueLimit", maxLength: 32, label: "lang.fatigue_limit", type: "number" },
         {
-          key: "naturalFrequency",
+          key: "naturalFrequency", maxLength: 255,
           label: "lang.natural_frequency_hz",
           type: "number",
           placeholder: "请输入固有频率"
         },
-        { key: "frequencySupportType", label: "lang.frequency_support_type", type: "select", options: "frequencySupport" }
+        { key: "frequencySupportType", maxLength: 255, label: "lang.frequency_support_type", type: "select", options: "frequencySupport" }
       ]
     },
     {
       title: "lang.lof_operate_condition",
       fields: [
-        { key: "annualUnplannedStops", label: "lang.annual_unplanned_stops", type: "number" },
-        { key: "annualStartStops", label: "lang.annual_start_stops", type: "number" },
-        { key: "annualFastValveActions", label: "lang.annual_fast_valve_actions", type: "number" },
-        { key: "periodicOperation", label: "lang.periodic_operation", placeholder: "如 频繁间歇 / 长期稳态" },
-        { key: "c1Level", label: "lang.c1_level", type: "select", options: "level" },
-        { key: "c2Level", label: "lang.c2_level", type: "select", options: "level" },
-        { key: "c3Level", label: "lang.c3_level", type: "select", options: "level" },
-        { key: "c4Level", label: "lang.c4_level", type: "select", options: "level" }
+        { key: "annualUnplannedStops", maxLength: 32, label: "lang.annual_unplanned_stops", type: "number" },
+        { key: "annualStartStops", maxLength: 32, label: "lang.annual_start_stops", type: "number" },
+        { key: "annualFastValveActions", maxLength: 32, label: "lang.annual_fast_valve_actions", type: "number" },
+        { key: "periodicOperation", maxLength: 500, maxBytes: 500, label: "lang.periodic_operation", placeholder: "如 频繁间歇 / 长期稳态" },
+        { key: "c1Level", maxLength: 32, label: "lang.c1_level", type: "select", options: "level" },
+        { key: "c2Level", maxLength: 32, label: "lang.c2_level", type: "select", options: "level" },
+        { key: "c3Level", maxLength: 32, label: "lang.c3_level", type: "select", options: "level" },
+        { key: "c4Level", maxLength: 32, label: "lang.c4_level", type: "select", options: "level" }
       ]
     },
     {
       title: "lang.lof_incentive_flags",
       fields: [
-        { key: "maxVelocity", label: "lang.max_velocity", type: "number", span: 6 },
-        { key: "hasThrottlingElement", label: "lang.has_throttling", type: "select", options: "yesNo", span: 6 },
-        { key: "isChokedFlow", label: "lang.is_choked_flow", type: "select", options: "yesNo", span: 6 },
-        { key: "hasReciprocatingEquipment", label: "lang.has_reciprocating", type: "select", options: "yesNo", span: 6 },
-        { key: "hasCentrifugalEquipment", label: "lang.has_centrifugal", type: "select", options: "yesNo", span: 6 },
-        { key: "lowFlowRatio", label: "lang.low_flow_ratio", type: "number", span: 6 },
-        { key: "fastActingValveType", label: "lang.fast_acting_valve", type: "select", options: "fastValve", span: 6 },
-        { key: "hasFlashingCavitation", label: "lang.has_flashing_cavitation", type: "select", options: "yesNo", span: 6 },
-        { key: "hasThermowellProbe", label: "lang.has_thermowell_probe", type: "select", options: "yesNo", span: 6 },
-        { key: "hasDeadBranch", label: "lang.has_dead_branch", type: "select", options: "yesNo", span: 6 },
-        { key: "hasSlugFlow", label: "lang.has_slug_flow", type: "select", options: "yesNo", span: 6 },
-        { key: "vibrationFailureHistory", label: "lang.vibration_failure_history", type: "select", options: "vibration", span: 6 }
+        { key: "maxVelocity", maxLength: 32, label: "lang.max_velocity", type: "number", span: 6 },
+        { key: "hasThrottlingElement", maxLength: 32, label: "lang.has_throttling", type: "select", options: "yesNo", span: 6 },
+        { key: "isChokedFlow", maxLength: 32, label: "lang.is_choked_flow", type: "select", options: "yesNo", span: 6 },
+        { key: "hasReciprocatingEquipment", maxLength: 32, label: "lang.has_reciprocating", type: "select", options: "yesNo", span: 6 },
+        { key: "hasCentrifugalEquipment", maxLength: 32, label: "lang.has_centrifugal", type: "select", options: "yesNo", span: 6 },
+        { key: "lowFlowRatio", maxLength: 32, label: "lang.low_flow_ratio", type: "number", span: 6 },
+        { key: "fastActingValveType", maxLength: 32, label: "lang.fast_acting_valve", type: "select", options: "fastValve", span: 6 },
+        { key: "hasFlashingCavitation", maxLength: 32, label: "lang.has_flashing_cavitation", type: "select", options: "yesNo", span: 6 },
+        { key: "hasThermowellProbe", maxLength: 32, label: "lang.has_thermowell_probe", type: "select", options: "yesNo", span: 6 },
+        { key: "hasDeadBranch", maxLength: 32, label: "lang.has_dead_branch", type: "select", options: "yesNo", span: 6 },
+        { key: "hasSlugFlow", maxLength: 32, label: "lang.has_slug_flow", type: "select", options: "yesNo", span: 6 },
+        { key: "vibrationFailureHistory", maxLength: 32, label: "lang.vibration_failure_history", type: "select", options: "vibration", span: 6 }
       ]
     },
     {
       title: "lang.lof_weld_info",
       fields: [
-        { key: "manufacturingStandard", label: "lang.manufacturing_standard" },
-        { key: "weldCode", label: "lang.weld_code" },
-        { key: "weldType", label: "lang.weld_type" },
-        { key: "weldCategory", label: "lang.weld_category" },
-        { key: "stressConcentrationFactor", label: "lang.stress_concentration_factor", type: "number" },
-        { key: "fatigueLevel", label: "lang.fatigue_level" },
-        { key: "visualDefectStandard", label: "lang.visual_defect_standard" },
-        { key: "lofRemark", label: "lang.lof_remark", type: "textarea", span: 24 }
+        { key: "manufacturingStandard", maxLength: 255, maxBytes: 255, label: "lang.manufacturing_standard" },
+        { key: "weldCode", maxLength: 128, maxBytes: 128, label: "lang.weld_code" },
+        { key: "weldType", maxLength: 128, maxBytes: 128, label: "lang.weld_type" },
+        { key: "weldCategory", maxLength: 128, maxBytes: 128, label: "lang.weld_category" },
+        { key: "stressConcentrationFactor", maxLength: 32, label: "lang.stress_concentration_factor", type: "number" },
+        { key: "fatigueLevel", maxLength: 128, maxBytes: 128, label: "lang.fatigue_level" },
+        { key: "visualDefectStandard", maxLength: 500, maxBytes: 500, label: "lang.visual_defect_standard" },
+        { key: "lofRemark", maxLength: 1000, maxBytes: 1000, label: "lang.lof_remark", type: "textarea", span: 24 }
       ]
     }
   ];
@@ -998,9 +999,9 @@ function getPipeLofSections() {
   const first = sections[0];
   if (first && first.fields) {
     const extras = [
-      { key: "length", label: "lang.lof_length", type: "number" },
+      { key: "length", maxLength: 32, label: "lang.lof_length", type: "number" },
       {
-        key: "drawingNo",
+        key: "drawingNo", maxLength: 255, maxBytes: 255,
         label: "lang.lof_drawing_code",
         placeholder: "如 ISO-XXXX-REV-A"
       }
@@ -1020,21 +1021,21 @@ function getRigidLofSections() {
     {
       title: "lang.lof_rigid_params",
       fields: [
-        { key: "functionLocation", label: "lang.lof_function_location" },
+        { key: "functionLocation", maxLength: 255, maxBytes: 255, label: "lang.lof_function_location" },
         {
-          key: "typeName",
+          key: "typeName", maxLength: 255, maxBytes: 255,
           label: "lang.lof_type",
           placeholder: "如 闸阀 / 法兰 / 孔板"
         },
         {
-          key: "modelNo",
+          key: "modelNo", maxLength: 255, maxBytes: 255,
           label: "lang.lof_model",
           placeholder: "如 DN100 PN16"
         },
-        { key: "length", label: "lang.lof_length", type: "number" },
-        { key: "mass", label: "lang.lof_mass", type: "number" },
+        { key: "length", maxLength: 32, label: "lang.lof_length", type: "number" },
+        { key: "mass", maxLength: 32, label: "lang.lof_mass", type: "number" },
         {
-          key: "drawingNo",
+          key: "drawingNo", maxLength: 255, maxBytes: 255,
           label: "lang.lof_drawing_code",
           placeholder: "如 ISO-XXXX-REV-A"
         }
@@ -1049,12 +1050,12 @@ function getWeldLofSections() {
       title: "lang.lof_weld_params",
       fields: [
         {
-          key: "weldCode",
+          key: "weldCode", maxLength: 128, maxBytes: 128,
           label: "lang.lof_weld_no",
           placeholder: "如 W-001"
         },
         {
-          key: "weldType",
+          key: "weldType", maxLength: 128, maxBytes: 128,
           label: "lang.weld_type",
           type: "select",
           options: "weldTypeLof"
@@ -1070,23 +1071,23 @@ function getThermowellLofSections() {
       title: "lang.lof_thermowell_params",
       fields: [
         {
-          key: "twType",
+          key: "twType", maxLength: 255,
           label: "lang.tw_type",
           type: "select",
           options: "thermowellType"
         },
-        { key: "outerDiameter", label: "lang.tw_outer_diameter", type: "number" },
-        { key: "dtw", label: "lang.tw_bore_diameter", type: "number" },
-        { key: "Ltw", label: "lang.tw_ltw", type: "number" },
-        { key: "material", label: "lang.tw_material", placeholder: "如 316SS" },
-        { key: "elasticModulus", label: "lang.elastic_modulus", type: "number" },
-        { key: "materialDensity", label: "lang.tw_material_density", type: "number" },
-        { key: "fluidDensity", label: "lang.fluid_density", type: "number" },
-        { key: "fluidViscosity", label: "lang.tw_fluid_viscosity", type: "number" },
-        { key: "maxVelocity", label: "lang.max_velocity", type: "number" },
-        { key: "schedule", label: "lang.tw_parent_sch", type: "number" },
+        { key: "outerDiameter", maxLength: 32, label: "lang.tw_outer_diameter", type: "number" },
+        { key: "dtw", maxLength: 32, label: "lang.tw_bore_diameter", type: "number" },
+        { key: "Ltw", maxLength: 255, label: "lang.tw_ltw", type: "number" },
+        { key: "material", maxLength: 128, maxBytes: 128, label: "lang.tw_material", placeholder: "如 316SS" },
+        { key: "elasticModulus", maxLength: 32, label: "lang.elastic_modulus", type: "number" },
+        { key: "materialDensity", maxLength: 32, label: "lang.tw_material_density", type: "number" },
+        { key: "fluidDensity", maxLength: 32, label: "lang.fluid_density", type: "number" },
+        { key: "fluidViscosity", maxLength: 32, label: "lang.tw_fluid_viscosity", type: "number" },
+        { key: "maxVelocity", maxLength: 32, label: "lang.max_velocity", type: "number" },
+        { key: "schedule", maxLength: 32, label: "lang.tw_parent_sch", type: "number" },
         {
-          key: "has90Reinforcement",
+          key: "has90Reinforcement", maxLength: 32,
           label: "lang.tw_has_90_reinforcement",
           type: "select",
           options: "yesNo"
@@ -1269,6 +1270,10 @@ export default {
       materialMatchLoading: false,
       materialMatchKeyword: "",
       materialMatchResults: [],
+      // 将慢响应及候选绑定到发起查询时的管道、材质和请求序号，防止跨管道回填。
+      materialMatchRequestSeq: 0,
+      materialMatchContext: null,
+      detailRequestSeq: 0,
       uploadingImages: 0,
       activeTab: "basic",
       detail: {},
@@ -1294,42 +1299,42 @@ export default {
       },
       maintenanceForm: emptyMaintenance(),
       basicIdentityFields: [
-        { key: "nodeName", label: "lang.component_no", disabled: true },
-        { key: "pipelineName", label: "lang.component_name", required: true },
+        { key: "nodeName", maxLength: 255, maxBytes: 255, label: "lang.component_no", disabled: true },
+        { key: "pipelineName", maxLength: 255, maxBytes: 255, label: "lang.component_name", required: true },
         {
-          key: "componentType",
+          key: "componentType", maxLength: 32,
           label: "lang.component_type",
           type: "select",
           disabled: true
         },
-        { key: "pipeStandardKks", label: "lang.kks_code" },
-        { key: "specCode", label: "lang.spec_code" }
+        { key: "pipeStandardKks", maxLength: 255, maxBytes: 255, label: "lang.kks_code" },
+        { key: "specCode", maxLength: 128, maxBytes: 128, label: "lang.spec_code" }
       ],
       locationFields: [
-        { key: "pipelineNo", label: "lang.pipeline_on_line" },
-        { key: "startPoint", label: "lang.pipeline_start" },
-        { key: "endPoint", label: "lang.pipeline_end" },
-        { key: "isoCode", label: "lang.iso_drawing_no" }
+        { key: "pipelineNo", maxLength: 128, maxBytes: 128, label: "lang.pipeline_on_line" },
+        { key: "startPoint", maxLength: 255, maxBytes: 255, label: "lang.pipeline_start" },
+        { key: "endPoint", maxLength: 255, maxBytes: 255, label: "lang.pipeline_end" },
+        { key: "isoCode", maxLength: 128, maxBytes: 128, label: "lang.iso_drawing_no" }
       ],
       hierarchyFields: [
         {
-          key: "levelNo",
+          key: "levelNo", maxLength: 255,
           label: "lang.system_depth",
           placeholder: "层级深度"
         },
-        { key: "drawingNo", label: "lang.drawing_no" }
+        { key: "drawingNo", maxLength: 255, maxBytes: 255, label: "lang.drawing_no" }
       ],
       technicalFields: [
-        { key: "operatingPressure", label: "lang.work_pressure" },
-        { key: "operatingTemperature", label: "lang.work_temperature" },
-        { key: "designPressure", label: "lang.design_pressure_mpa" },
-        { key: "designTemperature", label: "lang.design_temperature_c" },
-        { key: "nominalDiameter", label: "lang.pipe_nominal_inch" },
-        { key: "outerDiameter", label: "lang.pipe_outer_diameter_mm" },
-        { key: "wallThickness", label: "lang.pipe_wall_thickness_mm" },
-        { key: "material", label: "lang.pipe_material" },
-        { key: "workingMedium", label: "lang.fluid_medium" },
-        { key: "maxVelocity", label: "lang.flow_velocity" }
+        { key: "operatingPressure", maxLength: 32, label: "lang.work_pressure" },
+        { key: "operatingTemperature", maxLength: 32, label: "lang.work_temperature" },
+        { key: "designPressure", maxLength: 32, label: "lang.design_pressure_mpa" },
+        { key: "designTemperature", maxLength: 32, label: "lang.design_temperature_c" },
+        { key: "nominalDiameter", maxLength: 32, label: "lang.pipe_nominal_inch" },
+        { key: "outerDiameter", maxLength: 32, label: "lang.pipe_outer_diameter_mm" },
+        { key: "wallThickness", maxLength: 32, label: "lang.pipe_wall_thickness_mm" },
+        { key: "material", maxLength: 128, maxBytes: 128, label: "lang.pipe_material" },
+        { key: "workingMedium", maxLength: 128, maxBytes: 128, label: "lang.fluid_medium" },
+        { key: "maxVelocity", maxLength: 32, label: "lang.flow_velocity" }
       ]
     };
   },
@@ -1488,11 +1493,20 @@ export default {
   created() {
     this._debouncedSave = debounce(this.saveDetail, 400);
   },
+  beforeDestroy() {
+    this.detailRequestSeq++;
+    this.cancelMaterialMatches();
+  },
   watch: {
     directoryId: {
       immediate: true,
-      handler(val) {
-        if (val) this.loadDetail();
+      handler() {
+        this.loadDetail();
+      }
+    },
+    "form.material"() {
+      if (this.materialMatchContext && !this.isCurrentMaterialMatch(this.materialMatchContext)) {
+        this.cancelMaterialMatches();
       }
     }
   },
@@ -1656,6 +1670,7 @@ export default {
       }));
     },
     resetLocalState() {
+      this.cancelMaterialMatches();
       this.releaseFilePreviews();
       this.form = emptyForm();
       this.privateAttrs = [{ name: "", value: "" }];
@@ -1670,13 +1685,23 @@ export default {
       this.resetMaintenanceFilter();
     },
     loadDetail() {
-      if (!this.directoryId) return;
+      const requestSeq = ++this.detailRequestSeq;
+      const directoryId = this.directoryId;
+      const isCurrent = () => requestSeq === this.detailRequestSeq && directoryId === this.directoryId;
+      if (!directoryId) {
+        this.loading = false;
+        this.detail = {};
+        this.resetLocalState();
+        return;
+      }
       this.loading = true;
       this.activeTab = "basic";
       this.resetLocalState();
-      api
-        .getResourceDirectoryDetail(this.directoryId)
+      return api
+        .getResourceDirectoryDetail(directoryId)
         .then(res => {
+          // 详情本身也可能乱序返回，不能让旧管道材质成为当前匹配的查询条件。
+          if (!isCurrent()) return;
           this.loading = false;
           if (this.isSuccessCode(res && res.code)) {
             this.detail = res.data || {};
@@ -1698,24 +1723,49 @@ export default {
           }
         })
         .catch(() => {
+          if (!isCurrent()) return;
           this.loading = false;
           this.detail = {};
           this.resetLocalState();
         });
     },
+    /** 关闭候选并作废未完成查询；不改动用户已填写的材料参数。 */
+    cancelMaterialMatches() {
+      this.materialMatchRequestSeq++;
+      this.materialMatchContext = null;
+      this.materialMatchVisible = false;
+      this.materialMatchLoading = false;
+      this.materialMatchKeyword = "";
+      this.materialMatchResults = [];
+    },
+    /** 用户关闭弹窗时同步作废查询，避免关闭后的响应重新弹出候选。 */
+    onMaterialMatchVisibilityChange(visible) {
+      if (!visible) this.cancelMaterialMatches();
+    },
+    /** 仅接受当前管道、当前材质及最新请求产生的结果和选择操作。 */
+    isCurrentMaterialMatch(context) {
+      return !!context && context.seq === this.materialMatchRequestSeq &&
+        context.directoryId === this.directoryId &&
+        context.keyword === String(this.form.material || "").trim();
+    },
     /**
      * 按当前详情页输入的材质查询材料库候选，查询过程不保存资源详情。
      */
     queryMaterialMatches() {
+      this.cancelMaterialMatches();
       const keyword = String(this.form.material || "").trim();
+      if (!this.directoryId || this.loading) return;
       if (!keyword) {
         this.$message.warning("请先输入管道材质");
         return;
       }
       this.materialMatchKeyword = keyword;
       this.materialMatchLoading = true;
-      api.matchMaterialLibrary(keyword)
+      const context = { seq: this.materialMatchRequestSeq, directoryId: this.directoryId, keyword };
+      this.materialMatchContext = context;
+      return api.matchMaterialLibrary(keyword)
         .then(res => {
+          if (!this.isCurrentMaterialMatch(context)) return;
           if (!this.isSuccessCode(res && res.code)) {
             this.$message.error((res && res.msg) || "材料库匹配失败");
             return;
@@ -1729,10 +1779,11 @@ export default {
           this.materialMatchVisible = true;
         })
         .catch(error => {
+          if (!this.isCurrentMaterialMatch(context)) return;
           this.$message.error((error && error.msg) || "材料库匹配失败");
         })
         .finally(() => {
-          this.materialMatchLoading = false;
+          if (this.isCurrentMaterialMatch(context)) this.materialMatchLoading = false;
         });
     },
     /**
@@ -1741,14 +1792,15 @@ export default {
      * @param row 用户选择的材料库记录
      */
     applyMaterialMatch(row) {
-      if (!row) return;
+      if (!row || !this.materialMatchVisible || !this.isCurrentMaterialMatch(this.materialMatchContext) ||
+          this.materialMatchResults.indexOf(row) === -1) return;
       this.form.materialGrade = row.materialGrade || row.subcategory || this.form.materialGrade;
       this.form.elasticModulus = row.elasticModulus == null ? "" : row.elasticModulus;
       this.form.poissonRatio = row.poissonRatio == null ? "" : row.poissonRatio;
       this.form.materialDensity = row.materialDensity == null ? "" : row.materialDensity;
       this.form.yieldStrength = row.yieldStrength == null ? "" : row.yieldStrength;
       this.form.fatigueLimit = row.fatigueLimit == null ? "" : row.fatigueLimit;
-      this.materialMatchVisible = false;
+      this.cancelMaterialMatches();
       this.$message.success("材料库参数已回填，请点击保存");
     },
     triggerImageInput() {

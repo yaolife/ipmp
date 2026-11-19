@@ -21,50 +21,50 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('lang.pipeline_no')" prop="pipelineNo">
-              <el-input
+              <el-input v-input-check="{ maxLength: 128, maxBytes: 128 }"
                 v-model="editForm.pipelineNo"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="128"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.pipe_name')" prop="pipelineName">
-              <el-input
+              <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }"
                 v-model="editForm.pipelineName"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="255"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.pipeline_start')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }"
                 v-model="editForm.startPoint"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="255"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.pipeline_end')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }"
                 v-model="editForm.endPoint"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="255"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.working_medium')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 128, maxBytes: 128 }"
                 v-model="editForm.workingMedium"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="128"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.pipe_owner')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 128, maxBytes: 128 }"
                 v-model="editForm.responsiblePerson"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="128"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -74,12 +74,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_nominal_diameter')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.nominalDiameter"
                 class="has-unit-mm"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('nominalDiameter', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_mm")
                 }}</span>
@@ -88,12 +88,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_outer_diameter')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.outerDiameter"
                 class="has-unit-mm"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('outerDiameter', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_mm")
                 }}</span>
@@ -102,12 +102,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_wall_thickness')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.wallThickness"
                 class="has-unit-mm"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('wallThickness', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_mm")
                 }}</span>
@@ -116,18 +116,18 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.material')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 128, maxBytes: 128 }"
                 v-model="editForm.material"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="128"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.spec_code')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 128, maxBytes: 128 }"
                 v-model="editForm.specCode"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="128"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -137,12 +137,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_design_pressure')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.designPressure"
                 class="has-unit-mpa"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('designPressure', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_mpa")
                 }}</span>
@@ -151,12 +151,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_design_temperature')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.designTemperature"
                 class="has-unit-c"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('designTemperature', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_celsius")
                 }}</span>
@@ -165,12 +165,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_operating_pressure')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.operatingPressure"
                 class="has-unit-mpa"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('operatingPressure', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_mpa")
                 }}</span>
@@ -179,12 +179,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('lang.form_operating_temperature')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
                 :value="editForm.operatingTemperature"
                 class="has-unit-c"
                 :placeholder="$t('cm.pleaseEnter')"
                 @input="val => setNumberField('operatingTemperature', val)"
-              >
+               maxlength="32">
                 <span slot="suffix" class="input-unit">{{
                   $t("lang.unit_celsius")
                 }}</span>
@@ -193,10 +193,10 @@
           </el-col>
           <el-col :span="24">
             <el-form-item :label="$t('lang.iso_code')">
-              <el-input
+              <el-input v-input-check="{ maxLength: 128, maxBytes: 128 }"
                 v-model="editForm.isoCode"
                 :placeholder="$t('cm.pleaseEnter')"
-              ></el-input>
+               maxlength="128"></el-input>
             </el-form-item>
           </el-col>
         </el-row>

@@ -20,7 +20,7 @@
       <el-row :gutter="16">
         <el-col :span="12">
           <el-form-item :label="$t('lang.model_name')" prop="modelName">
-            <el-input
+            <el-input v-input-check="{ maxLength: 255, maxBytes: 255 }"
               v-model="editForm.modelName"
               maxlength="100"
             ></el-input>
@@ -28,7 +28,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item :label="$t('lang.model_code')" prop="modelCode">
-            <el-input
+            <el-input v-input-check="{ maxLength: 128 }"
               v-model="editForm.modelCode"
               maxlength="64"
             ></el-input>
@@ -36,7 +36,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item :label="$t('lang.model_type')" prop="modelType">
-            <el-select
+            <el-select v-input-check="{ maxLength: 255 }"
               v-model="editForm.modelType"
               :placeholder="$t('cm.pleaseSelect')"
               style="width: 100%"
@@ -59,7 +59,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item :label="$t('lang.coordinate_system')" prop="coordinateSystem">
-            <el-select
+            <el-select v-input-check="{ maxLength: 255 }"
               v-model="editForm.coordinateSystem"
               :placeholder="$t('cm.pleaseSelect')"
               style="width: 100%"
@@ -85,7 +85,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item :label="$t('lang.remark')" prop="remark">
-            <el-input
+            <el-input v-input-check="{ maxLength: 500, maxBytes: 500, kind: 'multiline' }"
               type="textarea"
               v-model="editForm.remark"
               :placeholder="$t('lang.remark_placeholder')"

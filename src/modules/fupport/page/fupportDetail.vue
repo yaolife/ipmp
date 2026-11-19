@@ -55,31 +55,31 @@
 
               <el-col :span="6" class="my-el-col-ind">
                 <el-form-item label="支吊架编号:" prop="hangerNo">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.hangerNo"
                     :disabled="pageType === 'view' || pageType === 'edit'"
                     placeholder="请输入"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col-ind">
                 <el-form-item label="机组号:" prop="unitNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.unitNumber"
                     :disabled="pageType === 'view' || pageType === 'edit'"
                     placeholder="请输入"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col-ind">
                 <el-form-item label="系统编号:" prop="systemNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.systemNumber"
                     :disabled="pageType === 'view'"
                     placeholder="请输入"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -88,11 +88,11 @@
                   label="核岛/常规岛:"
                   prop="nuclearIslandConventionalIsland"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.nuclearIslandConventionalIsland"
                     :disabled="pageType === 'view' || pageType === 'edit'"
                     placeholder="请输入"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -100,21 +100,21 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="安全区域:" prop="installationArea">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.installationArea"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="房间号:" prop="roomNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.roomNumber"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -143,11 +143,11 @@
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="支吊架类型:" prop="hangerType">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.hangerType"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -155,11 +155,11 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="功能件型号:" prop="functionalModel">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.functionalModel"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -168,31 +168,31 @@
                   label="支吊架RCCM等级:"
                   prop="rccmGradeSupportHanger"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.rccmGradeSupportHanger"
                     :disabled="pageType === 'view' || pageType === 'edit'"
                     placeholder="请输入"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="功能件数量:" prop="numberFunctionalParts">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.numberFunctionalParts"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="制造商名称:" prop="manufacturerName">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.manufacturerName"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -200,11 +200,11 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="等轴图号:" prop="isometricNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.isometricNumber"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -213,11 +213,11 @@
                   label="支吊架安装图号:"
                   prop="supportHangerInstallationDrawingNumber"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.supportHangerInstallationDrawingNumber"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -226,23 +226,23 @@
                   label="支吊架安装图内部码:"
                   prop="supportHangerInstallationDiagramInternalCode"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="
                       detailInfo.supportHangerInstallationDiagramInternalCode
                     "
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="所在管线编号:" prop="pipelineNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.pipelineNumber"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -250,11 +250,11 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="流程图号:" prop="flowChartNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.flowChartNumber"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -263,21 +263,21 @@
                   label="管线在流程图坐标:"
                   prop="pipelineCoordinatesFlowChart"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.pipelineCoordinatesFlowChart"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="管线RCCM等级:" prop="pipelineRccmGrade">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 128 }"
                     v-model="detailInfo.pipelineRccmGrade"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="128"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -286,11 +286,11 @@
                   label="管线公称直径(英寸):"
                   prop="pipelineNominalDiameter"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.pipelineNominalDiameter"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -298,11 +298,11 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="管道外径(mm):" prop="pipeDiameter">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.pipeDiameter"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
@@ -311,31 +311,31 @@
                   label="管道中心标高(m):"
                   prop="pipeCenterElevation"
                 >
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.pipeCenterElevation"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="工作压力(bar):" prop="workPressure">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.workPressure"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="工作温度(℃):" prop="operatingTemperature">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.operatingTemperature"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -343,41 +343,41 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="热位移(mm):" prop="thermalDisplacement">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.thermalDisplacement"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="X(冷态/热态)(mm):" prop="hotAndColdX">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.hotAndColdX"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="Y(冷态/热态)(mm):" prop="hotAndColdY">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.hotAndColdY"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="Z(冷态/热态)(mm):" prop="hotAndColdZ">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.hotAndColdZ"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -385,41 +385,41 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="结构载荷(KN):" prop="structuralLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.structuralLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="冷态载荷/安装载荷(KN):" prop="coldLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.coldLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="热态载荷/工作载荷(KN):" prop="thermalLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.thermalLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="刚度(N/mm):" prop="stiffness">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.stiffness"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -427,41 +427,41 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="行程(mm):" prop="itinerary">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.itinerary"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="检查周期:" prop="inspectionCycle">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.inspectionCycle"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="大修轮次:" prop="roundNumber">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.roundNumber"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="备注:" prop="remark">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 500, kind: 'multiline' }"
                     v-model="detailInfo.remark"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="500"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -469,41 +469,41 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="要求刻度(mm):" prop="requiredScale">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.requiredScale"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="最大刻度(mm):" prop="maximumScale">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.maximumScale"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="最小刻度(mm):" prop="minimumScale">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.minimumScale"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="要求载荷(KN):" prop="requiredLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.requiredLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -511,31 +511,31 @@
             <el-row :gutter="8">
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="最大载荷(KN):" prop="maximumLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.maximumLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="最小载荷(KN):" prop="minimumLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.minimumLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
 
               <el-col :span="6" class="my-el-col">
                 <el-form-item label="零刻度载荷(KN):" prop="zeroScaleLoad">
-                  <el-input
+                  <el-input v-input-check="{ maxLength: 32 }"
                     v-model="detailInfo.zeroScaleLoad"
                     placeholder="请输入"
                     :disabled="pageType === 'view'"
-                  ></el-input>
+                   maxlength="32"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>

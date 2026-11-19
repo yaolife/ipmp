@@ -22,7 +22,7 @@
           <el-radio-button label="回溯"></el-radio-button>
         </el-radio-group>
         <div class="date-term">
-          <el-date-picker
+          <el-date-picker v-input-check="{ maxLength: 32 }"
             v-model="dateHistory"
             clearable
             size="small"
@@ -180,57 +180,57 @@
         </el-table-column>
         <el-table-column label="上限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
-            <el-input
+            <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
               v-model="scope.row.ATV"
               size="mini"
               @focus="focusLimit(scope.row, 'TV')"
               @blur="blurLimit"
               @change="changeTV(scope.row)"
-            ></el-input>
+             maxlength="32"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="下限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
-            <el-input
+            <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
               v-model="scope.row.ABV"
               size="mini"
               @focus="focusLimit(scope.row, 'BV')"
               @blur="blurLimit"
               @change="changeBV(scope.row)"
-            ></el-input>
+             maxlength="32"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="高限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
-            <el-input
+            <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
               v-model="scope.row.AT"
               size="mini"
               @focus="focusLimit(scope.row, 'AT')"
               @blur="blurLimit"
               @change="changeAT(scope.row)"
-            ></el-input>
+             maxlength="32"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="低限" align="center" min-width="70" class-name="limit-cell">
           <template slot-scope="scope">
-            <el-input
+            <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
               v-model="scope.row.AB"
               size="mini"
               @focus="focusLimit(scope.row, 'AB')"
               @blur="blurLimit"
               @change="changeAB(scope.row)"
-            ></el-input>
+             maxlength="32"></el-input>
           </template>
         </el-table-column>
         <el-table-column label="线宽" align="center" min-width="60" class-name="limit-cell">
           <template slot-scope="scope">
-            <el-input
+            <el-input v-input-check="{ maxLength: 32, kind: 'number' }"
               v-model="scope.row.LW"
               size="mini"
               @focus="focusLimit(scope.row, 'LW')"
               @blur="blurLimit"
               @change="changeLW(scope.row)"
-            ></el-input>
+             maxlength="32"></el-input>
           </template>
         </el-table-column>
         <el-table-column v-if="typeSelected === '回溯'" label="删除" align="center" width="52">
@@ -262,7 +262,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="标记内容">
-          <el-input type="textarea" :rows="3" v-model="markForm.text"></el-input>
+          <el-input v-input-check="{ maxLength: 1000, kind: 'multiline' }" type="textarea" :rows="3" v-model="markForm.text" maxlength="1000"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer">
