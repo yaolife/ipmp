@@ -27,7 +27,11 @@
     <div class="detail-head-card">
       <div class="detail-head-left">
         <h2>{{ $t("lang.pipe_detail") }}</h2>
-        <p>{{ $t("lang.pipe_detail_tip") }}</p>
+      </div>
+      <div class="detail-head-actions">
+        <el-button type="primary" size="small" @click="viewModel">{{
+          $t("lang.view_model")
+        }}</el-button>
       </div>
     </div>
 
@@ -1922,6 +1926,26 @@ export default {
       if (this.saving) return;
       this._debouncedSave && this._debouncedSave();
     },
+    /** 新开大屏页，按元件编号定位三维模型。 */
+    viewModel() {
+      const pipelineId = String(
+        (this.form && this.form.nodeName) ||
+          (this.detail && this.detail.nodeName) ||
+          ""
+      ).trim();
+      if (!pipelineId) {
+        this.$message.warning(this.$t("lang.component_no") + this.$t("cm.required"));
+        return;
+      }
+      const domain = String(
+        process.env.DOMAIN_PATH || this.$DomainPath || ""
+      ).replace(/\/$/, "");
+      const url =
+        (domain || window.location.origin) +
+        "/#/YJ3DVP?PipelineId=" +
+        encodeURIComponent(pipelineId);
+      window.open(url, "_blank");
+    },
     toNumber(val) {
       if (val === "" || val === null || val === undefined) return null;
       const num = Number(val);
@@ -2163,7 +2187,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 20px 16px;
+  padding: 12px 20px;
   gap: 16px;
   h2 {
     margin: 0;
@@ -2172,11 +2196,9 @@ export default {
     color: #1f2329;
     line-height: 28px;
   }
-  p {
-    margin: 6px 0 0;
-    font-size: 13px;
-    color: #909399;
-  }
+}
+.detail-head-actions {
+  flex-shrink: 0;
 }
 .detail-body-card {
   flex: 1;

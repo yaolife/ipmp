@@ -78,7 +78,8 @@ export default {
       loadingHint: "",
       adminEntryIcon: adminEntryIcon,
       videoMonitorVisible: false,
-      videoMonitorUrl: ""
+      videoMonitorUrl: "",
+      pipelineShowCaseSent: false
     };
   },
   computed: {
@@ -93,9 +94,16 @@ export default {
         return meta.title;
       }
       return "阳江核电融合定位可视化平台";
+    },
+    routePipelineId() {
+      const query = (this.$route && this.$route.query) || {};
+      return String(query.PipelineId || query.pipelineId || "").trim();
     }
   },
   watch: {
+    routePipelineId() {
+      this.pipelineShowCaseSent = false;
+    },
     pixelStreamRef(el) {
       if (!el) return;
       el.addEventListener("message", this.onPeerStreamMessage);
@@ -306,6 +314,7 @@ export default {
       ps.on("OpenVideoMonitor", this.onOpenVideoMonitor);
       ps.on(ps.EVENTS.PROGRESS, this.onUeProgress);
       ps.on(ps.EVENTS.USER_INFO, this.onUeUserInfo);
+      ps.on("loaded", this.onEngineLoaded);
     },
     unbindUeEvents() {
       const ps = this.$pixelStream;
@@ -320,6 +329,14 @@ export default {
       ps.off("OpenVideoMonitor", this.onOpenVideoMonitor);
       ps.off(ps.EVENTS.PROGRESS, this.onUeProgress);
       ps.off(ps.EVENTS.USER_INFO, this.onUeUserInfo);
+      ps.off("loaded", this.onEngineLoaded);
+    },
+    /** 引擎就绪后，按 URL 中的 PipelineId 立即触发 ShowCase。 */
+    onEngineLoaded() {
+      const pipelineId = this.routePipelineId;
+      if (!pipelineId || this.pipelineShowCaseSent) return;
+      this.pipelineShowCaseSent = true;
+      this.$pixelStream.sendShowCase(pipelineId);
     },
     onUeUserInfo() {
       const name =

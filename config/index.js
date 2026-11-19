@@ -6,7 +6,7 @@
 "use strict";
 const path = require("path");
 // 业务后端地址，联调时只改这一处
-//const BACKEND_API_TARGET = "http://10.43.100.205:8013";//内网测试环境（配合 BIZ_API_PREFIX=/server-api）
+//const BACKEND_API_TARGET = "https://pims-yj-t";//内网测试环境（配合 BIZ_API_PREFIX=/server-api）
 const BACKEND_API_TARGET = "http://192.168.0.5:8000";//外网局域网公司wifi（不带 /server-api、/api）
 //const BACKEND_API_TARGET = "http://localhost:8086";//内网本地直连（不带 /server-api、/api）
 // 前端业务前缀：内网测试 /server-api，外网和内网本地为空，见 config/*.env.js 的 BIZ_API_PREFIX

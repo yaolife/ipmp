@@ -295,8 +295,20 @@ class PixelStreamClient {
   }
 
   handleMessage(e) {
-    const msg = parseUeMessage(e && e.detail);
+    let msg = parseUeMessage(e && e.detail);
     if (!msg) return;
+    // 兼容引擎嵌套格式：{"data":{"event":"loaded"}}
+    if (
+      !msg.event &&
+      msg.data &&
+      typeof msg.data === "object" &&
+      msg.data.event
+    ) {
+      msg = {
+        event: msg.data.event,
+        data: msg.data.data != null ? msg.data.data : ""
+      };
+    }
     if (
       msg.event === "raw" &&
       (msg.data === true ||
