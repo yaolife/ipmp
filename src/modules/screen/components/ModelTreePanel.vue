@@ -360,16 +360,57 @@ export default {
     },
     setCurrentKey(id) {
       this.$nextTick(() => {
-        if (this.$refs.resourceTree) {
-          const tree = this.$refs.resourceTree;
-          tree.setCurrentKey(id || null);
-          let parent = id && tree.getNode(id);
-          // 不再全部展开；反选时只打开祖先路径，避免大量节点同时渲染。
-          while (parent && parent.parent) {
-            parent = parent.parent;
-            parent.expanded = true;
-          }
+        if (!this.$refs.resourceTree) return;
+        const tree = this.$refs.resourceTree;
+        tree.setCurrentKey(id || null);
+        if (!id) return;
+        let parent = tree.getNode(id);
+        // 不再全部展开；反选时只打开祖先路径，避免大量节点同时渲染。
+        while (parent && parent.parent) {
+          parent = parent.parent;
+          parent.expanded = true;
         }
+        this.scrollNodeIntoView(id);
+      });
+    },
+    /** 将当前选中节点滚入左侧列表可视区（仅滚动 .panel-tree）。 */
+    scrollNodeIntoView(id) {
+      const tryScroll = () => {
+        if (this._isDestroyed || !id) return false;
+        const panel = this.$el && this.$el.querySelector(".panel-tree");
+        const tree = this.$refs.resourceTree;
+        if (!panel || !tree || !tree.$el) return false;
+        const key = String(id)
+          .replace(/\\/g, "\\\\")
+          .replace(/"/g, '\\"');
+        const nodeEl =
+          tree.$el.querySelector(
+            ".el-tree-node.is-current > .el-tree-node__content"
+          ) ||
+          tree.$el.querySelector(
+            '.el-tree-node[data-key="' + key + '"] > .el-tree-node__content'
+          );
+        if (!nodeEl) return false;
+        const panelRect = panel.getBoundingClientRect();
+        const nodeRect = nodeEl.getBoundingClientRect();
+        const fullyVisible =
+          nodeRect.top >= panelRect.top &&
+          nodeRect.bottom <= panelRect.bottom;
+        if (fullyVisible) return true;
+        const delta = nodeRect.top - panelRect.top;
+        const nextTop =
+          panel.scrollTop +
+          delta -
+          (panel.clientHeight - nodeEl.clientHeight) / 2;
+        panel.scrollTop = Math.max(0, nextTop);
+        return true;
+      };
+      this.$nextTick(() => {
+        if (tryScroll()) return;
+        // 祖先刚展开时节点可能尚未插入 DOM，延迟再滚一次。
+        setTimeout(() => {
+          tryScroll();
+        }, 80);
       });
     }
   }
