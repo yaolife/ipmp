@@ -27,6 +27,7 @@
         <button
           type="button"
           class="sap-source-tab"
+          :class="{ active: sourceTab === 'idoc' }"
           @click="openIdoc"
         >idoc</button>
         <button
@@ -285,12 +286,20 @@ export default {
       });
     },
     openIdoc() {
+      this.sourceTab = "idoc";
       const keywords = (this.nodeName || "").replace(/-/g, "");
       const url = IDOC_SEARCH_URL
         + "?t=" + Date.now()
         + "&keywords=" + encodeURIComponent(keywords)
         + "&searchMore=1";
-      window.open(url, "_blank", "noopener,noreferrer");
+      this.$nextTick(() => {
+        const open = () => window.open(url, "_blank", "noopener,noreferrer");
+        if (typeof window !== "undefined" && window.requestAnimationFrame) {
+          window.requestAnimationFrame(open);
+          return;
+        }
+        open();
+      });
     },
     changePage(current) {
       this.current = current;
