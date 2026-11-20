@@ -112,7 +112,10 @@ export default {
     // 大树缓存和索引不参与 Vue 深度响应；只有当前展示的树交给 Element UI。
     this._treeRequestId = 0;
     this._selectionRequestId = 0;
+    this._scrollToken = 0;
+    this._scrollTimer = null;
     this._nodeLookup = Object.create(null);
+    this._meshKeyLookup = Object.create(null);
     this._fullTree = null;
     this._fullTreePromise = null;
   },
@@ -121,9 +124,12 @@ export default {
     window.addEventListener("ipmp-showcase", this.onWindowShowCase);
   },
   beforeDestroy() {
+    this._isDestroyed = true;
     clearTimeout(this._treeSearchTimer);
+    clearTimeout(this._scrollTimer);
     this._treeRequestId += 1;
     this._selectionRequestId += 1;
+    this._scrollToken += 1;
     window.removeEventListener("ipmp-showcase", this.onWindowShowCase);
   },
   methods: {
@@ -140,6 +146,12 @@ export default {
         .replace(/\0/g, "")
         .replace(/^["']+|["']+$/g, "")
         .trim();
+    },
+    /** 引擎 meshId 与目录名常差分隔符/后缀，统一成字母数字再匹配。 */
+    toMeshLookupKey(value) {
+      return this.pickShowcaseText(value)
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .toUpperCase();
     },
     getShowcaseModelNo(data, node) {
       const source = data || (node && node.data) || {};
@@ -302,7 +314,12 @@ export default {
           node.pipelineName, node.modelName, node.nodeName, node.name, node.code, node.id
         ].forEach(value => {
           const key = this.pickShowcaseText(value);
-          if (key && !this._nodeLookup[key]) this._nodeLookup[key] = node;
+          if (!key) return;
+          if (!this._nodeLookup[key]) this._nodeLookup[key] = node;
+          const meshKey = this.toMeshLookupKey(key);
+          if (meshKey && !this._meshKeyLookup[meshKey]) {
+            this._meshKeyLookup[meshKey] = node;
+          }
         });
         this.indexNodes(node.children);
       });
@@ -330,7 +347,12 @@ export default {
     },
     findNodeByMeshId(meshId) {
       const id = this.pickShowcaseText(meshId);
-      return id ? this._nodeLookup[id] || null : null;
+      if (!id) return null;
+      // 1. 全量精确匹配
+      if (this._nodeLookup[id]) return this._nodeLookup[id];
+      // 2. 全量匹配不上时，去掉分隔符再匹配
+      const meshKey = this.toMeshLookupKey(id);
+      return meshKey ? this._meshKeyLookup[meshKey] || null : null;
     },
     selectByMeshId(meshId) {
       const selectionId = ++this._selectionRequestId;
@@ -359,24 +381,33 @@ export default {
       return node;
     },
     setCurrentKey(id) {
+      clearTimeout(this._scrollTimer);
+      this._scrollTimer = null;
       this.$nextTick(() => {
         if (!this.$refs.resourceTree) return;
         const tree = this.$refs.resourceTree;
         tree.setCurrentKey(id || null);
         if (!id) return;
-        let parent = tree.getNode(id);
+        const node = tree.getNode(id);
         // 不再全部展开；反选时只打开祖先路径，避免大量节点同时渲染。
-        while (parent && parent.parent) {
-          parent = parent.parent;
+        let parent = node && node.parent;
+        while (parent && parent.level > 0) {
           parent.expanded = true;
+          parent = parent.parent;
         }
         this.scrollNodeIntoView(id);
       });
     },
     /** 将当前选中节点滚入左侧列表可视区（仅滚动 .panel-tree）。 */
     scrollNodeIntoView(id) {
+      const scrollToken = ++this._scrollToken;
+      clearTimeout(this._scrollTimer);
+      this._scrollTimer = null;
+      let attempt = 0;
+      const maxAttempts = 16;
+
       const tryScroll = () => {
-        if (this._isDestroyed || !id) return false;
+        if (this._isDestroyed || !id || scrollToken !== this._scrollToken) return true;
         const panel = this.$el && this.$el.querySelector(".panel-tree");
         const tree = this.$refs.resourceTree;
         if (!panel || !tree || !tree.$el) return false;
@@ -393,25 +424,31 @@ export default {
         if (!nodeEl) return false;
         const panelRect = panel.getBoundingClientRect();
         const nodeRect = nodeEl.getBoundingClientRect();
+        // 祖先尚未展开完成时尺寸为 0，不能当成已滚成功。
+        if (nodeRect.height < 1 || nodeRect.width < 1) return false;
         const fullyVisible =
-          nodeRect.top >= panelRect.top &&
-          nodeRect.bottom <= panelRect.bottom;
+          nodeRect.top >= panelRect.top - 1 &&
+          nodeRect.bottom <= panelRect.bottom + 1;
         if (fullyVisible) return true;
         const delta = nodeRect.top - panelRect.top;
         const nextTop =
           panel.scrollTop +
           delta -
-          (panel.clientHeight - nodeEl.clientHeight) / 2;
-        panel.scrollTop = Math.max(0, nextTop);
+          (panel.clientHeight - nodeEl.offsetHeight) / 2;
+        const maxTop = Math.max(0, panel.scrollHeight - panel.clientHeight);
+        panel.scrollTop = Math.max(0, Math.min(nextTop, maxTop));
         return true;
       };
-      this.$nextTick(() => {
+
+      const schedule = () => {
+        if (this._isDestroyed || scrollToken !== this._scrollToken) return;
         if (tryScroll()) return;
-        // 祖先刚展开时节点可能尚未插入 DOM，延迟再滚一次。
-        setTimeout(() => {
-          tryScroll();
-        }, 80);
-      });
+        attempt += 1;
+        if (attempt >= maxAttempts) return;
+        this._scrollTimer = setTimeout(schedule, attempt < 5 ? 32 : 80);
+      };
+
+      this.$nextTick(schedule);
     }
   }
 };

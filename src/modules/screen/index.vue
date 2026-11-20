@@ -149,6 +149,7 @@ export default {
     this.applyPendingDetail();
   },
   beforeDestroy() {
+    this.$pixelStream.setSceneLoaded(false);
     this.unbindUeEvents();
     this.unbindPeerStreamRef();
     window.removeEventListener("ipmp-showcase", this.onDomShowCase);
@@ -282,10 +283,12 @@ export default {
       this.loaded = true;
       this.progress = 100;
       this.loadingHint = "";
+      this.$pixelStream.setSceneLoaded(true);
     },
     onPeerStreamDisconnected() {
       this.loaded = false;
       this.$pixelStream.ready = false;
+      this.$pixelStream.setSceneLoaded(false);
       this.$message.error("服务异常关闭 正在重启");
       const el = this.pixelStreamRef;
       if (el && el.ws && typeof el.ws.close === "function") {

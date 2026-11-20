@@ -22,7 +22,9 @@ export const PIXEL_STREAM_EVENT = {
   EXIT_SHOW_CASE: "ExitShowCase",
   OPEN_VIDEO_MONITOR: "openVideoMonitor",
   GET_CURRENT_STATE: "GetCurrentState",
-  RETURN_CURRENT_STATE: "ReturnCurrentState"
+  RETURN_CURRENT_STATE: "ReturnCurrentState",
+  /** 三维页结束入口 loading 后派发，供全局浮层门控显示。 */
+  SCENE_LOADED: "sceneLoaded"
 };
 
 export const PIXEL_STREAM_MENU = {
@@ -168,6 +170,7 @@ class PixelStreamClient {
     this.el = null;
     this.container = null;
     this.ready = false;
+    this.sceneLoaded = false;
     this.listeners = {};
     this._nativeHandlers = {};
     this._bindTimer = null;
@@ -179,6 +182,15 @@ class PixelStreamClient {
     this.EVENTS = PIXEL_STREAM_EVENT;
     this.MENUS = PIXEL_STREAM_MENU;
     this.STATES = PIXEL_STREAM_STATE;
+  }
+
+  /** 三维场景是否已过入口 loading；未就绪时全局模型列表不得显示。 */
+  setSceneLoaded(value) {
+    const next = !!value;
+    if (this.sceneLoaded === next) return this;
+    this.sceneLoaded = next;
+    this._emit(PIXEL_STREAM_EVENT.SCENE_LOADED, next);
+    return this;
   }
 
   getUrl() {
@@ -365,6 +377,7 @@ class PixelStreamClient {
       },
       ueDisConnected: function() {
         self.ready = false;
+        self.setSceneLoaded(false);
         self._emit(PIXEL_STREAM_EVENT.UE_DISCONNECTED, null);
       },
       connLimit: function(e) {
@@ -389,6 +402,7 @@ class PixelStreamClient {
     }
     this.el = null;
     this.ready = false;
+    this.setSceneLoaded(false);
     this._nativeHandlers = {};
     return this;
   }

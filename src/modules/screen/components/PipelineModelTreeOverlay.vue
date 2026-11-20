@@ -4,7 +4,7 @@
     v-show="overlayVisible"
   >
     <model-tree-panel
-      v-if="visible"
+      v-if="panelMounted"
       ref="treePanel"
       :icon-visible="showcaseIconVisible"
       @loaded="onTreeLoaded"
@@ -27,6 +27,7 @@ export default {
   data() {
     return {
       visible: false,
+      sceneReady: false,
       showcaseIconVisible: false,
       syncingFromUe: false,
       currentMeshId: ""
@@ -42,12 +43,18 @@ export default {
         path.indexOf("/screen/") === 0
       );
     },
+    /** 仅三维页、入口 loading 结束后，且引擎要求展示时才显示。 */
     overlayVisible() {
-      return this.visible;
+      return this.isDigitalTwinPage && this.sceneReady && this.visible;
+    },
+    panelMounted() {
+      return this.overlayVisible;
     }
   },
   created() {
     const ps = this.$pixelStream;
+    this.sceneReady = !!ps.sceneLoaded;
+    ps.on(ps.EVENTS.SCENE_LOADED, this.onSceneLoaded);
     ps.on(ps.EVENTS.SET_MENU, this.onSetMenu);
     ps.on(ps.EVENTS.RETURN_CURRENT_STATE, this.onReturnCurrentState);
     ps.on(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
@@ -55,7 +62,8 @@ export default {
     ps.on(ps.EVENTS.CANCEL_SELECTED_MESH, this.onUeCancelSelectedMesh);
     ps.on(ps.EVENTS.SHOW_DETAILS, this.onUeShowDetails);
     ps.on(ps.EVENTS.SHOW_ONLINE_MONITORING, this.onUeShowOnlineMonitoring);
-    if (ps.lastMenu) this.onSetMenu(ps.lastMenu);
+    // 入口未完成时只记录意图，不立刻挂载列表，避免盖在 loading 上。
+    if (this.sceneReady && ps.lastMenu) this.onSetMenu(ps.lastMenu);
   },
   mounted() {
     this.$pixelStream.bindWhenReady();
@@ -63,6 +71,7 @@ export default {
   },
   beforeDestroy() {
     const ps = this.$pixelStream;
+    ps.off(ps.EVENTS.SCENE_LOADED, this.onSceneLoaded);
     ps.off(ps.EVENTS.SET_MENU, this.onSetMenu);
     ps.off(ps.EVENTS.RETURN_CURRENT_STATE, this.onReturnCurrentState);
     ps.off(ps.EVENTS.EXIT_SHOW_CASE, this.onExitShowCase);
@@ -79,6 +88,13 @@ export default {
         this.$pixelStream.getNodeMeshId(node) ||
         this.$pixelStream.normalizeMeshId(fallback)
       );
+    },
+    onSceneLoaded(ready) {
+      this.sceneReady = !!ready;
+      if (!this.sceneReady) return;
+      const ps = this.$pixelStream;
+      if (ps.lastCurrentState) this.onReturnCurrentState(ps.lastCurrentState);
+      else if (ps.lastMenu) this.onSetMenu(ps.lastMenu);
     },
     onReturnCurrentState(data) {
       const state = this.$pixelStream.normalizeCurrentState(data);
@@ -204,7 +220,8 @@ export default {
   top: 8.33%;
   bottom: 7.41%;
   width: 16.56%;
-  z-index: 2147483640;
+  /* 必须低于入口 loading（2147483000），避免刷新时盖在首页上。 */
+  z-index: 2147482000;
   pointer-events: auto;
 }
 </style>
