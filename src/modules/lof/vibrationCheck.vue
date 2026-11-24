@@ -692,7 +692,7 @@ export default {
       this.history = [];
       this.historyCurrent = 1;
       this.historyTotal = 0;
-      this.loadSegmentDetail(id);
+      this._segmentDetailPromise = this.loadSegmentDetail(id);
       if (id) {
         this.loadLatestMainLof();
         this.loadHistoryPage();
@@ -1040,8 +1040,12 @@ export default {
     loadHistoryDetail(row) {
       if (!row || !row.id) return;
       const isCurrent = this.captureSegmentRequest("historyDetail");
-      api.getTm05Detail(row.id).then(res => {
-        if (!isCurrent()) return;
+      // 先完成当前管段详情回填，避免慢请求覆盖用户选中的历史工况。
+      Promise.resolve(this._segmentDetailPromise).then(() => {
+        if (!isCurrent()) return null;
+        return api.getTm05Detail(row.id);
+      }).then(res => {
+        if (!isCurrent() || !res) return;
         if (!this.isSuccessCode(res && res.code)) {
           this.$message.error((res && res.msg) || "历史详情加载失败");
           return;
