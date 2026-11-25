@@ -150,11 +150,14 @@
                     min-width="200"
                   >
                     <template slot-scope="scope">
-                      <el-input v-input-check="{ maxLength: 1000, kind: 'multiline' }"
+                      <el-input v-input-check="{ maxLength: 20000, kind: 'multiline' }"
                         v-model="scope.row.value"
+                        type="textarea"
+                        :autosize="{ minRows: 1, maxRows: 6 }"
                         size="small"
                         placeholder="value"
-                       maxlength="1000"></el-input>
+                        maxlength="20000"
+                        show-word-limit></el-input>
                     </template>
                   </el-table-column>
                   <el-table-column
@@ -885,6 +888,7 @@ import SapRelatedData from "./SapRelatedData.vue";
 import { authenticatedPreviewMixin } from "@/utils/directFileAccess";
 import { frequencySupportOptions, readFrequencyParams, writeFrequencyParams } from "../naturalFrequency";
 import { debounce } from "@/utils/funcUtil";
+import { validateInputText } from "@/utils/inputValidation";
 import {
   getComponentTypeItem,
   getComponentTypeLabel,
@@ -1820,11 +1824,25 @@ export default {
         return false;
       }
     },
+    /** 确认后删除当前表单的目标属性；取消或切换管道时保留数据，持久化仍由页面保存触发。 */
     removePrivateAttr(index) {
-      this.privateAttrs.splice(index, 1);
-      if (!this.privateAttrs.length) {
-        this.privateAttrs.push({ name: "", value: "" });
-      }
+      const attributes = this.privateAttrs;
+      const attribute = attributes[index];
+      if (!attribute) return;
+      return this.$confirm(this.$t("cm.is_delete"), this.$t("cm.tips"), {
+        confirmButtonText: this.$t("cm.confirm"),
+        cancelButtonText: this.$t("cm.cancel"),
+        type: "warning"
+      }).then(() => {
+        // 弹窗等待期间可能切换管道或重新加载详情，不能用旧行号删除新表单中的属性。
+        if (this.privateAttrs !== attributes) return;
+        const currentIndex = attributes.indexOf(attribute);
+        if (currentIndex === -1) return;
+        attributes.splice(currentIndex, 1);
+        if (!attributes.length) {
+          attributes.push({ name: "", value: "" });
+        }
+      }).catch(() => {});
     },
     onImageFiles(event) {
       const files = event.target.files || [];
@@ -2023,6 +2041,9 @@ export default {
         .filter(item => item.name || item.value);
       const names = new Set();
       attributes.forEach(item => {
+        // 保存前检查完整回显内容，不能让超长输入直到后端才报错，也不能截断已有JSON说明。
+        validateInputText(item.name, { maxLength: 128, kind: "text" }, "属性名称");
+        validateInputText(item.value, { maxLength: 20000, kind: "multiline" }, "属性值");
         // 空名称保持原有可选语义，不把多个待填写行当作重复属性。
         if (!item.name) return;
         if (names.has(item.name)) {
