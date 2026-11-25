@@ -693,7 +693,7 @@ export default {
 .material-dialog-title > div:last-child { min-width:0; }
 .material-dialog-title strong { display:block; color:#263449; font-size:18px; line-height:26px; font-weight:600; }
 .material-dialog-title span { display:block; color:#8491a3; font-size:12px; line-height:20px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.material-editor-tabs { max-width:1280px; margin:0 auto; }
+.material-editor-tabs { width:100%; }
 .material-editor-tabs /deep/ .el-tabs__header { margin:0 0 20px; padding-top:8px; }
 .material-editor-tabs /deep/ .el-tabs__item { height:48px; line-height:48px; font-weight:500; }
 .material-editor-tabs /deep/ .el-tabs__nav-wrap::after { height:1px; background:#dfe5ee; }
