@@ -134,6 +134,7 @@
   border-radius: var(--radius-sm);
   font-size: 13px;
   background: #fff;
+  box-sizing: border-box;        /* 显式保证 padding+border 算进 width，不会溢出 */
 }
 
 .lof-page .form-group input[readonly],
@@ -320,6 +321,59 @@
   cursor: pointer;
 }
 
+/* 分级计算结果 —— 容器白色背景，cell 四边框 + 负 margin 叠 1px */
+.lof-page .grade-result-box {
+  /* 容器白色，与页面一致；网格线由 cell border 产生 */
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 230px);
+  gap: 0;
+  /* 关键：不 overflow:hidden —— 让负 margin 推到容器外的边框完整显示出来 */
+}
+
+.lof-page .grade-result-box .result-item {
+  width: 230px;
+  min-width: 230px;
+  box-sizing: border-box;
+  padding: 10px 3px;
+  cursor: pointer;
+  background: var(--surface);
+  text-align: center;
+  /* 每个 cell 画完整四边框 */
+  border: 1px solid var(--border);
+  /* 与右/下邻格各叠 1px，两格的 border 叠在一起视觉上还是 1px */
+  margin-left: -1px;
+  margin-top: -1px;
+  /* 第一行 border-top = 表格顶边；第一列 border-left = 表格左边
+     最后一列 border-right = 表格右边；最后一行 border-bottom = 表格下边
+     每条线都是独立 1px，互不叠加成双 */
+}
+
+.lof-page .grade-result-box .result-item .label {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.lof-page .grade-result-box .result-item .value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 4px;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lof-page .grade-result-box .result-item:hover {
+  background: #f8f9fb;
+  /* hover 只改 background，所有 border 都由 cell 自己提供，永远稳定 */
+}
+
 .lof-page .table-wrap {
   overflow: auto;
   border: 1px solid var(--border);
@@ -394,10 +448,17 @@
 
 .lof-page .parameter-block {
   margin-bottom: 12px;
-  padding: 12px;
+  padding: 8px 12px 12px;     /* 顶部 padding 从 12px 减到 8px，让管段标题离上边框更近 */
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: #fafbfc;
+  overflow: hidden;            /* 防止子元素（如 input）伸出右边框 */
+}
+
+/* parameter-block 里的第一个 section-title（"管段1"等）去掉多余的 margin-top，
+   让它紧贴 parameter-block 的上边框 */
+.lof-page .parameter-block > .section-title:first-child {
+  margin-top: 2px;             /* 之前是 18px，现在只留一点点 */
 }
 
 .lof-page .parameter-block-title {

@@ -130,7 +130,7 @@
                 <el-table-column label="分析状态" min-width="125" align="center" header-align="center">
                   <template slot-scope="scope">{{ analysisStatusText(scope.row.analysisStatus) }}</template>
                 </el-table-column>
-                <el-table-column label="操作" width="430" align="center" header-align="center">
+                <el-table-column label="操作" width="430" fixed="right" align="center" header-align="center">
                   <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="openDetail(scope.row)">查看</el-button>
                     <el-button type="text" size="mini" @click="openEdit(scope.row)">编辑参数</el-button>

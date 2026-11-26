@@ -343,7 +343,7 @@
             <div class="card-title">分级计算结果</div>
           </div>
           <div class="card-body">
-            <div class="result-box">
+            <div class="result-box grade-result-box">
               <div class="result-item" @click="openResultMetric('allowVp')">
                 <div class="label">许用峰值速度 V(allow,pk)</div>
                 <div class="value">{{ grade.allowVpText }}</div>

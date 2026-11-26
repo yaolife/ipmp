@@ -67,12 +67,12 @@
         </el-row>
       </el-card>
 
-      <el-dialog :title="editing ? '编辑' : '新增'" :visible.sync="dialogVisible" :width="libraryType === 'material' ? '96%' : '760px'" :fullscreen="libraryType === 'material'" :class="{ 'material-library-dialog': libraryType === 'material' }" append-to-body>
+      <el-dialog :title="editing ? '编辑' : '新增'" :visible.sync="dialogVisible" :width="libraryType === 'material' ? '1000px' : '760px'" :class="{ 'material-library-dialog': libraryType === 'material' }" append-to-body>
         <div v-if="libraryType === 'material'" slot="title" class="material-dialog-title">
           <div class="material-title-icon"><i class="el-icon-collection"></i></div>
           <div>
             <strong>{{ editing ? '编辑材料' : '新增材料' }}</strong>
-            <span>{{ form.materialGrade || '材料数据库' }}<template v-if="form.unsNo"> · UNS {{ form.unsNo }}</template></span>
+            <span>{{ form.materialGrade || '材料数据库' }}<template v-if="form.unsNo"> · UNS: {{ form.unsNo }}</template></span>
           </div>
         </div>
         <!-- 弹窗关闭即释放编辑区，避免上次已访问的曲线控件在再次新增时参与全量更新。 -->
@@ -683,63 +683,174 @@ export default {
 /deep/ .cud-office-table td > .cell { display: block; text-align: center; }
 /deep/ .cud-office-table th > .cell { white-space: nowrap; word-break: keep-all; }
 .library-editor-footer { display:flex; align-items:center; justify-content:flex-end; }
-.material-library-dialog /deep/ .el-dialog.is-fullscreen { display:flex; flex-direction:column; overflow:hidden; background:#f4f6fa; }
-.material-library-dialog /deep/ .el-dialog__header { padding:18px 32px; border-bottom:1px solid #e5eaf1; background:#fff; }
-.material-library-dialog /deep/ .el-dialog__headerbtn { top:24px; right:28px; }
-.material-library-dialog /deep/ .el-dialog__body { flex:1; min-height:0; padding:0 32px; overflow:auto; }
-.material-library-dialog /deep/ .el-dialog__footer { padding:14px 32px; border-top:1px solid #e5eaf1; background:#fff; }
-.material-dialog-title { display:flex; align-items:center; padding-right:32px; }
-.material-title-icon { width:40px; height:40px; margin-right:12px; border-radius:10px; background:#edf3fc; color:#315c98; display:flex; align-items:center; justify-content:center; font-size:21px; }
+/* 弹窗容器：固定高度，三段 flex 布局 —— 整条高度链必须所有环节都是 flex + min-height:0 才能正确出滚动条 */
+.material-library-dialog /deep/ .el-dialog {
+  display:flex; flex-direction:column;
+  height:78vh;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  /* 让 el-dialog 不要被 width:100% 和 margin 干扰实际宽度 */
+  width:1000px !important;
+  margin:auto !important;
+}
+/* el-dialog 还有一个 wrapper 层，也要保证它不干扰 flex */
+.material-library-dialog /deep/ .el-dialog__wrapper { align-items:center; }
+
+.material-library-dialog /deep/ .el-dialog__header {
+  padding:6px 20px;
+  border-bottom:1px solid #e5eaf1;
+  background:#fff;
+  flex-shrink:0;
+  margin:0;               /* 去掉 el-dialog 默认的 margin-right:0 */
+  display:flex;
+  align-items:center;
+}
+.material-library-dialog /deep/ .el-dialog__headerbtn { top:12px; right:16px; }
+
+/* body 是 flex 中间段，但 body 本身不滚，tabs content 才滚 —— 这样 tab header 固定 */
+.material-library-dialog /deep/ .el-dialog__body {
+  flex:1 1 auto;
+  min-height:0;           /* 关键：允许 body 被压缩 */
+  padding:0;              /* body 自己没有 padding，让 tabs 统一处理 */
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.material-library-dialog /deep/ .el-dialog__footer {
+  padding:10px 20px;
+  border-top:1px solid #e5eaf1;
+  background:#fff;
+  flex-shrink:0;
+  margin:0;
+}
+
+/* 标题区 */
+.material-dialog-title { display:flex; align-items:center; }
+.material-title-icon { width:32px; height:32px; margin-right:10px; border-radius:7px; background:#edf3fc; color:#315c98; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
 .material-dialog-title > div:last-child { min-width:0; }
-.material-dialog-title strong { display:block; color:#263449; font-size:18px; line-height:26px; font-weight:600; }
-.material-dialog-title span { display:block; color:#8491a3; font-size:12px; line-height:20px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.material-editor-tabs { width:100%; }
-.material-editor-tabs /deep/ .el-tabs__header { margin:0 0 20px; padding-top:8px; }
-.material-editor-tabs /deep/ .el-tabs__item { height:48px; line-height:48px; font-weight:500; }
-.material-editor-tabs /deep/ .el-tabs__nav-wrap::after { height:1px; background:#dfe5ee; }
+.material-dialog-title strong { display:block; color:#263449; font-size:15px; line-height:22px; font-weight:600; }
+.material-dialog-title span { display:block; color:#8491a3; font-size:12px; line-height:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ======= Tabs —— 整条高度链都必须 min-height:0 ======= */
+.material-editor-tabs {
+  width:100%;
+  flex:1 1 auto;
+  min-height:0;           /* 关键：否则 tabs 会撑破 body */
+  display:flex;
+  flex-direction:column;
+  padding:4px 20px 8px;   /* 统一的左右内边距，覆盖 body padding:0 */
+  box-sizing:border-box;
+  overflow:hidden;
+}
+.material-editor-tabs /deep/ .el-tabs {
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+.material-editor-tabs /deep/ .el-tabs__header {
+  margin:0;
+  padding-top:0;
+  flex-shrink:0;
+}
+.material-editor-tabs /deep/ .el-tabs__item { height:36px; line-height:36px; font-weight:500; font-size:14px; }
+.material-editor-tabs /deep/ .el-tabs__nav-wrap::after { height:1px; background:#e5eaf1; }
+/* __content 是唯一滚动容器 —— 超出这里就出滚动条 */
+.material-editor-tabs /deep/ .el-tabs__content {
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-top:8px;
+}
+/* pane 高度自然撑开，不要 height:100% 把自己卡死 */
+.material-editor-tabs /deep/ .el-tab-pane {
+  min-height:0;
+  overflow:visible;
+}
+
+/* 基本信息卡片 */
 .material-basic-form { padding-bottom:8px; }
-.material-form-section { padding:20px 24px 2px; margin-bottom:16px; background:#fff; border:1px solid #e3e9f1; border-radius:8px; box-shadow:0 2px 6px rgba(25,47,80,.025); }
-.material-section-heading { display:flex; align-items:center; margin-bottom:18px; }
-.material-section-index { display:flex; align-items:center; justify-content:center; width:30px; height:30px; margin-right:10px; border-radius:6px; background:#eef3fa; color:#416695; font-size:12px; font-weight:600; }
-.material-section-heading h3 { margin:0; color:#2c3e55; font-size:15px; line-height:22px; font-weight:600; }
-.material-section-heading p { margin:2px 0 0; color:#8a96a6; font-size:12px; line-height:18px; }
-.material-field-row { display:flex; flex-wrap:wrap; }
+.material-form-section {
+  padding:16px 20px 4px;
+  margin-bottom:12px;
+  background:#fff;
+  border:1px solid #e8edf4;
+  border-radius:10px;
+  box-shadow:0 1px 3px rgba(25,47,80,.04);
+}
+.material-section-heading { display:flex; align-items:center; margin-bottom:14px; }
+.material-section-index {
+  display:flex; align-items:center; justify-content:center;
+  width:26px; height:26px; margin-right:8px;
+  border-radius:5px; background:#eef3fa; color:#416695;
+  font-size:11px; font-weight:600;
+}
+.material-section-heading h3 { margin:0; color:#2c3e55; font-size:14px; line-height:20px; font-weight:600; }
+.material-section-heading p { margin:2px 0 0; color:#8a96a6; font-size:12px; line-height:16px; }
+
+/* 关键：消除 el-row 自带的 gutter 负 margin，它是整个弹窗横向滚动条的根因 */
+.material-field-row {
+  display:flex; flex-wrap:wrap;
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
 .material-field-row::before,
 .material-field-row::after { display:none; }
-.material-basic-form /deep/ .el-form-item { margin-bottom:20px; }
-.material-basic-form /deep/ .el-form-item__label { float:none; display:block; padding:0 0 7px; color:#536174; font-size:13px; line-height:20px; font-weight:500; white-space:normal; }
-.material-basic-form /deep/ .el-form-item__content { margin-left:0; line-height:36px; }
-// 全局主题将错误提示改为普通文档流；本表单在输入框下方预留提示空间，避免校验改变列高。
-.material-basic-form /deep/ .el-form-item__error { position:absolute; top:100%; left:0; padding-top:4px; line-height:16px; }
-.material-basic-form /deep/ .el-input-number { width:100%; line-height:34px; }
-.material-basic-form /deep/ .el-input__inner { height:36px; line-height:36px; padding:0 12px; border-color:#dce3ed; border-radius:5px; color:#303f53; }
-.material-basic-form /deep/ .el-textarea__inner { padding:9px 12px; border-color:#dce3ed; border-radius:5px; font-family:inherit; }
+.material-field-row /deep/ .el-col { padding-left:12px; padding-right:12px; }
+
+/* 表单元素 */
+.material-basic-form /deep/ .el-form-item { margin-bottom:16px; }
+.material-basic-form /deep/ .el-form-item__label {
+  float:none; display:block; padding:0 0 6px;
+  color:#536174; font-size:13px; line-height:18px; font-weight:500;
+}
+.material-basic-form /deep/ .el-form-item__content { margin-left:0; line-height:34px; }
+.material-basic-form /deep/ .el-form-item__error { position:absolute; top:100%; left:0; padding-top:4px; line-height:14px; }
+.material-basic-form /deep/ .el-input-number { width:100%; line-height:32px; }
+.material-basic-form /deep/ .el-input__inner {
+  height:34px; line-height:34px; padding:0 10px;
+  border-color:#dce3ed; border-radius:5px; color:#303f53; font-size:13px;
+}
+.material-basic-form /deep/ .el-textarea__inner {
+  padding:8px 10px; border-color:#dce3ed; border-radius:5px;
+  font-family:inherit; font-size:13px;
+}
 .material-basic-form /deep/ .el-input__inner:hover,
 .material-basic-form /deep/ .el-textarea__inner:hover { border-color:#a9bbd1; }
 .material-basic-form /deep/ .el-input__inner:focus,
 .material-basic-form /deep/ .el-textarea__inner:focus { border-color:#416fa8; box-shadow:0 0 0 2px rgba(65,111,168,.08); }
-.material-library-dialog .library-editor-footer { max-width:1280px; margin:auto; justify-content:space-between; }
+
+/* footer */
+.material-library-dialog .library-editor-footer { justify-content:space-between; max-width:none; }
 .material-footer-note { color:#8a96a6; font-size:12px; }
-.material-library-dialog .library-editor-footer .el-button { min-width:88px; }
-.curve-help { margin-bottom:12px; }
-.curve-section { margin:0 0 20px; border:1px solid #ebeef5; border-radius:4px; background:#fff; }
-.curve-section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#f7f9fc; border-bottom:1px solid #ebeef5; }
-.curve-section-heading > div:first-child { display:flex; flex-direction:column; gap:4px; }
+.material-library-dialog .library-editor-footer .el-button { min-width:80px; }
+/* 仅 table 内容居中，section heading / preview / help 等保持原有布局不变 */
+.curve-help { margin-bottom:6px; }
+.curve-section { margin:0 0 8px; border:1px solid #ebeef5; border-radius:4px; background:#fff; }
+/* heading 上下 padding 从 8px 缩到 6px，更紧凑 */
+.curve-section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 14px; background:#f7f9fc; border-bottom:1px solid #ebeef5; }
+.curve-section-heading > div:first-child { display:flex; flex-direction:column; gap:2px; }
 .curve-section-heading strong { color:#303133; font-size:14px; }
 .curve-section-heading span { color:#909399; font-size:12px; }
 .curve-actions { display:flex; gap:8px; flex-shrink:0; }
 .curve-table-wrap { width:100%; overflow:auto; }
+/* table 内部：th/td 已经有 text-align:center，只需 input-number 也居中 */
 .material-curve-table { width:max-content; min-width:100%; border-collapse:collapse; font-size:12px; }
-.material-curve-table th,.material-curve-table td { min-width:92px; padding:6px; border-right:1px solid #ebeef5; border-bottom:1px solid #ebeef5; text-align:center; white-space:nowrap; }
+.material-curve-table th,.material-curve-table td { min-width:92px; padding:4px 6px; border-right:1px solid #ebeef5; border-bottom:1px solid #ebeef5; text-align:center; white-space:nowrap; }
 .material-curve-table th { color:#606266; background:#fafafa; font-weight:600; }
 .material-curve-table .condition-column { position:sticky; left:0; z-index:1; min-width:150px; background:#fff; }
-.material-curve-table thead .condition-column { z-index:2; background:#f5f7fa; }
+.material-curve-table thead .condition-column { z-index:2; }
 .material-curve-table /deep/ .el-input,.material-curve-table /deep/ .el-input-number { width:100px; }
-.material-curve-table /deep/ .el-input-number .el-input__inner { padding-left:5px; padding-right:5px; text-align:right; }
-.curve-preview { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:12px 14px; }
+/* table 内 input-number 居中显示 —— 这才是 table 内容居中 */
+.material-curve-table /deep/ .el-input-number .el-input__inner { padding-left:5px; padding-right:5px; text-align:center; }
+/* curve-preview 保持原来 flex-wrap 默认左对齐 */
+.curve-preview { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:10px 14px; }
 .curve-preview strong { margin-right:4px; color:#606266; }
 .curve-preview > span { color:#606266; line-height:1.5; }
-.curve-empty { color:#909399; padding:24px !important; }
+.curve-empty { color:#909399; padding:16px !important; }
 @media (max-width:768px) {
   .curve-section-heading { align-items:flex-start; flex-direction:column; }
   .curve-preview { align-items:flex-start; }
@@ -748,5 +859,8 @@ export default {
   .material-library-dialog /deep/ .el-dialog__footer { padding:12px 16px; }
   .material-form-section { padding:16px 16px 0; }
   .material-footer-note { max-width:45%; line-height:18px; }
+}
+.card-spacing-12 .cud-avue-form-wrap, .card-spacing-12 .cud-common-header-wrap, .card-spacing-12 .el-card, .card-spacing-12 .el-tabs {
+  margin: 0 !important;
 }
 </style>
