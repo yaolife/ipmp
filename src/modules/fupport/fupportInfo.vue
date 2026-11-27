@@ -259,11 +259,14 @@ export default fupportInfo;
   padding-right: 12px;
 }
 /deep/ .cud-commom-form-search .el-form-item__label {
-  width: auto !important;
+  width: 120px !important;
+  flex: 0 0 120px;
   float: none;
-  padding-right: 8px;
+  padding-right: 4px;
   line-height: 32px;
   flex-shrink: 0;
+  justify-content: flex-start;
+  text-align: left;
 }
 /deep/ .cud-commom-form-search .el-form-item__content {
   margin-left: 0 !important;

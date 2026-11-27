@@ -176,7 +176,34 @@ export default modelManage;
 .table-button {
   text-align: right;
 }
-/deep/ .el-form-item__label {
-  white-space: nowrap;
+/* ======= 查询表单：label 加宽到 140px 防换行 + 输入框强制对齐 ======= */
+.cud-commom-form-search /deep/ .el-form-item {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 0 !important;
+}
+.cud-commom-form-search /deep/ .el-form-item__label {
+  flex: 0 0 140px !important;
+  width: 140px !important;
+  float: none !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  padding-right: 4px !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+.cud-commom-form-search /deep/ .el-form-item__content {
+  flex: 0 0 auto !important;
+  margin-left: 0 !important;
+  float: none !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.cud-commom-form-search /deep/ .el-form-item__content > .el-input,
+.cud-commom-form-search /deep/ .el-form-item__content > .el-select {
+  width: 200px !important;
+}
+.cud-commom-form-search /deep/ .el-form-item__content > .el-date-editor {
+  width: 280px !important;
 }
 </style>

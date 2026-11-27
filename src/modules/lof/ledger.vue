@@ -44,31 +44,46 @@
                   @click="exportLedger"
                 >批量导出报告</el-button>
               </div>
-              <div class="ledger-filters">
+            </div>
+            <div class="ledger-query-bar">
+              <div class="ledger-query-item">
+                <span class="ledger-query-label">关键词</span>
                 <el-input v-input-check="{ maxLength: 255 }"
                   v-model.trim="query.keyword"
                   size="small"
                   clearable
-                  placeholder="搜索 KKS / 管线 / 介质 / 支撑"
+                  placeholder="KKS / 管线 / 介质"
                   @keyup.enter.native="search"
                   @clear="search"
+                  class="ledger-query-control"
                  maxlength="255"></el-input>
-                <el-select v-model="query.riskLevel" size="small" clearable placeholder="风险等级" @change="search">
+              </div>
+              <div class="ledger-query-item">
+                <span class="ledger-query-label">风险等级</span>
+                <el-select v-model="query.riskLevel" size="small" clearable placeholder="请选择" @change="search" class="ledger-query-control">
                   <el-option label="High" :value="2"></el-option>
                   <el-option label="Medium" :value="1"></el-option>
                   <el-option label="Low" :value="0"></el-option>
                   <el-option label="NA（未完成定量评估）" :value="-1"></el-option>
                 </el-select>
-                <el-select v-model="query.completeness" size="small" clearable placeholder="数据完整性" @change="search">
+              </div>
+              <div class="ledger-query-item">
+                <span class="ledger-query-label">数据完整性</span>
+                <el-select v-model="query.completeness" size="small" clearable placeholder="请选择" @change="search" class="ledger-query-control">
                   <el-option label="完整" :value="1"></el-option>
                   <el-option label="缺失" :value="0"></el-option>
                 </el-select>
-                <el-select v-model="query.analysisStatus" size="small" clearable placeholder="分析状态" @change="search">
+              </div>
+              <div class="ledger-query-item">
+                <span class="ledger-query-label">分析状态</span>
+                <el-select v-model="query.analysisStatus" size="small" clearable placeholder="请选择" @change="search" class="ledger-query-control">
                   <el-option label="待分析" :value="0"></el-option>
                   <el-option label="已完成定性评估" :value="1"></el-option>
                   <el-option label="已完成定量评估" :value="2"></el-option>
                   <el-option label="已完成振动校核" :value="3"></el-option>
                 </el-select>
+              </div>
+              <div class="ledger-query-actions">
                 <el-button type="primary" size="small" @click="search">查询</el-button>
                 <el-button size="small" @click="resetSearch">重置</el-button>
               </div>
@@ -745,21 +760,41 @@ export default {
   gap: 6px;
 }
 
-.ledger-filters {
+.ledger-query-bar {
   display: flex;
   flex-wrap: wrap;
-  min-width: 0;
-  flex: 1;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 12px;
+  margin: 0 0 10px;
+  border: 1px solid #e8edf4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ledger-query-item {
+  display: flex;
+  align-items: center;
+}
+
+.ledger-query-label {
+  flex: 0 0 72px;
+  width: 72px;
+  padding-right: 8px;
+  text-align: left;
+  font-size: 13px;
+  color: #606266;
+  white-space: nowrap;
+}
+
+.ledger-query-control {
+  width: 160px;
+}
+
+.ledger-query-actions {
+  display: flex;
   gap: 8px;
-}
-
-.ledger-filters .el-input {
-  width: 250px;
-}
-
-.ledger-filters .el-select {
-  width: 145px;
+  margin-left: auto;
 }
 
 .ledger-table-body {
@@ -847,15 +882,26 @@ export default {
   }
 
   .ledger-toolbar,
-  .ledger-filters,
   .ledger-actions {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .ledger-filters .el-input,
-  .ledger-filters .el-select {
+  .ledger-query-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ledger-query-item {
+    align-items: stretch;
+  }
+
+  .ledger-query-control {
     width: 100%;
+  }
+
+  .ledger-query-actions {
+    margin-left: 0;
   }
 }
 </style>

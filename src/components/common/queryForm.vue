@@ -9,7 +9,7 @@
         v-model="queryForm"
         size="small"
         :label-width="labelWidth"
-        label-position="right"
+        label-position="left"
         label-suffix="："
       >
         <div class="query-form-right">
@@ -74,8 +74,8 @@
           <!-- 根据屏幕大小显示2-4个 -->
           <el-col
             :md="12"
-            :lg="fields.length > 1 || isFlowManageType ? 8 : 12"
-            :xl="fields.length > 1 || isFlowManageType ? 6 : 12"
+            :lg="8"
+            :xl="8"
             v-for="(item, index) in fields"
             :key="index"
           >
@@ -267,7 +267,7 @@ export default {
   props: {
     // 只有资产管理和分析治理调用方显式传入时启用，不改变框架其他页面。
     validateInput: { type: Boolean, default: false },
-    labelWidth: { type: String, default: "90px" },
+    labelWidth: { type: String, default: "120px" },
     queryFormId: { type: String, require: true }, //唯一标识，保存用
     queryFields: { type: Array, require: true }, //查询字段列表
     delaySetting: { type: Number, default: 0 }, //延迟获取配置，用于解决同一页面多个组件实例同时调用接口问题
@@ -627,17 +627,57 @@ export default {
   z-index: 10;
 }
 
+/* 查询项统一为 flex 行：label 固定宽度，控件统一宽度，保证同列上下输入框左边界一致 */
+.cud-query-form /deep/.el-form-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
 .cud-query-form /deep/.el-form-item__label {
-  height: 32px;
+  flex: 0 0 120px;
+  width: 120px !important;
+  min-height: 32px;
   line-height: 18px;
   display: flex;
-  flex-direction: row-reverse;
-  flex-wrap: wrap;
-  align-content: space-around;
+  align-items: center;
+  justify-content: flex-start;
+  float: none;
+  text-align: left;
+  font-size: 13px;
+  white-space: normal;
+  word-break: break-word;
+  padding-right: 4px;
 
   &::after {
     display: none;
   }
+}
+
+.cud-query-form /deep/.el-form-item__content {
+  flex: 0 0 auto;
+  margin-left: 0 !important;
+  display: flex;
+  align-items: center;
+}
+
+/* 查询条件控件统一宽度，避免控件随栅格拉长 */
+.cud-query-form /deep/.el-form-item__content > .el-input,
+.cud-query-form /deep/.el-form-item__content > .el-select,
+.cud-query-form /deep/.el-form-item__content > .el-cascader,
+.cud-query-form /deep/.el-form-item__content > .el-date-editor {
+  width: 200px;
+}
+
+/* 选人组件内部输入框 */
+.cud-query-form /deep/.el-form-item__content .form-input {
+  width: 200px;
+}
+
+/* 日期范围需要更宽才能完整显示起止时间 */
+.cud-query-form /deep/.el-form-item__content > .el-date-editor--daterange,
+.cud-query-form /deep/.el-form-item__content > .el-date-editor--datetimerange {
+  width: 280px;
 }
 
 .cud-query-form .query-form {
@@ -648,8 +688,25 @@ export default {
   height: 42px;
   overflow: hidden;
 }
+/* 查询项按内容宽度排列，间距紧凑，不再按 1/3 栅格拉开 */
 .cud-query-form .query-form-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
   padding-right: 200px;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.cud-query-form .query-form-left::before,
+.cud-query-form .query-form-left::after {
+  display: none;
+}
+.cud-query-form .query-form-left > .el-col {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
 }
 .query-form-left .el-form-item {
   margin-right: 0px;

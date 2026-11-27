@@ -666,7 +666,7 @@ export default {
 .table-button { text-align: right; }
 /deep/ .el-form-item__label { white-space: nowrap; }
 /deep/ .cud-commom-form-search .el-form-item { display: flex; align-items: center; padding-right: 12px; }
-/deep/ .cud-commom-form-search .el-form-item__label { width: auto !important; float: none; padding-right: 8px; line-height: 32px; flex-shrink: 0; }
+/deep/ .cud-commom-form-search .el-form-item__label { width: 120px !important; flex: 0 0 120px; float: none; padding-right: 4px; line-height: 32px; flex-shrink: 0; justify-content: flex-start; text-align: left; }
 /deep/ .cud-commom-form-search .el-form-item__content { margin-left: 0 !important; flex: none; float: none; width: 50%; max-width: 220px; min-width: 0; }
 /deep/ .cud-commom-form-search .el-input,
 /deep/ .cud-commom-form-search .el-select { width: 100%; }
@@ -859,8 +859,5 @@ export default {
   .material-library-dialog /deep/ .el-dialog__footer { padding:12px 16px; }
   .material-form-section { padding:16px 16px 0; }
   .material-footer-note { max-width:45%; line-height:18px; }
-}
-.card-spacing-12 .cud-avue-form-wrap, .card-spacing-12 .cud-common-header-wrap, .card-spacing-12 .el-card, .card-spacing-12 .el-tabs {
-  margin: 0 !important;
 }
 </style>

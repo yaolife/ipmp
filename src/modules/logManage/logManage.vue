@@ -249,27 +249,38 @@ export default logManage;
 /deep/ .el-button--text {
   user-select: unset;
 }
-/deep/ .el-form-item__label {
-  white-space: nowrap;
+
+/* ======= 查询表单对齐：强制 label 120px + input 200px，确保同列输入框对齐 ======= */
+.cud-commom-form-search /deep/ .el-form-item {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 0 !important;
 }
-/deep/ .cud-commom-form-search .el-form-item {
-  display: flex;
-  align-items: center;
-  padding-right: 12px;
+.cud-commom-form-search /deep/ .el-form-item__label {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  float: none !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  padding-right: 4px !important;
+  white-space: nowrap !important;
 }
-/deep/ .cud-commom-form-search .el-form-item__label {
-  width: auto !important;
-  float: none;
-  padding-right: 8px;
-  line-height: 32px;
-  flex-shrink: 0;
-}
-/deep/ .cud-commom-form-search .el-form-item__content {
+.cud-commom-form-search /deep/ .el-form-item__content {
+  flex: 0 0 auto !important;
   margin-left: 0 !important;
-  flex: 1;
-  float: none;
-  min-width: 0;
+  float: none !important;
+  display: flex !important;
+  align-items: center !important;
 }
+.cud-commom-form-search /deep/ .el-form-item__content > .el-input,
+.cud-commom-form-search /deep/ .el-form-item__content > .el-select,
+.cud-commom-form-search /deep/ .el-form-item__content > .el-cascader {
+  width: 200px !important;
+}
+.cud-commom-form-search /deep/ .el-form-item__content > .el-date-editor {
+  width: 280px !important;
+}
+
 /deep/ .el-card:first-child .el-card__body {
   padding-left: 10px;
   padding-right: 10px;

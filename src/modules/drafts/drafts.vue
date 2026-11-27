@@ -306,10 +306,6 @@ export default drafts;
 /deep/ .el-form-item__label {
   white-space: nowrap;
 }
-.pipe-query-form /deep/ .query-form-left > .el-col {
-  width: 50% !important;
-  max-width: 50%;
-}
 .custom-tree-node {
   font-size: 14px;
 }
