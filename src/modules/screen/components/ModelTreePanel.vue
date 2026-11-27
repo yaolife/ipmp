@@ -367,7 +367,14 @@ export default {
           if (!matched) return null;
           this.currentNodeId = matched.id;
           this.currentMeshId = getNodeMeshId(matched) || normalizeMeshId(meshId);
-          return this.showFullTree(requestId, true).then(() => matched);
+          return this.showFullTree(requestId, true).then(() => {
+            if (selectionId !== this._selectionRequestId || requestId !== this._treeRequestId) {
+              return null;
+            }
+            // 整树重挂载后再设一次选中，确保滚入可视区。
+            this.setCurrentKey(matched.id);
+            return matched;
+          });
         }).catch(error => {
           if (selectionId === this._selectionRequestId && !this._isDestroyed) {
             this.$message.error(error.message || this.$t("cm.fail"));
@@ -380,6 +387,19 @@ export default {
       this.setCurrentKey(node.id);
       return node;
     },
+    /** 仅展开选中节点的祖先路径，避免整棵树全部打开。 */
+    expandAncestorPath(id) {
+      const tree = this.$refs.resourceTree;
+      if (!tree || !id) return null;
+      const node = tree.getNode(id);
+      if (!node) return null;
+      let parent = node.parent;
+      while (parent && parent.level > 0) {
+        if (!parent.expanded) parent.expanded = true;
+        parent = parent.parent;
+      }
+      return node;
+    },
     setCurrentKey(id) {
       clearTimeout(this._scrollTimer);
       this._scrollTimer = null;
@@ -388,14 +408,11 @@ export default {
         const tree = this.$refs.resourceTree;
         tree.setCurrentKey(id || null);
         if (!id) return;
-        const node = tree.getNode(id);
-        // 不再全部展开；反选时只打开祖先路径，避免大量节点同时渲染。
-        let parent = node && node.parent;
-        while (parent && parent.level > 0) {
-          parent.expanded = true;
-          parent = parent.parent;
-        }
-        this.scrollNodeIntoView(id);
+        this.expandAncestorPath(id);
+        // 祖先展开会触发后续渲染，等两帧再滚，避免量到半成品布局。
+        this.$nextTick(() => {
+          this.scrollNodeIntoView(id);
+        });
       });
     },
     /** 将当前选中节点滚入左侧列表可视区（仅滚动 .panel-tree）。 */
@@ -404,32 +421,50 @@ export default {
       clearTimeout(this._scrollTimer);
       this._scrollTimer = null;
       let attempt = 0;
-      const maxAttempts = 16;
+      let stableCount = 0;
+      const maxAttempts = 40;
 
       const tryScroll = () => {
         if (this._isDestroyed || !id || scrollToken !== this._scrollToken) return true;
         const panel = this.$el && this.$el.querySelector(".panel-tree");
         const tree = this.$refs.resourceTree;
         if (!panel || !tree || !tree.$el) return false;
+
+        // 整树重挂载后节点可能晚于首次 nextTick 才就绪，重试时补设选中并展开祖先。
+        tree.setCurrentKey(id);
+        this.expandAncestorPath(id);
+
         const key = String(id)
           .replace(/\\/g, "\\\\")
           .replace(/"/g, '\\"');
+        // 优先按 data-key 定位，避免展开过程中 is-current 尚未落到目标节点。
         const nodeEl =
           tree.$el.querySelector(
-            ".el-tree-node.is-current > .el-tree-node__content"
+            '.el-tree-node[data-key="' + key + '"] > .el-tree-node__content'
           ) ||
           tree.$el.querySelector(
-            '.el-tree-node[data-key="' + key + '"] > .el-tree-node__content'
+            ".el-tree-node.is-current > .el-tree-node__content"
           );
-        if (!nodeEl) return false;
+        if (!nodeEl) {
+          stableCount = 0;
+          return false;
+        }
         const panelRect = panel.getBoundingClientRect();
         const nodeRect = nodeEl.getBoundingClientRect();
         // 祖先尚未展开完成时尺寸为 0，不能当成已滚成功。
-        if (nodeRect.height < 1 || nodeRect.width < 1) return false;
+        if (nodeRect.height < 1 || nodeRect.width < 1) {
+          stableCount = 0;
+          return false;
+        }
         const fullyVisible =
           nodeRect.top >= panelRect.top - 1 &&
           nodeRect.bottom <= panelRect.bottom + 1;
-        if (fullyVisible) return true;
+        if (fullyVisible) {
+          // 连续两次可见才算成功，防止展开后布局继续增高把节点顶出可视区。
+          stableCount += 1;
+          return stableCount >= 2;
+        }
+        stableCount = 0;
         const delta = nodeRect.top - panelRect.top;
         const nextTop =
           panel.scrollTop +
@@ -437,7 +472,8 @@ export default {
           (panel.clientHeight - nodeEl.offsetHeight) / 2;
         const maxTop = Math.max(0, panel.scrollHeight - panel.clientHeight);
         panel.scrollTop = Math.max(0, Math.min(nextTop, maxTop));
-        return true;
+        // 滚完后不立刻返回成功：子节点继续插入时 scrollHeight 还会变，需继续校正。
+        return false;
       };
 
       const schedule = () => {
@@ -445,7 +481,7 @@ export default {
         if (tryScroll()) return;
         attempt += 1;
         if (attempt >= maxAttempts) return;
-        this._scrollTimer = setTimeout(schedule, attempt < 5 ? 32 : 80);
+        this._scrollTimer = setTimeout(schedule, attempt < 10 ? 16 : 50);
       };
 
       this.$nextTick(schedule);
